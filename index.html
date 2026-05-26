@@ -855,6 +855,8 @@ function goTab(id) {
     b.classList.add('active');
     b.setAttribute('aria-current', 'page');
   });
+  const backBtn = document.getElementById('backBtn');
+  if (backBtn) backBtn.style.display = id === 'home' ? 'none' : 'flex';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1181,6 +1183,7 @@ function genVTX() {
   lines.push(`set vtx_channel = ${ch}`);
   lines.push('set vtx_power = 1');
   if (proto !== 'MSP') lines.push('set vtx_low_power_disarm = ON');
+  lines.push('# 💩');
   lines.push('');
   lines.push('save');
   document.getElementById('v-code').textContent = lines.join('\n');
