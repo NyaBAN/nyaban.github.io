@@ -38,6 +38,8 @@ body{
 
 a{color:inherit}
 button,input,select{font:inherit}
+.ico{width:1em;height:1em;display:inline-block;vertical-align:-0.18em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ico.fill{fill:currentColor;stroke:none}
 
 :focus{outline:none}
 :focus-visible{outline:2px solid rgba(255,77,109,.55);outline-offset:2px;border-radius:10px}
@@ -74,7 +76,8 @@ button,input,select{font:inherit}
 .header-icon{
   width:38px; height:38px; border-radius:11px; flex-shrink:0;
   background:linear-gradient(135deg,var(--accent2),var(--accent));
-  display:flex; align-items:center; justify-content:center; font-size:19px;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff;
 }
 .header-title{font-size:17px;font-weight:800;letter-spacing:-.4px;color:#fff}
 .header-title span{color:var(--yellow)}
@@ -97,7 +100,8 @@ button,input,select{font:inherit}
 .sidebar-logo-icon{
   width:44px; height:44px; border-radius:13px;
   background:linear-gradient(135deg,var(--accent2),var(--accent));
-  display:flex; align-items:center; justify-content:center; font-size:22px;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff;
   margin-bottom:10px;
 }
 .sidebar-logo-title{font-size:19px;font-weight:800;letter-spacing:-.5px;color:#fff}
@@ -116,6 +120,7 @@ button,input,select{font:inherit}
 .snav-btn:active{transform:scale(.985)}
 .snav-btn.active{background:linear-gradient(90deg, rgba(255,77,109,0.18), rgba(123,94,167,0.09));color:var(--accent)}
 .snav-icon{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+.snav-icon .ico{width:18px;height:18px}
 
 /* ═══ BOTTOM TABBAR (mobile only) ═══ */
 .tabbar{
@@ -142,7 +147,34 @@ button,input,select{font:inherit}
 .tab-btn.active{color:var(--accent)}
 .tab-btn:active{transform:scale(.96)}
 .tab-icon{font-size:21px;line-height:1}
+.tab-icon .ico{width:22px;height:22px}
 .tab-label{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
+
+/* ═══ MORE SHEET (mobile) ═══ */
+.sheet{position:fixed;inset:0;display:none;z-index:500}
+.sheet.on{display:block}
+.sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.sheet-panel{
+  position:absolute;left:0;right:0;bottom:0;
+  background:linear-gradient(180deg, var(--chrome), var(--chrome2));
+  border-top:1px solid var(--border);
+  border-radius:18px 18px 0 0;
+  padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));
+  box-shadow:var(--shadow);
+}
+.sheet-grab{width:42px;height:4px;border-radius:99px;background:rgba(255,255,255,.18);margin:4px auto 10px}
+.sheet-title{font-size:12px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);padding:0 6px 10px}
+.sheet-list{display:flex;flex-direction:column;gap:6px;max-height:min(62vh,520px);overflow:auto;padding-right:4px}
+.sheet-item{
+  display:flex;align-items:center;gap:10px;
+  width:100%;padding:12px 12px;border-radius:14px;
+  border:1.5px solid var(--border);
+  background:linear-gradient(180deg, var(--surface), var(--surface2));
+  color:var(--text);cursor:pointer;text-align:left;
+}
+.sheet-item .ico{width:18px;height:18px;opacity:.92}
+.sheet-item small{color:var(--muted);font-weight:700}
+.sheet-item.active{border-color:rgba(255,77,109,.35);background:rgba(255,77,109,.10)}
 
 /* ═══ CONTENT ═══ */
 .main-wrap{}
@@ -347,36 +379,99 @@ button,input,select{font:inherit}
 </head>
 <body>
 
+<!-- SVG ICONS -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+  <symbol id="i-drone" viewBox="0 0 24 24">
+    <path d="M7 7l-2-2m14 2l2-2M7 17l-2 2m14-2l2 2"/>
+    <path d="M9 9h6v6H9z"/>
+    <path d="M12 9V6m0 12v-3M9 12H6m12 0h-3"/>
+    <path d="M4 8a2 2 0 1 0 0-4a2 2 0 0 0 0 4Zm16 0a2 2 0 1 0 0-4a2 2 0 0 0 0 4ZM4 20a2 2 0 1 0 0-4a2 2 0 0 0 0 4Zm16 0a2 2 0 1 0 0-4a2 2 0 0 0 0 4Z"/>
+  </symbol>
+  <symbol id="i-range" viewBox="0 0 24 24">
+    <path d="M12 2v3"/>
+    <path d="M6.5 5.5a8 8 0 0 0 0 13"/>
+    <path d="M17.5 5.5a8 8 0 0 1 0 13"/>
+    <path d="M9 9a4.5 4.5 0 0 0 0 6"/>
+    <path d="M15 9a4.5 4.5 0 0 1 0 6"/>
+    <path d="M12 12h.01"/>
+  </symbol>
+  <symbol id="i-fresnel" viewBox="0 0 24 24">
+    <path d="M3 16c2-6 6-9 9-9s7 3 9 9"/>
+    <path d="M5 16c1.5-4.5 4.5-6.8 7-6.8S17.5 11.5 19 16"/>
+    <path d="M7 16c1-3 3-4.5 5-4.5s4 1.5 5 4.5"/>
+  </symbol>
+  <symbol id="i-dipole" viewBox="0 0 24 24">
+    <path d="M3 12h7"/>
+    <path d="M14 12h7"/>
+    <path d="M10 10v4m4-4v4"/>
+    <path d="M12 7v2m0 6v2"/>
+  </symbol>
+  <symbol id="i-harm" viewBox="0 0 24 24">
+    <path d="M13 2L3 14h7l-1 8 12-14h-7l-1-6Z"/>
+  </symbol>
+  <symbol id="i-channels" viewBox="0 0 24 24">
+    <path d="M5 19V5"/>
+    <path d="M19 19V5"/>
+    <path d="M9 17V7"/>
+    <path d="M15 17V7"/>
+  </symbol>
+  <symbol id="i-finder" viewBox="0 0 24 24">
+    <circle cx="11" cy="11" r="6"/>
+    <path d="M20 20l-3.2-3.2"/>
+  </symbol>
+  <symbol id="i-vtx" viewBox="0 0 24 24">
+    <path d="M12 3v2"/>
+    <path d="M12 19v2"/>
+    <path d="M4.6 5.6l1.4 1.4"/>
+    <path d="M18 17l1.4 1.4"/>
+    <path d="M3 12h2"/>
+    <path d="M19 12h2"/>
+    <path d="M5.6 19.4l1.4-1.4"/>
+    <path d="M17 6l1.4-1.4"/>
+    <circle cx="12" cy="12" r="4"/>
+  </symbol>
+  <symbol id="i-more" viewBox="0 0 24 24">
+    <path d="M6 12h.01M12 12h.01M18 12h.01"/>
+  </symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24">
+    <path d="M13 2L3 14h7l-1 8 12-14h-7l-1-6Z"/>
+  </symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24">
+    <path d="M9 9h10v12H9z"/>
+    <path d="M5 15H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1"/>
+  </symbol>
+</svg>
+
 <!-- ═══ DESKTOP SIDEBAR ═══ -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <div class="sidebar-logo-icon">🚁</div>
+    <div class="sidebar-logo-icon"><svg class="ico" style="width:22px;height:22px"><use href="#i-drone"/></svg></div>
     <div class="sidebar-logo-title">FPV <span>TOOLS</span></div>
     <div class="sidebar-logo-sub">Калькуляторы для дронов</div>
   </div>
   <div class="sidebar-nav">
     <div class="sidebar-section">Калькуляторы</div>
     <button class="snav-btn active" id="snav-range" data-tab="range" onclick="goTab('range')">
-      <span class="snav-icon">📡</span> Дальность
+      <span class="snav-icon"><svg class="ico"><use href="#i-range"/></svg></span> Дальность
     </button>
     <button class="snav-btn" id="snav-fresnel" data-tab="fresnel" onclick="goTab('fresnel')">
-      <span class="snav-icon">🌊</span> Зоны Френеля
+      <span class="snav-icon"><svg class="ico"><use href="#i-fresnel"/></svg></span> Зоны Френеля
     </button>
     <button class="snav-btn" id="snav-dipole" data-tab="dipole" onclick="goTab('dipole')">
-      <span class="snav-icon">📶</span> Диполь
+      <span class="snav-icon"><svg class="ico"><use href="#i-dipole"/></svg></span> Диполь
     </button>
     <button class="snav-btn" id="snav-harm" data-tab="harm" onclick="goTab('harm')">
-      <span class="snav-icon">⚡</span> Гармоники
+      <span class="snav-icon"><svg class="ico"><use href="#i-harm"/></svg></span> Гармоники
     </button>
     <button class="snav-btn" id="snav-chan" data-tab="chan" onclick="goTab('chan')">
-      <span class="snav-icon">📻</span> Каналы
+      <span class="snav-icon"><svg class="ico"><use href="#i-channels"/></svg></span> Каналы
     </button>
     <button class="snav-btn" id="snav-fq" data-tab="fq" onclick="goTab('fq')">
-      <span class="snav-icon">🔍</span> Ближайший канал
+      <span class="snav-icon"><svg class="ico"><use href="#i-finder"/></svg></span> Ближайший канал
     </button>
     <div class="sidebar-section">Конфигурация</div>
     <button class="snav-btn" id="snav-vtx" data-tab="vtx" onclick="goTab('vtx')">
-      <span class="snav-icon">⚙️</span> VTX Config
+      <span class="snav-icon"><svg class="ico"><use href="#i-vtx"/></svg></span> VTX Config
     </button>
   </div>
 </div>
@@ -386,7 +481,7 @@ button,input,select{font:inherit}
 
   <!-- MOBILE HEADER -->
   <div class="header" id="mobileHeader">
-    <div class="header-icon">🚁</div>
+    <div class="header-icon"><svg class="ico" style="width:20px;height:20px"><use href="#i-drone"/></svg></div>
     <div>
       <div class="header-title">FPV <span>TOOLS</span></div>
       <div class="header-sub">Калькуляторы для дронов</div>
@@ -398,7 +493,7 @@ button,input,select{font:inherit}
     <!-- ══ 1. RANGE ══ -->
     <div id="s-range" class="screen active">
       <div class="page-head">
-        <div class="page-head-icon">📡</div>
+        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-range"/></svg></div>
         <div><div class="page-title">Дальность</div>
           <div class="page-desc">Теоретическая максимальная дальность по уравнению Фрии</div></div>
       </div>
@@ -414,12 +509,12 @@ button,input,select{font:inherit}
         <div class="field"><label>Доп. потери (дБ)</label><input type="number" id="r-loss" value="2" step="0.5" inputmode="decimal"></div>
         <div class="field"><label>Частота (МГц)</label><input type="number" id="r-freq" value="5658" inputmode="decimal"></div>
       </div>
-      <button class="btn-main" onclick="calcRange()">⚡ Рассчитать дальность</button>
+      <button class="btn-main" onclick="calcRange()"><svg class="ico" style="width:18px;height:18px"><use href="#i-bolt"/></svg> Рассчитать дальность</button>
       <div class="results" id="r-out" style="display:none">
         <div class="rcard info"><span class="rl">Мощность TX</span><span class="rv" id="r-tx">—</span></div>
         <div class="rcard"><span class="rl">Макс. потери пути</span><span class="rv" id="r-pl">—</span></div>
         <div class="rcard warn"><span class="rl">Теор. макс. дальность</span><span class="rv" id="r-th">—</span></div>
-        <div class="rcard hl"><span class="rl">🎯 Реалистичная оценка</span><span class="rv" id="r-re">—</span></div>
+        <div class="rcard hl"><span class="rl">Реалистичная оценка</span><span class="rv" id="r-re">—</span></div>
       </div>
       <div class="ibox" style="margin-top:14px"><strong>Реалистичная оценка</strong> — ~32% от теоретической. Учитывает переотражения, неидеальное ориентирование антенн и реальные условия полёта.</div>
     </div>
@@ -427,7 +522,7 @@ button,input,select{font:inherit}
     <!-- ══ 2. FRESNEL ══ -->
     <div id="s-fresnel" class="screen">
       <div class="page-head">
-        <div class="page-head-icon">🌊</div>
+        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-fresnel"/></svg></div>
         <div><div class="page-title">Зоны Френеля</div>
           <div class="page-desc">Минимальная высота над препятствиями для прямой видимости</div></div>
       </div>
@@ -443,7 +538,7 @@ button,input,select{font:inherit}
         <div class="field"><label>Частота (МГц)</label><input type="number" id="f-freq" value="915" inputmode="decimal"></div>
         <div class="field"><label>Дистанция (км)</label><input type="number" id="f-dist" value="5" step="0.1" inputmode="decimal"></div>
       </div>
-      <button class="btn-main" onclick="calcFresnel()">⚡ Рассчитать зоны</button>
+      <button class="btn-main" onclick="calcFresnel()"><svg class="ico" style="width:18px;height:18px"><use href="#i-bolt"/></svg> Рассчитать зоны</button>
       <div class="results" id="f-out" style="display:none">
         <div class="rcard ok"><span class="rl">1-я зона Френеля (100%)</span><span class="rv" id="f-z1">—</span></div>
         <div class="rcard warn"><span class="rl">Зона 80% — рекомендуемая</span><span class="rv" id="f-z8">—</span></div>
@@ -457,7 +552,7 @@ button,input,select{font:inherit}
     <!-- ══ 3. DIPOLE ══ -->
     <div id="s-dipole" class="screen">
       <div class="page-head">
-        <div class="page-head-icon">📶</div>
+        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-dipole"/></svg></div>
         <div><div class="page-title">Диполь</div>
           <div class="page-desc">Длина диполя по частоте или частота по длине — меняй любое поле</div></div>
       </div>
@@ -506,7 +601,7 @@ button,input,select{font:inherit}
     <!-- ══ 4. HARMONICS ══ -->
     <div id="s-harm" class="screen">
       <div class="page-head">
-        <div class="page-head-icon">⚡</div>
+        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-harm"/></svg></div>
         <div><div class="page-title">Гармоники</div>
           <div class="page-desc">Видеоканалы, пострадавшие от гармоник вашего TX-передатчика</div></div>
       </div>
@@ -521,12 +616,12 @@ button,input,select{font:inherit}
         <div class="field"><label>Центральная частота (МГц)</label><input type="number" id="h-cf" value="915" inputmode="decimal"></div>
         <div class="field"><label>Ширина канала (МГц)</label><input type="number" id="h-bw" value="20" inputmode="decimal"></div>
       </div>
-      <button class="btn-main" onclick="calcHarm()">⚡ Найти гармоники</button>
+      <button class="btn-main" onclick="calcHarm()"><svg class="ico" style="width:18px;height:18px"><use href="#i-bolt"/></svg> Найти гармоники</button>
       <div id="h-out" style="display:none">
         <div class="stabs">
-          <button class="stab on" onclick="hTab('a',this)">⚠️ Пострадавшие</button>
-          <button class="stab" onclick="hTab('u',this)">✅ Чистые</button>
-          <button class="stab" onclick="hTab('l',this)">📋 Все</button>
+          <button class="stab on" onclick="hTab('a',this)">Пострадавшие</button>
+          <button class="stab" onclick="hTab('u',this)">Чистые</button>
+          <button class="stab" onclick="hTab('l',this)">Все</button>
         </div>
         <div id="h-a"></div>
         <div id="h-u" style="display:none"></div>
@@ -537,7 +632,7 @@ button,input,select{font:inherit}
     <!-- ══ 5. CHANNELS ══ -->
     <div id="s-chan" class="screen">
       <div class="page-head">
-        <div class="page-head-icon">📻</div>
+        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-channels"/></svg></div>
         <div><div class="page-title">Распределение каналов</div>
           <div class="page-desc">Оптимальные каналы при совместном полёте нескольких пилотов</div></div>
       </div>
@@ -556,7 +651,7 @@ button,input,select{font:inherit}
           </div>
         </div>
       </div>
-      <button class="btn-main" onclick="calcChans()">⚡ Распределить каналы</button>
+      <button class="btn-main" onclick="calcChans()"><svg class="ico" style="width:18px;height:18px"><use href="#i-bolt"/></svg> Распределить каналы</button>
       <div id="ch-out" style="display:none">
         <div class="slabel">Рекомендованные каналы</div>
         <div id="ch-list"></div>
@@ -566,7 +661,7 @@ button,input,select{font:inherit}
     <!-- ══ 6. FREQ FINDER ══ -->
     <div id="s-fq" class="screen">
       <div class="page-head">
-        <div class="page-head-icon">🔍</div>
+        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-finder"/></svg></div>
         <div><div class="page-title">Ближайший канал</div>
           <div class="page-desc">Найти видеоканал с наилучшим КСВ для вашей антенны</div></div>
       </div>
@@ -583,7 +678,7 @@ button,input,select{font:inherit}
           <div class="chk-row" style="padding:0"><input type="checkbox" id="fq-d"><label for="fq-d">Цифровые диапазоны</label></div>
         </div>
       </div>
-      <button class="btn-main" onclick="calcFQ()">⚡ Найти каналы</button>
+      <button class="btn-main" onclick="calcFQ()"><svg class="ico" style="width:18px;height:18px"><use href="#i-bolt"/></svg> Найти каналы</button>
       <div id="fq-out" style="display:none">
         <div class="slabel">Ближайшие каналы к центру диапазона</div>
         <div id="fq-list"></div>
@@ -593,7 +688,7 @@ button,input,select{font:inherit}
     <!-- ══ 7. VTX CONFIG ══ -->
     <div id="s-vtx" class="screen">
       <div class="page-head">
-        <div class="page-head-icon">⚙️</div>
+        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-vtx"/></svg></div>
         <div><div class="page-title">VTX Config</div>
           <div class="page-desc">Генератор конфига Betaflight для IRC Tramp / SmartAudio</div></div>
       </div>
@@ -652,13 +747,13 @@ button,input,select{font:inherit}
       </div>
       <div class="chk-row"><input type="checkbox" id="v-bchg"><label for="v-bchg">Смена Band/Channel через AUX</label></div>
       <div class="chk-row" style="margin-top:6px"><input type="checkbox" id="v-tbl" checked><label for="v-tbl">Включить VTX-таблицу в конфиг</label></div>
-      <button class="btn-main" onclick="genVTX()">⚙️ Сгенерировать конфиг</button>
+      <button class="btn-main" onclick="genVTX()"><svg class="ico" style="width:18px;height:18px"><use href="#i-vtx"/></svg> Сгенерировать конфиг</button>
       <div id="v-out" style="display:none">
         <div class="slabel">Betaflight CLI — скопируй и вставь в консоль</div>
         <div class="code-wrap">
           <div class="code-block" id="v-code"></div>
         </div>
-        <button class="copy-btn" id="v-copy" onclick="copyVTX()">📋 Скопировать конфиг</button>
+        <button class="copy-btn" id="v-copy" onclick="copyVTX()"><svg class="ico" style="width:18px;height:18px"><use href="#i-copy"/></svg> Скопировать конфиг</button>
       </div>
     </div>
 
@@ -668,13 +763,49 @@ button,input,select{font:inherit}
 <!-- ═══ BOTTOM TABBAR (mobile) ═══ -->
 <div class="tabbar" id="tabbar">
   <div class="tabbar-inner">
-    <button class="tab-btn active" data-tab="range" onclick="goTab('range')"><span class="tab-icon">📡</span><span class="tab-label">Дальность</span></button>
-    <button class="tab-btn" data-tab="fresnel" onclick="goTab('fresnel')"><span class="tab-icon">🌊</span><span class="tab-label">Френель</span></button>
-    <button class="tab-btn" data-tab="dipole" onclick="goTab('dipole')"><span class="tab-icon">📶</span><span class="tab-label">Диполь</span></button>
-    <button class="tab-btn" data-tab="harm" onclick="goTab('harm')"><span class="tab-icon">⚡</span><span class="tab-label">Гармоники</span></button>
-    <button class="tab-btn" data-tab="chan" onclick="goTab('chan')"><span class="tab-icon">📻</span><span class="tab-label">Каналы</span></button>
-    <button class="tab-btn" data-tab="fq" onclick="goTab('fq')"><span class="tab-icon">🔍</span><span class="tab-label">Частота</span></button>
-    <button class="tab-btn" data-tab="vtx" onclick="goTab('vtx')"><span class="tab-icon">⚙️</span><span class="tab-label">VTX</span></button>
+    <button class="tab-btn active" data-tab="range" onclick="goTab('range')"><span class="tab-icon"><svg class="ico"><use href="#i-range"/></svg></span><span class="tab-label">Дальность</span></button>
+    <button class="tab-btn" data-tab="fresnel" onclick="goTab('fresnel')"><span class="tab-icon"><svg class="ico"><use href="#i-fresnel"/></svg></span><span class="tab-label">Френель</span></button>
+    <button class="tab-btn" data-tab="dipole" onclick="goTab('dipole')"><span class="tab-icon"><svg class="ico"><use href="#i-dipole"/></svg></span><span class="tab-label">Диполь</span></button>
+    <button class="tab-btn" type="button" data-action="more" onclick="openMore()"><span class="tab-icon"><svg class="ico"><use href="#i-more"/></svg></span><span class="tab-label">Ещё</span></button>
+  </div>
+</div>
+
+<!-- ═══ MORE SHEET (mobile) ═══ -->
+<div class="sheet" id="moreSheet" aria-hidden="true">
+  <div class="sheet-backdrop" onclick="closeMore()"></div>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-label="Меню">
+    <div class="sheet-grab"></div>
+    <div class="sheet-title">Все инструменты</div>
+    <div class="sheet-list">
+      <button class="sheet-item active" type="button" data-tab="range" onclick="goTab('range')">
+        <svg class="ico"><use href="#i-range"/></svg>
+        <div><div style="font-weight:900">Дальность</div><small>Уравнение Фрии</small></div>
+      </button>
+      <button class="sheet-item" type="button" data-tab="fresnel" onclick="goTab('fresnel')">
+        <svg class="ico"><use href="#i-fresnel"/></svg>
+        <div><div style="font-weight:900">Зоны Френеля</div><small>Высота над препятствиями</small></div>
+      </button>
+      <button class="sheet-item" type="button" data-tab="dipole" onclick="goTab('dipole')">
+        <svg class="ico"><use href="#i-dipole"/></svg>
+        <div><div style="font-weight:900">Диполь</div><small>Длина по частоте</small></div>
+      </button>
+      <button class="sheet-item" type="button" data-tab="harm" onclick="goTab('harm')">
+        <svg class="ico"><use href="#i-harm"/></svg>
+        <div><div style="font-weight:900">Гармоники</div><small>Пострадавшие видеоканалы</small></div>
+      </button>
+      <button class="sheet-item" type="button" data-tab="chan" onclick="goTab('chan')">
+        <svg class="ico"><use href="#i-channels"/></svg>
+        <div><div style="font-weight:900">Каналы</div><small>Распределение для пилотов</small></div>
+      </button>
+      <button class="sheet-item" type="button" data-tab="fq" onclick="goTab('fq')">
+        <svg class="ico"><use href="#i-finder"/></svg>
+        <div><div style="font-weight:900">Ближайший канал</div><small>Под антенну/диапазон</small></div>
+      </button>
+      <button class="sheet-item" type="button" data-tab="vtx" onclick="goTab('vtx')">
+        <svg class="ico"><use href="#i-vtx"/></svg>
+        <div><div style="font-weight:900">VTX Config</div><small>Генератор CLI Betaflight</small></div>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -705,13 +836,35 @@ function goTab(id) {
     b.classList.remove('active');
     b.removeAttribute('aria-current');
   });
+  document.querySelectorAll('.sheet-item').forEach(b => b.classList.remove('active'));
   document.getElementById('s-' + id).classList.add('active');
   document.querySelectorAll(`[data-tab="${id}"]`).forEach(b => {
     b.classList.add('active');
     b.setAttribute('aria-current', 'page');
   });
+  document.querySelectorAll(`.sheet-item[data-tab="${id}"]`).forEach(b => b.classList.add('active'));
+  closeMore();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// ═══ MORE SHEET (mobile) ═══
+function openMore() {
+  const sh = document.getElementById('moreSheet');
+  if (!sh) return;
+  sh.classList.add('on');
+  sh.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+function closeMore() {
+  const sh = document.getElementById('moreSheet');
+  if (!sh) return;
+  sh.classList.remove('on');
+  sh.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeMore();
+});
 
 // ═══ RANGE CALCULATOR ═══
 // Formula: P(dBm) = 10*log10(P_mW)   [NOT +30, that's for Watts]
@@ -837,7 +990,7 @@ function hRender(t) {
   el.style.display = 'block';
   if (t === 'a') {
     const ks = Object.keys(HD.aff);
-    if (!ks.length) { el.innerHTML = '<div class="ibox">✅ Пострадавших каналов не найдено — ваш TX чист!</div>'; return; }
+    if (!ks.length) { el.innerHTML = '<div class="ibox"><strong>Пострадавших каналов не найдено.</strong> Ваш TX чист.</div>'; return; }
     el.innerHTML = ks.map(n => {
       const d = HD.aff[n];
       return `<div class="hg"><div class="hg-title">Гармоника #${n} — ${d.s}–${d.e} МГц</div>
@@ -1041,14 +1194,21 @@ function genVTX() {
   document.getElementById('v-code').textContent = lines.join('\n');
   document.getElementById('v-out').style.display = 'block';
   const btn = document.getElementById('v-copy');
-  btn.textContent = '📋 Скопировать конфиг';
+  btn.innerHTML = '<svg class="ico" style="width:18px;height:18px"><use href=\"#i-copy\"/></svg> Скопировать конфиг';
   btn.classList.remove('copied');
   setTimeout(() => document.getElementById('v-out').scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
 }
 function copyVTX() {
   const code = document.getElementById('v-code').textContent;
   const btn = document.getElementById('v-copy');
-  const done = () => { btn.textContent = '✅ Скопировано!'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = '📋 Скопировать конфиг'; btn.classList.remove('copied'); }, 2500); };
+  const done = () => {
+    btn.innerHTML = '<svg class="ico" style="width:18px;height:18px"><use href=\"#i-copy\"/></svg> Скопировано';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = '<svg class="ico" style="width:18px;height:18px"><use href=\"#i-copy\"/></svg> Скопировать конфиг';
+      btn.classList.remove('copied');
+    }, 2500);
+  };
   if (navigator.clipboard) { navigator.clipboard.writeText(code).then(done); }
   else { const ta = document.createElement('textarea'); ta.value = code; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); }
 }
