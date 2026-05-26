@@ -53,8 +53,8 @@ button,input,select{font:inherit}
 /* Mobile: bottom tab bar */
 .layout-mobile { display:flex; flex-direction:column; min-height:100vh; }
 .layout-mobile .sidebar { display:none; }
-.layout-mobile .main-wrap { flex:1; padding-bottom:calc(var(--tab-h) + env(safe-area-inset-bottom,0px)); }
-.layout-mobile .tabbar { display:flex; }
+.layout-mobile .main-wrap { flex:1; padding-bottom:0; }
+.layout-mobile .tabbar { display:none; }
 .layout-mobile .header { display:flex; }
 
 /* Desktop: left sidebar */
@@ -78,6 +78,7 @@ button,input,select{font:inherit}
   background:linear-gradient(135deg,var(--accent2),var(--accent));
   display:flex; align-items:center; justify-content:center;
   color:#fff;
+  cursor:pointer;
 }
 .header-title{font-size:17px;font-weight:800;letter-spacing:-.4px;color:#fff}
 .header-title span{color:var(--yellow)}
@@ -150,31 +151,31 @@ button,input,select{font:inherit}
 .tab-icon .ico{width:22px;height:22px}
 .tab-label{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
 
-/* ═══ MORE SHEET (mobile) ═══ */
-.sheet{position:fixed;inset:0;display:none;z-index:500}
-.sheet.on{display:block}
-.sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55)}
-.sheet-panel{
-  position:absolute;left:0;right:0;bottom:0;
-  background:linear-gradient(180deg, var(--chrome), var(--chrome2));
-  border-top:1px solid var(--border);
-  border-radius:18px 18px 0 0;
-  padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));
-  box-shadow:var(--shadow);
-}
-.sheet-grab{width:42px;height:4px;border-radius:99px;background:rgba(255,255,255,.18);margin:4px auto 10px}
-.sheet-title{font-size:12px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);padding:0 6px 10px}
-.sheet-list{display:flex;flex-direction:column;gap:6px;max-height:min(62vh,520px);overflow:auto;padding-right:4px}
-.sheet-item{
-  display:flex;align-items:center;gap:10px;
-  width:100%;padding:12px 12px;border-radius:14px;
+/* ═══ HOME MENU ═══ */
+.home-grid{display:grid;gap:10px}
+.home-grid.cols2{grid-template-columns:1fr 1fr}
+.home-card{
+  width:100%;
   border:1.5px solid var(--border);
   background:linear-gradient(180deg, var(--surface), var(--surface2));
-  color:var(--text);cursor:pointer;text-align:left;
+  border-radius:18px;
+  padding:14px 14px;
+  display:flex;align-items:flex-start;gap:12px;
+  cursor:pointer;text-align:left;
+  transition:transform .08s,border-color .18s,background .18s;
 }
-.sheet-item .ico{width:18px;height:18px;opacity:.92}
-.sheet-item small{color:var(--muted);font-weight:700}
-.sheet-item.active{border-color:rgba(255,77,109,.35);background:rgba(255,77,109,.10)}
+.home-card:active{transform:scale(.985)}
+.home-card:hover{border-color:rgba(255,255,255,.14)}
+.home-ic{
+  width:40px;height:40px;border-radius:14px;flex-shrink:0;
+  background:rgba(255,255,255,.06);
+  border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--accent);
+}
+.home-ic .ico{width:20px;height:20px}
+.home-ttl{font-weight:900;font-size:14.5px;letter-spacing:-.2px}
+.home-sub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35}
 
 /* ═══ CONTENT ═══ */
 .main-wrap{}
@@ -381,6 +382,11 @@ button,input,select{font:inherit}
 
 <!-- SVG ICONS -->
 <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+  <symbol id="i-home" viewBox="0 0 24 24">
+    <path d="M3 10.5 12 3l9 7.5"/>
+    <path d="M5.5 9.5V21h13V9.5"/>
+    <path d="M10 21v-7h4v7"/>
+  </symbol>
   <symbol id="i-drone" viewBox="0 0 24 24">
     <path d="M7 7l-2-2m14 2l2-2M7 17l-2 2m14-2l2 2"/>
     <path d="M9 9h6v6H9z"/>
@@ -450,8 +456,12 @@ button,input,select{font:inherit}
     <div class="sidebar-logo-sub">Калькуляторы для дронов</div>
   </div>
   <div class="sidebar-nav">
+    <div class="sidebar-section">Меню</div>
+    <button class="snav-btn active" id="snav-home" data-tab="home" onclick="goTab('home')" aria-current="page">
+      <span class="snav-icon"><svg class="ico"><use href="#i-home"/></svg></span> Главное меню
+    </button>
     <div class="sidebar-section">Калькуляторы</div>
-    <button class="snav-btn active" id="snav-range" data-tab="range" onclick="goTab('range')">
+    <button class="snav-btn" id="snav-range" data-tab="range" onclick="goTab('range')">
       <span class="snav-icon"><svg class="ico"><use href="#i-range"/></svg></span> Дальность
     </button>
     <button class="snav-btn" id="snav-fresnel" data-tab="fresnel" onclick="goTab('fresnel')">
@@ -481,7 +491,9 @@ button,input,select{font:inherit}
 
   <!-- MOBILE HEADER -->
   <div class="header" id="mobileHeader">
-    <div class="header-icon"><svg class="ico" style="width:20px;height:20px"><use href="#i-drone"/></svg></div>
+    <div class="header-icon" role="button" tabindex="0" title="Главное меню" onclick="goTab('home')">
+      <svg class="ico" style="width:20px;height:20px"><use href="#i-drone"/></svg>
+    </div>
     <div>
       <div class="header-title">FPV <span>TOOLS</span></div>
       <div class="header-sub">Калькуляторы для дронов</div>
@@ -490,8 +502,50 @@ button,input,select{font:inherit}
 
   <div class="screens-wrap">
 
+    <!-- ══ 0. HOME ══ -->
+    <div id="s-home" class="screen active">
+      <div class="page-head">
+        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-home"/></svg></div>
+        <div><div class="page-title">Главное меню</div>
+          <div class="page-desc">Выбери калькулятор — быстро и удобно</div></div>
+      </div>
+      <div class="home-grid cols2">
+        <button class="home-card" type="button" onclick="goTab('range')">
+          <div class="home-ic"><svg class="ico"><use href="#i-range"/></svg></div>
+          <div><div class="home-ttl">Дальность</div><div class="home-sub">Теория по Фрии + реалистичная оценка</div></div>
+        </button>
+        <button class="home-card" type="button" onclick="goTab('fresnel')">
+          <div class="home-ic" style="color:var(--blue)"><svg class="ico"><use href="#i-fresnel"/></svg></div>
+          <div><div class="home-ttl">Френель</div><div class="home-sub">Зоны видимости и высота над препятствиями</div></div>
+        </button>
+        <button class="home-card" type="button" onclick="goTab('dipole')">
+          <div class="home-ic" style="color:var(--yellow)"><svg class="ico"><use href="#i-dipole"/></svg></div>
+          <div><div class="home-ttl">Диполь</div><div class="home-sub">Длина по частоте и обратно</div></div>
+        </button>
+        <button class="home-card" type="button" onclick="goTab('harm')">
+          <div class="home-ic" style="color:var(--orange)"><svg class="ico"><use href="#i-harm"/></svg></div>
+          <div><div class="home-ttl">Гармоники</div><div class="home-sub">Какие видеоканалы заденет TX</div></div>
+        </button>
+        <button class="home-card" type="button" onclick="goTab('chan')">
+          <div class="home-ic" style="color:var(--green)"><svg class="ico"><use href="#i-channels"/></svg></div>
+          <div><div class="home-ttl">Каналы</div><div class="home-sub">Оптимально для совместных полётов</div></div>
+        </button>
+        <button class="home-card" type="button" onclick="goTab('fq')">
+          <div class="home-ic" style="color:var(--accent2)"><svg class="ico"><use href="#i-finder"/></svg></div>
+          <div><div class="home-ttl">Ближайший канал</div><div class="home-sub">Подбор по диапазону</div></div>
+        </button>
+        <button class="home-card" type="button" onclick="goTab('vtx')">
+          <div class="home-ic" style="color:var(--accent)"><svg class="ico"><use href="#i-vtx"/></svg></div>
+          <div><div class="home-ttl">VTX Config</div><div class="home-sub">Генератор CLI Betaflight</div></div>
+        </button>
+      </div>
+      <div class="ibox" style="margin-top:14px">
+        <strong>Навигация:</strong> на телефоне открывай разделы из этого меню, на ПК — из боковой панели.
+      </div>
+    </div>
+
     <!-- ══ 1. RANGE ══ -->
-    <div id="s-range" class="screen active">
+    <div id="s-range" class="screen">
       <div class="page-head">
         <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-range"/></svg></div>
         <div><div class="page-title">Дальность</div>
@@ -760,55 +814,6 @@ button,input,select{font:inherit}
   </div><!-- /screens-wrap -->
 </div><!-- /main-wrap -->
 
-<!-- ═══ BOTTOM TABBAR (mobile) ═══ -->
-<div class="tabbar" id="tabbar">
-  <div class="tabbar-inner">
-    <button class="tab-btn active" data-tab="range" onclick="goTab('range')"><span class="tab-icon"><svg class="ico"><use href="#i-range"/></svg></span><span class="tab-label">Дальность</span></button>
-    <button class="tab-btn" data-tab="fresnel" onclick="goTab('fresnel')"><span class="tab-icon"><svg class="ico"><use href="#i-fresnel"/></svg></span><span class="tab-label">Френель</span></button>
-    <button class="tab-btn" data-tab="dipole" onclick="goTab('dipole')"><span class="tab-icon"><svg class="ico"><use href="#i-dipole"/></svg></span><span class="tab-label">Диполь</span></button>
-    <button class="tab-btn" type="button" data-action="more" onclick="openMore()"><span class="tab-icon"><svg class="ico"><use href="#i-more"/></svg></span><span class="tab-label">Ещё</span></button>
-  </div>
-</div>
-
-<!-- ═══ MORE SHEET (mobile) ═══ -->
-<div class="sheet" id="moreSheet" aria-hidden="true">
-  <div class="sheet-backdrop" onclick="closeMore()"></div>
-  <div class="sheet-panel" role="dialog" aria-modal="true" aria-label="Меню">
-    <div class="sheet-grab"></div>
-    <div class="sheet-title">Все инструменты</div>
-    <div class="sheet-list">
-      <button class="sheet-item active" type="button" data-tab="range" onclick="goTab('range')">
-        <svg class="ico"><use href="#i-range"/></svg>
-        <div><div style="font-weight:900">Дальность</div><small>Уравнение Фрии</small></div>
-      </button>
-      <button class="sheet-item" type="button" data-tab="fresnel" onclick="goTab('fresnel')">
-        <svg class="ico"><use href="#i-fresnel"/></svg>
-        <div><div style="font-weight:900">Зоны Френеля</div><small>Высота над препятствиями</small></div>
-      </button>
-      <button class="sheet-item" type="button" data-tab="dipole" onclick="goTab('dipole')">
-        <svg class="ico"><use href="#i-dipole"/></svg>
-        <div><div style="font-weight:900">Диполь</div><small>Длина по частоте</small></div>
-      </button>
-      <button class="sheet-item" type="button" data-tab="harm" onclick="goTab('harm')">
-        <svg class="ico"><use href="#i-harm"/></svg>
-        <div><div style="font-weight:900">Гармоники</div><small>Пострадавшие видеоканалы</small></div>
-      </button>
-      <button class="sheet-item" type="button" data-tab="chan" onclick="goTab('chan')">
-        <svg class="ico"><use href="#i-channels"/></svg>
-        <div><div style="font-weight:900">Каналы</div><small>Распределение для пилотов</small></div>
-      </button>
-      <button class="sheet-item" type="button" data-tab="fq" onclick="goTab('fq')">
-        <svg class="ico"><use href="#i-finder"/></svg>
-        <div><div style="font-weight:900">Ближайший канал</div><small>Под антенну/диапазон</small></div>
-      </button>
-      <button class="sheet-item" type="button" data-tab="vtx" onclick="goTab('vtx')">
-        <svg class="ico"><use href="#i-vtx"/></svg>
-        <div><div style="font-weight:900">VTX Config</div><small>Генератор CLI Betaflight</small></div>
-      </button>
-    </div>
-  </div>
-</div>
-
 <script>
 // ═══ LAYOUT DETECTION ═══
 function applyLayout() {
@@ -819,7 +824,7 @@ function applyLayout() {
   const tgDesktop = !!(tg && (tg.platform === 'tdesktop' || tg.platform === 'macos' || tg.platform === 'web'));
   const body = document.body;
   // On desktop screens show sidebar (including Telegram Desktop/Web).
-  // On smaller screens always use bottom tabbar.
+  // On smaller screens use the Home menu screen for navigation.
   if (isDesktop && (!isTg || tgDesktop || w >= 900)) {
     body.className = 'layout-desktop';
   } else {
@@ -829,6 +834,15 @@ function applyLayout() {
 applyLayout();
 window.addEventListener('resize', applyLayout);
 
+// keyboard access for header "home" button
+(() => {
+  const btn = document.querySelector('.header-icon[role="button"]');
+  if (!btn) return;
+  btn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
+  });
+})();
+
 // ═══ NAVIGATION ═══
 function goTab(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -836,35 +850,13 @@ function goTab(id) {
     b.classList.remove('active');
     b.removeAttribute('aria-current');
   });
-  document.querySelectorAll('.sheet-item').forEach(b => b.classList.remove('active'));
   document.getElementById('s-' + id).classList.add('active');
   document.querySelectorAll(`[data-tab="${id}"]`).forEach(b => {
     b.classList.add('active');
     b.setAttribute('aria-current', 'page');
   });
-  document.querySelectorAll(`.sheet-item[data-tab="${id}"]`).forEach(b => b.classList.add('active'));
-  closeMore();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
-// ═══ MORE SHEET (mobile) ═══
-function openMore() {
-  const sh = document.getElementById('moreSheet');
-  if (!sh) return;
-  sh.classList.add('on');
-  sh.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-}
-function closeMore() {
-  const sh = document.getElementById('moreSheet');
-  if (!sh) return;
-  sh.classList.remove('on');
-  sh.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeMore();
-});
 
 // ═══ RANGE CALCULATOR ═══
 // Formula: P(dBm) = 10*log10(P_mW)   [NOT +30, that's for Watts]
