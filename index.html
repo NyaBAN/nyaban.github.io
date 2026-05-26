@@ -3,15 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#111118">
 <title>FPV Tools — Калькуляторы для дронов</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root {
   --bg:#111118; --surface:#1c1c28; --card:#242433;
+  --bg2:#0c0c14; --surface2:#171724;
+  --chrome: rgba(14,14,26,0.92);
+  --chrome2: rgba(14,14,26,0.86);
   --accent:#ff4d6d; --accent2:#7b5ea7;
   --text:#f0f0f8; --muted:#7a7a99;
   --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.14);
   --green:#22d3a8; --yellow:#fbbf24; --blue:#60a5fa; --orange:#fb923c;
+  --shadow: 0 18px 50px rgba(0,0,0,.38);
+  --shadow2: 0 8px 22px rgba(0,0,0,.35);
   --radius:16px; --r-sm:11px;
   --input-h:50px; --tab-h:60px;
   --sidebar-w:220px;
@@ -21,8 +28,23 @@
 html{scroll-behavior:smooth}
 body{
   font-family:-apple-system,'SF Pro Text','Segoe UI',sans-serif;
-  background:var(--bg); color:var(--text);
+  background:
+    radial-gradient(1100px 700px at 15% -10%, rgba(123,94,167,.28), transparent 60%),
+    radial-gradient(1100px 700px at 85% -20%, rgba(255,77,109,.18), transparent 55%),
+    linear-gradient(180deg, var(--bg), var(--bg2));
+  color:var(--text);
   min-height:100vh; overscroll-behavior:none;
+}
+
+a{color:inherit}
+button,input,select{font:inherit}
+
+:focus{outline:none}
+:focus-visible{outline:2px solid rgba(255,77,109,.55);outline-offset:2px;border-radius:10px}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *{animation:none!important;transition:none!important}
 }
 
 /* ═══ LAYOUT MODES ═══ */
@@ -36,13 +58,14 @@ body{
 /* Desktop: left sidebar */
 .layout-desktop { display:flex; min-height:100vh; }
 .layout-desktop .sidebar { display:flex; }
-.layout-desktop .main-wrap { flex:1; margin-left:var(--sidebar-w); }
+.layout-desktop .main-wrap { flex:1; margin-left:var(--sidebar-w); min-width:0; }
 .layout-desktop .tabbar { display:none; }
 .layout-desktop .header { display:none; }
 
 /* ═══ HEADER (mobile only) ═══ */
 .header{
-  background:linear-gradient(160deg,#1a1030,#1c1528 50%,#1e1020);
+  background:linear-gradient(160deg, rgba(123,94,167,.22), var(--chrome) 55%, var(--chrome2));
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
   padding:calc(env(safe-area-inset-top,0px)+13px) 16px 13px;
   display:flex; align-items:center; gap:12px;
   border-bottom:1px solid var(--border);
@@ -60,7 +83,8 @@ body{
 /* ═══ SIDEBAR (desktop only) ═══ */
 .sidebar{
   width:var(--sidebar-w);
-  background:#0e0e1a;
+  background:linear-gradient(180deg, var(--chrome), var(--chrome2));
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
   border-right:1px solid var(--border);
   flex-direction:column;
   position:fixed; top:0; left:0; bottom:0;
@@ -86,10 +110,11 @@ body{
   width:100%; padding:10px 12px; border-radius:10px;
   border:none; background:none; cursor:pointer;
   color:var(--muted); font-size:13.5px; font-weight:500;
-  transition:all .17s; text-align:left; margin-bottom:2px;
+  transition:background .17s,color .17s,transform .08s; text-align:left; margin-bottom:2px;
 }
 .snav-btn:hover{background:rgba(255,255,255,0.05);color:var(--text)}
-.snav-btn.active{background:rgba(255,77,109,0.15);color:var(--accent)}
+.snav-btn:active{transform:scale(.985)}
+.snav-btn.active{background:linear-gradient(90deg, rgba(255,77,109,0.18), rgba(123,94,167,0.09));color:var(--accent)}
 .snav-icon{font-size:17px;width:22px;text-align:center;flex-shrink:0}
 
 /* ═══ BOTTOM TABBAR (mobile only) ═══ */
@@ -97,7 +122,7 @@ body{
   position:fixed; bottom:0; left:0; right:0;
   height:calc(var(--tab-h) + env(safe-area-inset-bottom,0px));
   padding-bottom:env(safe-area-inset-bottom,0px);
-  background:rgba(14,14,26,0.97);
+  background:var(--chrome);
   backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
   border-top:1px solid var(--border);
   z-index:200; overflow:hidden;
@@ -112,9 +137,10 @@ body{
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:3px; padding:0 10px;
   border:none; background:none; cursor:pointer;
-  color:var(--muted); transition:color .2s;
+  color:var(--muted); transition:color .2s, transform .08s;
 }
 .tab-btn.active{color:var(--accent)}
+.tab-btn:active{transform:scale(.96)}
 .tab-icon{font-size:21px;line-height:1}
 .tab-label{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
 
@@ -129,7 +155,9 @@ body{
 .page-head{margin-bottom:18px;display:flex;align-items:flex-start;gap:14px}
 .page-head-icon{
   width:46px;height:46px;border-radius:14px;flex-shrink:0;
-  background:var(--card);border:1.5px solid var(--border2);
+  background:linear-gradient(180deg, var(--card), rgba(36,36,51,.7));
+  border:1.5px solid var(--border2);
+  box-shadow:var(--shadow2);
   display:flex;align-items:center;justify-content:center;font-size:22px;
 }
 .page-title{font-size:22px;font-weight:800;letter-spacing:-.5px;color:#fff;margin-top:2px}
@@ -145,13 +173,15 @@ body{
   text-transform:uppercase;letter-spacing:.7px;padding-left:2px;
 }
 .field input,.field select{
-  background:var(--surface); border:1.5px solid var(--border);
+  background:linear-gradient(180deg, var(--surface), var(--surface2));
+  border:1.5px solid var(--border);
   border-radius:var(--r-sm); padding:0 13px;
   height:var(--input-h); font-size:16px; color:var(--text);
   outline:none; width:100%; -webkit-appearance:none;
-  transition:border-color .2s,background .2s; font-family:inherit;
+  transition:border-color .2s,background .2s,transform .08s; font-family:inherit;
 }
-.field input:focus,.field select:focus{border-color:var(--accent);background:var(--card)}
+.field input:focus,.field select:focus{border-color:rgba(255,77,109,.8);background:var(--card)}
+.field input:active,.field select:active{transform:scale(.997)}
 .field select{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%237a7a99' d='M7 9.5L2 4h10z'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;cursor:pointer;
@@ -161,10 +191,11 @@ body{
 .presets{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px}
 .preset{
   padding:7px 13px;border-radius:20px;border:1.5px solid var(--border);
-  background:var(--surface);color:var(--muted);font-size:12px;font-weight:700;
-  cursor:pointer;transition:all .15s;letter-spacing:.2px;
+  background:linear-gradient(180deg, var(--surface), var(--surface2));color:var(--muted);font-size:12px;font-weight:800;
+  cursor:pointer;transition:transform .08s, background .15s, border-color .15s, color .15s;letter-spacing:.2px;
 }
-.preset:active,.preset.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.preset:active{transform:scale(.98)}
+.preset.on{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:rgba(255,255,255,.12);color:#fff}
 
 /* ═══ DIVIDER ═══ */
 .divider{height:1px;background:var(--border);margin:16px 0}
@@ -177,16 +208,20 @@ body{
   font-size:15px;font-weight:800;cursor:pointer;
   margin:14px 0;letter-spacing:.2px;
   display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:opacity .2s,transform .1s;
+  box-shadow:0 14px 34px rgba(255,77,109,.12);
+  transition:opacity .2s,transform .1s,filter .2s;
 }
-.btn-main:active{opacity:.82;transform:scale(.97)}
+.btn-main:hover{filter:saturate(1.05)}
+.btn-main:active{opacity:.85;transform:scale(.97)}
 
 /* ═══ RESULTS ═══ */
 .results{display:flex;flex-direction:column;gap:9px;margin-top:4px}
 .rcard{
-  background:var(--surface);border:1.5px solid var(--border);
+  background:linear-gradient(180deg, var(--surface), var(--surface2));
+  border:1.5px solid var(--border);
   border-radius:var(--radius);padding:14px 16px;
   display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 10px 24px rgba(0,0,0,.20);
 }
 .rcard.hl{background:rgba(255,77,109,.1);border-color:rgba(255,77,109,.3)}
 .rcard.ok{background:rgba(34,211,168,.07);border-color:rgba(34,211,168,.28)}
@@ -217,7 +252,7 @@ body{
 
 /* ═══ INFO BOX ═══ */
 .ibox{
-  background:rgba(123,94,167,.1);border:1.5px solid rgba(123,94,167,.22);
+  background:rgba(123,94,167,.11);border:1.5px solid rgba(123,94,167,.24);
   border-radius:11px;padding:12px 14px;font-size:13px;color:var(--muted);
   line-height:1.55;margin:10px 0;
 }
@@ -288,7 +323,7 @@ body{
 /* ═══ DESKTOP ADJUSTMENTS ═══ */
 @media(min-width:768px){
   :root{ --input-h:46px; }
-  .screen{padding:28px 28px 16px}
+  .screen{padding:28px 28px 18px}
   .field-row{gap:12px;margin-bottom:12px}
   .page-head{margin-bottom:22px}
   .page-head-icon{width:52px;height:52px;font-size:25px}
@@ -321,26 +356,26 @@ body{
   </div>
   <div class="sidebar-nav">
     <div class="sidebar-section">Калькуляторы</div>
-    <button class="snav-btn active" id="snav-range" onclick="goTab('range',this)">
+    <button class="snav-btn active" id="snav-range" data-tab="range" onclick="goTab('range')">
       <span class="snav-icon">📡</span> Дальность
     </button>
-    <button class="snav-btn" id="snav-fresnel" onclick="goTab('fresnel',this)">
+    <button class="snav-btn" id="snav-fresnel" data-tab="fresnel" onclick="goTab('fresnel')">
       <span class="snav-icon">🌊</span> Зоны Френеля
     </button>
-    <button class="snav-btn" id="snav-dipole" onclick="goTab('dipole',this)">
+    <button class="snav-btn" id="snav-dipole" data-tab="dipole" onclick="goTab('dipole')">
       <span class="snav-icon">📶</span> Диполь
     </button>
-    <button class="snav-btn" id="snav-harm" onclick="goTab('harm',this)">
+    <button class="snav-btn" id="snav-harm" data-tab="harm" onclick="goTab('harm')">
       <span class="snav-icon">⚡</span> Гармоники
     </button>
-    <button class="snav-btn" id="snav-chan" onclick="goTab('chan',this)">
+    <button class="snav-btn" id="snav-chan" data-tab="chan" onclick="goTab('chan')">
       <span class="snav-icon">📻</span> Каналы
     </button>
-    <button class="snav-btn" id="snav-fq" onclick="goTab('fq',this)">
+    <button class="snav-btn" id="snav-fq" data-tab="fq" onclick="goTab('fq')">
       <span class="snav-icon">🔍</span> Ближайший канал
     </button>
     <div class="sidebar-section">Конфигурация</div>
-    <button class="snav-btn" id="snav-vtx" onclick="goTab('vtx',this)">
+    <button class="snav-btn" id="snav-vtx" data-tab="vtx" onclick="goTab('vtx')">
       <span class="snav-icon">⚙️</span> VTX Config
     </button>
   </div>
@@ -633,23 +668,28 @@ body{
 <!-- ═══ BOTTOM TABBAR (mobile) ═══ -->
 <div class="tabbar" id="tabbar">
   <div class="tabbar-inner">
-    <button class="tab-btn active" onclick="goTab('range',this)"><span class="tab-icon">📡</span><span class="tab-label">Дальность</span></button>
-    <button class="tab-btn" onclick="goTab('fresnel',this)"><span class="tab-icon">🌊</span><span class="tab-label">Френель</span></button>
-    <button class="tab-btn" onclick="goTab('dipole',this)"><span class="tab-icon">📶</span><span class="tab-label">Диполь</span></button>
-    <button class="tab-btn" onclick="goTab('harm',this)"><span class="tab-icon">⚡</span><span class="tab-label">Гармоники</span></button>
-    <button class="tab-btn" onclick="goTab('chan',this)"><span class="tab-icon">📻</span><span class="tab-label">Каналы</span></button>
-    <button class="tab-btn" onclick="goTab('fq',this)"><span class="tab-icon">🔍</span><span class="tab-label">Частота</span></button>
-    <button class="tab-btn" onclick="goTab('vtx',this)"><span class="tab-icon">⚙️</span><span class="tab-label">VTX</span></button>
+    <button class="tab-btn active" data-tab="range" onclick="goTab('range')"><span class="tab-icon">📡</span><span class="tab-label">Дальность</span></button>
+    <button class="tab-btn" data-tab="fresnel" onclick="goTab('fresnel')"><span class="tab-icon">🌊</span><span class="tab-label">Френель</span></button>
+    <button class="tab-btn" data-tab="dipole" onclick="goTab('dipole')"><span class="tab-icon">📶</span><span class="tab-label">Диполь</span></button>
+    <button class="tab-btn" data-tab="harm" onclick="goTab('harm')"><span class="tab-icon">⚡</span><span class="tab-label">Гармоники</span></button>
+    <button class="tab-btn" data-tab="chan" onclick="goTab('chan')"><span class="tab-icon">📻</span><span class="tab-label">Каналы</span></button>
+    <button class="tab-btn" data-tab="fq" onclick="goTab('fq')"><span class="tab-icon">🔍</span><span class="tab-label">Частота</span></button>
+    <button class="tab-btn" data-tab="vtx" onclick="goTab('vtx')"><span class="tab-icon">⚙️</span><span class="tab-label">VTX</span></button>
   </div>
 </div>
 
 <script>
 // ═══ LAYOUT DETECTION ═══
 function applyLayout() {
-  const isDesktop = window.innerWidth >= 768;
-  const isTg = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.platform !== 'unknown');
+  const w = window.innerWidth;
+  const isDesktop = w >= 768;
+  const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+  const isTg = !!(tg && tg.platform !== 'unknown');
+  const tgDesktop = !!(tg && (tg.platform === 'tdesktop' || tg.platform === 'macos' || tg.platform === 'web'));
   const body = document.body;
-  if (isDesktop && !isTg) {
+  // On desktop screens show sidebar (including Telegram Desktop/Web).
+  // On smaller screens always use bottom tabbar.
+  if (isDesktop && (!isTg || tgDesktop || w >= 900)) {
     body.className = 'layout-desktop';
   } else {
     body.className = 'layout-mobile';
@@ -659,14 +699,17 @@ applyLayout();
 window.addEventListener('resize', applyLayout);
 
 // ═══ NAVIGATION ═══
-function goTab(id, btn) {
+function goTab(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn, .snav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn, .snav-btn').forEach(b => {
+    b.classList.remove('active');
+    b.removeAttribute('aria-current');
+  });
   document.getElementById('s-' + id).classList.add('active');
-  if (btn) btn.classList.add('active');
-  // also sync sidebar btn
-  const snav = document.getElementById('snav-' + id);
-  if (snav) snav.classList.add('active');
+  document.querySelectorAll(`[data-tab="${id}"]`).forEach(b => {
+    b.classList.add('active');
+    b.setAttribute('aria-current', 'page');
+  });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1014,13 +1057,57 @@ function copyVTX() {
 if (window.Telegram && window.Telegram.WebApp) {
   const tg = window.Telegram.WebApp;
   tg.ready(); tg.expand();
-  if (tg.colorScheme === 'light') {
-    const r = document.documentElement.style;
-    r.setProperty('--bg','#f2f2f7'); r.setProperty('--surface','#ffffff');
-    r.setProperty('--card','#e8e8f0'); r.setProperty('--text','#111118');
-    r.setProperty('--muted','#6e6e8a'); r.setProperty('--border','rgba(0,0,0,0.09)');
-    r.setProperty('--border2','rgba(0,0,0,0.16)');
+
+  function hexToRgb(hex) {
+    if (!hex || typeof hex !== 'string') return null;
+    const h = hex.replace('#','').trim();
+    if (h.length !== 6) return null;
+    const n = parseInt(h, 16);
+    if (Number.isNaN(n)) return null;
+    return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };
   }
+  function rgba(hex, a) {
+    const c = hexToRgb(hex);
+    if (!c) return null;
+    return `rgba(${c.r},${c.g},${c.b},${a})`;
+  }
+  function setVar(k, v) {
+    if (!v) return;
+    document.documentElement.style.setProperty(k, v);
+  }
+  function applyTgTheme() {
+    const p = tg.themeParams || {};
+    if (p.bg_color) setVar('--bg', p.bg_color);
+    if (p.secondary_bg_color) setVar('--surface', p.secondary_bg_color);
+    if (p.text_color) setVar('--text', p.text_color);
+
+    // Soft derived colors
+    if (p.text_color) setVar('--muted', rgba(p.text_color, 0.62) || 'var(--muted)');
+    if (p.hint_color) setVar('--muted', rgba(p.hint_color, 0.95) || p.hint_color);
+    if (p.bg_color) setVar('--bg2', rgba(p.bg_color, 0.85) || 'var(--bg2)');
+    if (p.secondary_bg_color) setVar('--surface2', rgba(p.secondary_bg_color, 0.92) || 'var(--surface2)');
+    if (p.bg_color) {
+      setVar('--chrome', rgba(p.bg_color, 0.92) || 'var(--chrome)');
+      setVar('--chrome2', rgba(p.bg_color, 0.86) || 'var(--chrome2)');
+    }
+    if (p.button_color) setVar('--accent2', p.button_color);
+    if (p.link_color) setVar('--accent', p.link_color);
+
+    if (p.text_color) {
+      setVar('--border', rgba(p.text_color, 0.10) || 'var(--border)');
+      setVar('--border2', rgba(p.text_color, 0.18) || 'var(--border2)');
+    }
+
+    // Keep browser UI consistent
+    const themeColor = (p.bg_color || '#111118');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', themeColor);
+    if (tg.setHeaderColor) { try { tg.setHeaderColor(themeColor); } catch(e){} }
+    if (tg.setBackgroundColor) { try { tg.setBackgroundColor(themeColor); } catch(e){} }
+  }
+
+  applyTgTheme();
+  try { tg.onEvent('themeChanged', applyTgTheme); } catch(e) {}
 }
 </script>
 </body>
