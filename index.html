@@ -83,6 +83,13 @@ button,input,select{font:inherit}
 .header-title{font-size:17px;font-weight:800;letter-spacing:-.4px;color:#fff}
 .header-title span{color:var(--yellow)}
 .header-sub{font-size:10.5px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+.header-back{
+  width:38px; height:38px; border-radius:11px; flex-shrink:0;
+  background:rgba(255,255,255,.07);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text); cursor:pointer; margin-left:auto;
+  border:none;
+}
 
 /* ═══ SIDEBAR (desktop only) ═══ */
 .sidebar{
@@ -476,9 +483,15 @@ button,input,select{font:inherit}
     <button class="snav-btn" id="snav-chan" data-tab="chan" onclick="goTab('chan')">
       <span class="snav-icon"><svg class="ico"><use href="#i-channels"/></svg></span> Каналы
     </button>
-    <button class="snav-btn" id="snav-fq" data-tab="fq" onclick="goTab('fq')">
-      <span class="snav-icon"><svg class="ico"><use href="#i-finder"/></svg></span> Ближайший канал
-    </button>
+<button class="snav-btn" id="snav-fq" data-tab="fq" onclick="goTab('fq')">
+       <span class="snav-icon"><svg class="ico"><use href="#i-finder"/></svg></span> Ближайший канал
+     </button>
+     <button class="snav-btn" onclick="location.href='elrs-info.html'">
+       <span class="snav-icon"><svg class="ico"><use href="#i-finder"/></svg></span> ELRS Info
+     </button>
+     <button class="snav-btn" onclick="location.href='osd-editor.html'">
+       <span class="snav-icon"><svg class="ico"><use href="#i-vtx"/></svg></span> OSD Editor
+     </button>
     <div class="sidebar-section">Конфигурация</div>
     <button class="snav-btn" id="snav-vtx" data-tab="vtx" onclick="goTab('vtx')">
       <span class="snav-icon"><svg class="ico"><use href="#i-vtx"/></svg></span> VTX Config
@@ -534,14 +547,22 @@ button,input,select{font:inherit}
           <div class="home-ic" style="color:var(--accent2)"><svg class="ico"><use href="#i-finder"/></svg></div>
           <div><div class="home-ttl">Ближайший канал</div><div class="home-sub">Подбор по диапазону</div></div>
         </button>
+        <button class="home-card" type="button" onclick="location.href='elrs-info.html'">
+          <div class="home-ic" style="color:var(--blue)"><svg class="ico"><use href="#i-finder"/></svg></div>
+          <div><div class="home-ttl">ELRS Info</div><div class="home-sub">Анализ firmware файлов</div></div>
+        </button>
+        <button class="home-card" type="button" onclick="location.href='osd-editor.html'">
+          <div class="home-ic" style="color:var(--green)"><svg class="ico"><use href="#i-vtx"/></svg></div>
+          <div><div class="home-ttl">OSD Editor</div><div class="home-sub">Шрифт MAX7456</div></div>
+        </button>
         <button class="home-card" type="button" onclick="goTab('vtx')">
           <div class="home-ic" style="color:var(--accent)"><svg class="ico"><use href="#i-vtx"/></svg></div>
           <div><div class="home-ttl">VTX Config</div><div class="home-sub">Генератор CLI Betaflight</div></div>
         </button>
       </div>
-      <div class="ibox" style="margin-top:14px">
+      <!-- <div class="ibox" style="margin-top:14px">
         <strong>Навигация:</strong> на телефоне открывай разделы из этого меню, на ПК — из боковой панели.
-      </div>
+      </div> -->
     </div>
 
     <!-- ══ 1. RANGE ══ -->
@@ -837,10 +858,17 @@ window.addEventListener('resize', applyLayout);
 // keyboard access for header "home" button
 (() => {
   const btn = document.querySelector('.header-icon[role="button"]');
-  if (!btn) return;
-  btn.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
-  });
+  if (btn) {
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
+    });
+  }
+  const backBtn = document.getElementById('backBtn');
+  if (backBtn) {
+    backBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); backBtn.click(); }
+    });
+  }
 })();
 
 // ═══ NAVIGATION ═══
