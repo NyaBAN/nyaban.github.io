@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FPV Tools — Калькуляторы для дронов</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+  --bg:#111118; --surface:#1c1c28; --card:#242433;
+  --accent:#ff4d6d; --accent2:#7b5ea7;
+  --text:#f0f0f8; --muted:#7a7a99;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.14);
+  --green:#22d3a8; --yellow:#fbbf24; --blue:#60a5fa; --orange:#fb923c;
+  --radius:16px; --r-sm:11px;
+  --input-h:50px; --tab-h:60px;
+  --sidebar-w:220px;
+  --content-max:780px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,'SF Pro Text','Segoe UI',sans-serif;
+  background:var(--bg); color:var(--text);
+  min-height:100vh; overscroll-behavior:none;
+}
+
+/* ═══ LAYOUT MODES ═══ */
+/* Mobile: bottom tab bar */
+.layout-mobile { display:flex; flex-direction:column; min-height:100vh; }
+.layout-mobile .sidebar { display:none; }
+.layout-mobile .main-wrap { flex:1; padding-bottom:calc(var(--tab-h) + env(safe-area-inset-bottom,0px)); }
+.layout-mobile .tabbar { display:flex; }
+.layout-mobile .header { display:flex; }
+
+/* Desktop: left sidebar */
+.layout-desktop { display:flex; min-height:100vh; }
+.layout-desktop .sidebar { display:flex; }
+.layout-desktop .main-wrap { flex:1; margin-left:var(--sidebar-w); }
+.layout-desktop .tabbar { display:none; }
+.layout-desktop .header { display:none; }
+
+/* ═══ HEADER (mobile only) ═══ */
+.header{
+  background:linear-gradient(160deg,#1a1030,#1c1528 50%,#1e1020);
+  padding:calc(env(safe-area-inset-top,0px)+13px) 16px 13px;
+  display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:200;
+}
+.header-icon{
+  width:38px; height:38px; border-radius:11px; flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  display:flex; align-items:center; justify-content:center; font-size:19px;
+}
+.header-title{font-size:17px;font-weight:800;letter-spacing:-.4px;color:#fff}
+.header-title span{color:var(--yellow)}
+.header-sub{font-size:10.5px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+
+/* ═══ SIDEBAR (desktop only) ═══ */
+.sidebar{
+  width:var(--sidebar-w);
+  background:#0e0e1a;
+  border-right:1px solid var(--border);
+  flex-direction:column;
+  position:fixed; top:0; left:0; bottom:0;
+  z-index:300; overflow-y:auto;
+}
+.sidebar-logo{
+  padding:22px 18px 16px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-logo-icon{
+  width:44px; height:44px; border-radius:13px;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  display:flex; align-items:center; justify-content:center; font-size:22px;
+  margin-bottom:10px;
+}
+.sidebar-logo-title{font-size:19px;font-weight:800;letter-spacing:-.5px;color:#fff}
+.sidebar-logo-title span{color:var(--yellow)}
+.sidebar-logo-sub{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+.sidebar-nav{padding:10px 8px;flex:1}
+.sidebar-section{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:12px 10px 6px}
+.snav-btn{
+  display:flex; align-items:center; gap:10px;
+  width:100%; padding:10px 12px; border-radius:10px;
+  border:none; background:none; cursor:pointer;
+  color:var(--muted); font-size:13.5px; font-weight:500;
+  transition:all .17s; text-align:left; margin-bottom:2px;
+}
+.snav-btn:hover{background:rgba(255,255,255,0.05);color:var(--text)}
+.snav-btn.active{background:rgba(255,77,109,0.15);color:var(--accent)}
+.snav-icon{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+
+/* ═══ BOTTOM TABBAR (mobile only) ═══ */
+.tabbar{
+  position:fixed; bottom:0; left:0; right:0;
+  height:calc(var(--tab-h) + env(safe-area-inset-bottom,0px));
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  background:rgba(14,14,26,0.97);
+  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);
+  z-index:200; overflow:hidden;
+}
+.tabbar-inner{
+  display:flex; align-items:stretch;
+  height:var(--tab-h); overflow-x:auto; scrollbar-width:none;
+}
+.tabbar-inner::-webkit-scrollbar{display:none}
+.tab-btn{
+  flex:0 0 auto; min-width:64px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:3px; padding:0 10px;
+  border:none; background:none; cursor:pointer;
+  color:var(--muted); transition:color .2s;
+}
+.tab-btn.active{color:var(--accent)}
+.tab-icon{font-size:21px;line-height:1}
+.tab-label{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
+
+/* ═══ CONTENT ═══ */
+.main-wrap{}
+.screens-wrap{ max-width:var(--content-max); margin:0 auto; }
+.screen{display:none;padding:20px 16px 12px;animation:fadeIn .18s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ═══ PAGE HEADER ═══ */
+.page-head{margin-bottom:18px;display:flex;align-items:flex-start;gap:14px}
+.page-head-icon{
+  width:46px;height:46px;border-radius:14px;flex-shrink:0;
+  background:var(--card);border:1.5px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.page-title{font-size:22px;font-weight:800;letter-spacing:-.5px;color:#fff;margin-top:2px}
+.page-desc{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.5}
+
+/* ═══ FIELDS ═══ */
+.field-row{display:grid;gap:10px;margin-bottom:10px}
+.cols2{grid-template-columns:1fr 1fr}
+.cols3{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{
+  font-size:10px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.7px;padding-left:2px;
+}
+.field input,.field select{
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--r-sm); padding:0 13px;
+  height:var(--input-h); font-size:16px; color:var(--text);
+  outline:none; width:100%; -webkit-appearance:none;
+  transition:border-color .2s,background .2s; font-family:inherit;
+}
+.field input:focus,.field select:focus{border-color:var(--accent);background:var(--card)}
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%237a7a99' d='M7 9.5L2 4h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;cursor:pointer;
+}
+
+/* ═══ PRESETS ═══ */
+.presets{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px}
+.preset{
+  padding:7px 13px;border-radius:20px;border:1.5px solid var(--border);
+  background:var(--surface);color:var(--muted);font-size:12px;font-weight:700;
+  cursor:pointer;transition:all .15s;letter-spacing:.2px;
+}
+.preset:active,.preset.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ═══ DIVIDER ═══ */
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* ═══ BUTTONS ═══ */
+.btn-main{
+  width:100%;height:52px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:14px;color:#fff;
+  font-size:15px;font-weight:800;cursor:pointer;
+  margin:14px 0;letter-spacing:.2px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:opacity .2s,transform .1s;
+}
+.btn-main:active{opacity:.82;transform:scale(.97)}
+
+/* ═══ RESULTS ═══ */
+.results{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+.rcard{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:14px 16px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.rcard.hl{background:rgba(255,77,109,.1);border-color:rgba(255,77,109,.3)}
+.rcard.ok{background:rgba(34,211,168,.07);border-color:rgba(34,211,168,.28)}
+.rcard.info{background:rgba(96,165,250,.07);border-color:rgba(96,165,250,.25)}
+.rcard.warn{background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.25)}
+.rl{font-size:13px;color:var(--muted);font-weight:500}
+.rv{font-size:20px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rcard.hl .rv{color:var(--accent)}
+.rcard.ok .rv{color:var(--green)}
+.rcard.info .rv{color:var(--blue)}
+.rcard.warn .rv{color:var(--yellow)}
+.ru{font-size:12px;font-weight:400;color:var(--muted);margin-left:3px}
+
+/* ═══ TAGS ═══ */
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
+.tag{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:700;
+  background:rgba(123,94,167,.22);border:1.5px solid rgba(123,94,167,.38);color:#c8b8f0;}
+.tag.bad{background:rgba(255,77,109,.13);border-color:rgba(255,77,109,.32);color:#ff8fa3}
+.tag.good{background:rgba(34,211,168,.1);border-color:rgba(34,211,168,.3);color:var(--green)}
+
+/* ═══ LABELS ═══ */
+.slabel{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px}
+
+/* ═══ CHECKBOX ═══ */
+.chk-row{display:flex;align-items:center;gap:10px;padding:4px 0;cursor:pointer}
+.chk-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
+.chk-row label{font-size:14px;color:var(--text);cursor:pointer}
+
+/* ═══ INFO BOX ═══ */
+.ibox{
+  background:rgba(123,94,167,.1);border:1.5px solid rgba(123,94,167,.22);
+  border-radius:11px;padding:12px 14px;font-size:13px;color:var(--muted);
+  line-height:1.55;margin:10px 0;
+}
+.ibox strong{color:var(--text)}
+
+/* ═══ SUB TABS ═══ */
+.stabs{display:flex;border-radius:11px;overflow:hidden;border:1.5px solid var(--border);margin-bottom:12px}
+.stab{
+  flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:700;
+  border:none;background:var(--surface);color:var(--muted);cursor:pointer;
+  transition:all .18s;border-right:1px solid var(--border);
+}
+.stab:last-child{border-right:none}
+.stab.on{background:var(--accent2);color:#fff}
+
+/* ═══ HARM GROUP ═══ */
+.hg{margin-bottom:13px}
+.hg-title{font-size:11px;font-weight:800;color:var(--yellow);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ═══ PILOT CARD ═══ */
+.pilot-card{
+  background:var(--surface);border-radius:var(--radius);
+  border:1.5px solid var(--border);padding:14px 16px;
+  margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;
+}
+
+/* ═══ CODE BLOCK ═══ */
+.code-wrap{position:relative;margin:10px 0}
+.code-block{
+  background:#0a0a14;border:1.5px solid var(--border);border-radius:12px;
+  padding:14px;font-family:'SF Mono','Menlo','Consolas',monospace;
+  font-size:11.5px;color:#a8e0a0;line-height:1.65;
+  overflow-x:auto;white-space:pre;max-height:300px;overflow-y:auto;
+}
+.copy-btn{
+  width:100%;height:46px;background:var(--surface);
+  border:1.5px solid var(--border2);border-radius:12px;
+  color:var(--green);font-size:14px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .15s;margin-top:6px;
+}
+.copy-btn:active{background:rgba(34,211,168,.1);border-color:var(--green)}
+.copy-btn.copied{background:rgba(34,211,168,.12);border-color:var(--green);color:#fff}
+
+/* ═══ POWER ROW ═══ */
+.power-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.power-field{display:flex;flex-direction:column;gap:5px}
+.power-field label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.power-field input{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:9px;padding:10px 11px;font-size:15px;color:var(--text);
+  outline:none;width:100%;-webkit-appearance:none;
+  transition:border-color .2s;font-family:inherit;
+}
+.power-field input:focus{border-color:var(--accent)}
+
+/* ═══ DIPOLE VISUAL ═══ */
+.dipole-visual{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:18px 16px;margin:12px 0;
+}
+.dipole-svg-wrap{display:flex;justify-content:center;margin-bottom:10px}
+.dipole-labels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
+.d-lbl{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.d-val{font-size:17px;font-weight:800;color:var(--text);margin-top:2px;font-variant-numeric:tabular-nums}
+.d-unit{font-size:11px;color:var(--muted);font-weight:400}
+
+/* ═══ DESKTOP ADJUSTMENTS ═══ */
+@media(min-width:768px){
+  :root{ --input-h:46px; }
+  .screen{padding:28px 28px 16px}
+  .field-row{gap:12px;margin-bottom:12px}
+  .page-head{margin-bottom:22px}
+  .page-head-icon{width:52px;height:52px;font-size:25px}
+  .page-title{font-size:24px}
+  .cols3-md{grid-template-columns:1fr 1fr 1fr}
+  .field input,.field select{font-size:15px}
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:380px){
+  .cols3{grid-template-columns:1fr 1fr}
+  .power-row{grid-template-columns:1fr 1fr 1fr}
+  .tab-btn{min-width:54px;padding:0 6px}
+  .tab-label{font-size:8px}
+}
+@media(min-width:1100px){
+  :root{--content-max:860px}
+  .screens-wrap{padding:0 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ DESKTOP SIDEBAR ═══ -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🚁</div>
+    <div class="sidebar-logo-title">FPV <span>TOOLS</span></div>
+    <div class="sidebar-logo-sub">Калькуляторы для дронов</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="sidebar-section">Калькуляторы</div>
+    <button class="snav-btn active" id="snav-range" onclick="goTab('range',this)">
+      <span class="snav-icon">📡</span> Дальность
+    </button>
+    <button class="snav-btn" id="snav-fresnel" onclick="goTab('fresnel',this)">
+      <span class="snav-icon">🌊</span> Зоны Френеля
+    </button>
+    <button class="snav-btn" id="snav-dipole" onclick="goTab('dipole',this)">
+      <span class="snav-icon">📶</span> Диполь
+    </button>
+    <button class="snav-btn" id="snav-harm" onclick="goTab('harm',this)">
+      <span class="snav-icon">⚡</span> Гармоники
+    </button>
+    <button class="snav-btn" id="snav-chan" onclick="goTab('chan',this)">
+      <span class="snav-icon">📻</span> Каналы
+    </button>
+    <button class="snav-btn" id="snav-fq" onclick="goTab('fq',this)">
+      <span class="snav-icon">🔍</span> Ближайший канал
+    </button>
+    <div class="sidebar-section">Конфигурация</div>
+    <button class="snav-btn" id="snav-vtx" onclick="goTab('vtx',this)">
+      <span class="snav-icon">⚙️</span> VTX Config
+    </button>
+  </div>
+</div>
+
+<!-- ═══ MAIN WRAP ═══ -->
+<div class="main-wrap" id="mainWrap">
+
+  <!-- MOBILE HEADER -->
+  <div class="header" id="mobileHeader">
+    <div class="header-icon">🚁</div>
+    <div>
+      <div class="header-title">FPV <span>TOOLS</span></div>
+      <div class="header-sub">Калькуляторы для дронов</div>
+    </div>
+  </div>
+
+  <div class="screens-wrap">
+
+    <!-- ══ 1. RANGE ══ -->
+    <div id="s-range" class="screen active">
+      <div class="page-head">
+        <div class="page-head-icon">📡</div>
+        <div><div class="page-title">Дальность</div>
+          <div class="page-desc">Теоретическая максимальная дальность по уравнению Фрии</div></div>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>Мощность VTX (мВт)</label><input type="number" id="r-pwr" value="2500" inputmode="decimal"></div>
+        <div class="field"><label>Усиление VTX (дБи)</label><input type="number" id="r-vtxg" value="2.2" step="0.1" inputmode="decimal"></div>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>Усиление VRX (дБи)</label><input type="number" id="r-vrxg" value="11" step="0.1" inputmode="decimal"></div>
+        <div class="field"><label>Чувств. VRX (дБм)</label><input type="number" id="r-sens" value="-90" inputmode="decimal"></div>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>Доп. потери (дБ)</label><input type="number" id="r-loss" value="2" step="0.5" inputmode="decimal"></div>
+        <div class="field"><label>Частота (МГц)</label><input type="number" id="r-freq" value="5658" inputmode="decimal"></div>
+      </div>
+      <button class="btn-main" onclick="calcRange()">⚡ Рассчитать дальность</button>
+      <div class="results" id="r-out" style="display:none">
+        <div class="rcard info"><span class="rl">Мощность TX</span><span class="rv" id="r-tx">—</span></div>
+        <div class="rcard"><span class="rl">Макс. потери пути</span><span class="rv" id="r-pl">—</span></div>
+        <div class="rcard warn"><span class="rl">Теор. макс. дальность</span><span class="rv" id="r-th">—</span></div>
+        <div class="rcard hl"><span class="rl">🎯 Реалистичная оценка</span><span class="rv" id="r-re">—</span></div>
+      </div>
+      <div class="ibox" style="margin-top:14px"><strong>Реалистичная оценка</strong> — ~32% от теоретической. Учитывает переотражения, неидеальное ориентирование антенн и реальные условия полёта.</div>
+    </div>
+
+    <!-- ══ 2. FRESNEL ══ -->
+    <div id="s-fresnel" class="screen">
+      <div class="page-head">
+        <div class="page-head-icon">🌊</div>
+        <div><div class="page-title">Зоны Френеля</div>
+          <div class="page-desc">Минимальная высота над препятствиями для прямой видимости</div></div>
+      </div>
+      <div class="presets">
+        <button class="preset" onclick="setFF(433)">433 МГц</button>
+        <button class="preset" onclick="setFF(868)">868</button>
+        <button class="preset" onclick="setFF(915)">915</button>
+        <button class="preset" onclick="setFF(1280)">1280</button>
+        <button class="preset" onclick="setFF(2400)">2.4 ГГц</button>
+        <button class="preset" onclick="setFF(5800)">5.8 ГГц</button>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>Частота (МГц)</label><input type="number" id="f-freq" value="915" inputmode="decimal"></div>
+        <div class="field"><label>Дистанция (км)</label><input type="number" id="f-dist" value="5" step="0.1" inputmode="decimal"></div>
+      </div>
+      <button class="btn-main" onclick="calcFresnel()">⚡ Рассчитать зоны</button>
+      <div class="results" id="f-out" style="display:none">
+        <div class="rcard ok"><span class="rl">1-я зона Френеля (100%)</span><span class="rv" id="f-z1">—</span></div>
+        <div class="rcard warn"><span class="rl">Зона 80% — рекомендуемая</span><span class="rv" id="f-z8">—</span></div>
+        <div class="rcard hl"><span class="rl">Зона 60% — минимальная</span><span class="rv" id="f-z6">—</span></div>
+      </div>
+      <div class="ibox" style="margin-top:14px">
+        <strong>Как использовать:</strong> найдите минимальную высоту прямой видимости между антеннами и добавьте вычисленное значение — это и будет безопасная высота полёта.
+      </div>
+    </div>
+
+    <!-- ══ 3. DIPOLE ══ -->
+    <div id="s-dipole" class="screen">
+      <div class="page-head">
+        <div class="page-head-icon">📶</div>
+        <div><div class="page-title">Диполь</div>
+          <div class="page-desc">Длина диполя по частоте или частота по длине — меняй любое поле</div></div>
+      </div>
+      <div class="presets">
+        <button class="preset" onclick="setDF(433)">433</button>
+        <button class="preset" onclick="setDF(868)">868</button>
+        <button class="preset" onclick="setDF(915)">915</button>
+        <button class="preset" onclick="setDF(1280)">1280</button>
+        <button class="preset" onclick="setDF(2450)">2450</button>
+        <button class="preset" onclick="setDF(5800)">5800</button>
+      </div>
+      <div class="field-row cols3" id="dipoleFields">
+        <div class="field"><label>Частота (МГц)</label><input type="number" id="d-f" value="915" oninput="dCalc('f')" inputmode="decimal"></div>
+        <div class="field"><label>Полная длина (см)</label><input type="number" id="d-t" value="15.56" step="0.01" oninput="dCalc('t')" inputmode="decimal"></div>
+        <div class="field"><label>Длина плеча (см)</label><input type="number" id="d-l" value="7.78" step="0.01" oninput="dCalc('l')" inputmode="decimal"></div>
+      </div>
+
+      <!-- Visual dipole diagram -->
+      <div class="dipole-visual">
+        <div class="dipole-svg-wrap">
+          <svg id="dipole-svg" width="280" height="60" viewBox="0 0 280 60">
+            <line x1="140" y1="10" x2="140" y2="50" stroke="#7a7a99" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <rect x="30" y="26" width="110" height="8" rx="4" fill="#7b5ea7" opacity="0.8"/>
+            <rect x="140" y="26" width="110" height="8" rx="4" fill="#ff4d6d" opacity="0.8"/>
+            <circle cx="140" cy="30" r="5" fill="#fbbf24"/>
+            <!-- arrows -->
+            <line x1="32" y1="20" x2="138" y2="20" stroke="#7b5ea7" stroke-width="1.2"/>
+            <polygon points="32,17 32,23 24,20" fill="#7b5ea7"/>
+            <line x1="142" y1="20" x2="248" y2="20" stroke="#ff4d6d" stroke-width="1.2"/>
+            <polygon points="248,17 248,23 256,20" fill="#ff4d6d"/>
+            <!-- labels -->
+            <text x="85" y="15" fill="#c8b8f0" font-size="10" text-anchor="middle" font-family="monospace" id="svg-leg1">—</text>
+            <text x="195" y="15" fill="#ff8fa3" font-size="10" text-anchor="middle" font-family="monospace" id="svg-leg2">—</text>
+            <text x="140" y="55" fill="#fbbf24" font-size="9" text-anchor="middle" font-family="monospace">питание</text>
+          </svg>
+        </div>
+        <div class="dipole-labels">
+          <div><div class="d-lbl">Частота</div><div class="d-val" id="dv-f">915 <span class="d-unit">МГц</span></div></div>
+          <div><div class="d-lbl">Полная длина</div><div class="d-val" id="dv-t">15.56 <span class="d-unit">см</span></div></div>
+          <div><div class="d-lbl">Плечо</div><div class="d-val" id="dv-l">7.78 <span class="d-unit">см</span></div></div>
+        </div>
+      </div>
+      <div class="ibox"><strong>Точная формула:</strong> L = (c / f) / 2 × k, где c = 299 792 458 м/с (точное значение), k = 0.95 (коэффициент укорочения для стандартного диполя).</div>
+    </div>
+
+    <!-- ══ 4. HARMONICS ══ -->
+    <div id="s-harm" class="screen">
+      <div class="page-head">
+        <div class="page-head-icon">⚡</div>
+        <div><div class="page-title">Гармоники</div>
+          <div class="page-desc">Видеоканалы, пострадавшие от гармоник вашего TX-передатчика</div></div>
+      </div>
+      <div class="presets">
+        <button class="preset" onclick="setHF(433)">433</button>
+        <button class="preset" onclick="setHF(750)">750</button>
+        <button class="preset" onclick="setHF(915)">915</button>
+        <button class="preset" onclick="setHF(960)">960</button>
+        <button class="preset" onclick="setHF(1000)">1000</button>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>Центральная частота (МГц)</label><input type="number" id="h-cf" value="915" inputmode="decimal"></div>
+        <div class="field"><label>Ширина канала (МГц)</label><input type="number" id="h-bw" value="20" inputmode="decimal"></div>
+      </div>
+      <button class="btn-main" onclick="calcHarm()">⚡ Найти гармоники</button>
+      <div id="h-out" style="display:none">
+        <div class="stabs">
+          <button class="stab on" onclick="hTab('a',this)">⚠️ Пострадавшие</button>
+          <button class="stab" onclick="hTab('u',this)">✅ Чистые</button>
+          <button class="stab" onclick="hTab('l',this)">📋 Все</button>
+        </div>
+        <div id="h-a"></div>
+        <div id="h-u" style="display:none"></div>
+        <div id="h-l" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ══ 5. CHANNELS ══ -->
+    <div id="s-chan" class="screen">
+      <div class="page-head">
+        <div class="page-head-icon">📻</div>
+        <div><div class="page-title">Распределение каналов</div>
+          <div class="page-desc">Оптимальные каналы при совместном полёте нескольких пилотов</div></div>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>Количество пилотов</label>
+          <select id="ch-p">
+            <option value="2">2 пилота</option><option value="3" selected>3 пилота</option>
+            <option value="4">4 пилота</option><option value="5">5 пилотов</option><option value="6">6 пилотов</option>
+          </select>
+        </div>
+        <div class="field" style="justify-content:center">
+          <label style="padding-bottom:2px">Доп. диапазоны</label>
+          <div style="display:flex;flex-direction:column;gap:5px;padding-top:4px">
+            <div class="chk-row" style="padding:0"><input type="checkbox" id="ch-x"><label for="ch-x">X-band (4.9–5.0 ГГц)</label></div>
+            <div class="chk-row" style="padding:0"><input type="checkbox" id="ch-l"><label for="ch-l">L-band (1.3 ГГц)</label></div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-main" onclick="calcChans()">⚡ Распределить каналы</button>
+      <div id="ch-out" style="display:none">
+        <div class="slabel">Рекомендованные каналы</div>
+        <div id="ch-list"></div>
+      </div>
+    </div>
+
+    <!-- ══ 6. FREQ FINDER ══ -->
+    <div id="s-fq" class="screen">
+      <div class="page-head">
+        <div class="page-head-icon">🔍</div>
+        <div><div class="page-title">Ближайший канал</div>
+          <div class="page-desc">Найти видеоканал с наилучшим КСВ для вашей антенны</div></div>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>Начало диапазона (МГц)</label><input type="number" id="fq-s" value="5658" inputmode="decimal"></div>
+        <div class="field"><label>Конец диапазона (МГц)</label><input type="number" id="fq-e" value="5917" inputmode="decimal"></div>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>Количество каналов</label>
+          <select id="fq-n"><option value="1">1 канал</option><option value="2">2 канала</option><option value="4" selected>4 канала</option><option value="8">8 каналов</option></select>
+        </div>
+        <div class="field" style="justify-content:center">
+          <label style="padding-bottom:6px">Опции</label>
+          <div class="chk-row" style="padding:0"><input type="checkbox" id="fq-d"><label for="fq-d">Цифровые диапазоны</label></div>
+        </div>
+      </div>
+      <button class="btn-main" onclick="calcFQ()">⚡ Найти каналы</button>
+      <div id="fq-out" style="display:none">
+        <div class="slabel">Ближайшие каналы к центру диапазона</div>
+        <div id="fq-list"></div>
+      </div>
+    </div>
+
+    <!-- ══ 7. VTX CONFIG ══ -->
+    <div id="s-vtx" class="screen">
+      <div class="page-head">
+        <div class="page-head-icon">⚙️</div>
+        <div><div class="page-title">VTX Config</div>
+          <div class="page-desc">Генератор конфига Betaflight для IRC Tramp / SmartAudio</div></div>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>AUX для управления VTX</label>
+          <select id="v-aux">
+            <option>AUX1</option><option>AUX2</option><option selected>AUX3</option>
+            <option>AUX4</option><option>AUX5</option><option>AUX6</option>
+          </select>
+        </div>
+        <div class="field"><label>Протокол</label>
+          <select id="v-proto">
+            <option selected>IRC Tramp</option><option>SmartAudio</option><option>MSP</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>UART порт</label>
+          <select id="v-uart">
+            <option value="1" selected>UART 1</option><option value="2">UART 2</option>
+            <option value="3">UART 3</option><option value="4">UART 4</option>
+            <option value="5">UART 5</option><option value="6">UART 6</option>
+          </select>
+        </div>
+        <div class="field"><label>Шаблон VTX</label>
+          <select id="v-tpl">
+            <option value="d1">D1 VTX 2.5W 64Ch</option>
+            <option value="ru5w">RushFPV 5W</option>
+            <option value="atlatl">Atlatl HV V2</option>
+            <option value="custom">Custom (5 bands)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row cols2">
+        <div class="field"><label>Диапазон по умолчанию</label>
+          <select id="v-band">
+            <option value="1">Band A</option><option value="2">Band B</option>
+            <option value="3">Band E</option><option value="4">Band F</option>
+            <option value="5" selected>Band R</option><option value="6">Band L</option>
+          </select>
+        </div>
+        <div class="field"><label>Канал по умолчанию</label>
+          <select id="v-ch">
+            <option value="1" selected>Канал 1</option><option value="2">Канал 2</option>
+            <option value="3">Канал 3</option><option value="4">Канал 4</option>
+            <option value="5">Канал 5</option><option value="6">Канал 6</option>
+            <option value="7">Канал 7</option><option value="8">Канал 8</option>
+          </select>
+        </div>
+      </div>
+      <div class="slabel">Индексы уровней мощности</div>
+      <div class="power-row">
+        <div class="power-field"><label>Уровень 1</label><input type="number" id="v-p1" value="2" inputmode="numeric"></div>
+        <div class="power-field"><label>Уровень 2</label><input type="number" id="v-p2" value="3" inputmode="numeric"></div>
+        <div class="power-field"><label>Уровень 3</label><input type="number" id="v-p3" value="5" inputmode="numeric"></div>
+      </div>
+      <div class="chk-row"><input type="checkbox" id="v-bchg"><label for="v-bchg">Смена Band/Channel через AUX</label></div>
+      <div class="chk-row" style="margin-top:6px"><input type="checkbox" id="v-tbl" checked><label for="v-tbl">Включить VTX-таблицу в конфиг</label></div>
+      <button class="btn-main" onclick="genVTX()">⚙️ Сгенерировать конфиг</button>
+      <div id="v-out" style="display:none">
+        <div class="slabel">Betaflight CLI — скопируй и вставь в консоль</div>
+        <div class="code-wrap">
+          <div class="code-block" id="v-code"></div>
+        </div>
+        <button class="copy-btn" id="v-copy" onclick="copyVTX()">📋 Скопировать конфиг</button>
+      </div>
+    </div>
+
+  </div><!-- /screens-wrap -->
+</div><!-- /main-wrap -->
+
+<!-- ═══ BOTTOM TABBAR (mobile) ═══ -->
+<div class="tabbar" id="tabbar">
+  <div class="tabbar-inner">
+    <button class="tab-btn active" onclick="goTab('range',this)"><span class="tab-icon">📡</span><span class="tab-label">Дальность</span></button>
+    <button class="tab-btn" onclick="goTab('fresnel',this)"><span class="tab-icon">🌊</span><span class="tab-label">Френель</span></button>
+    <button class="tab-btn" onclick="goTab('dipole',this)"><span class="tab-icon">📶</span><span class="tab-label">Диполь</span></button>
+    <button class="tab-btn" onclick="goTab('harm',this)"><span class="tab-icon">⚡</span><span class="tab-label">Гармоники</span></button>
+    <button class="tab-btn" onclick="goTab('chan',this)"><span class="tab-icon">📻</span><span class="tab-label">Каналы</span></button>
+    <button class="tab-btn" onclick="goTab('fq',this)"><span class="tab-icon">🔍</span><span class="tab-label">Частота</span></button>
+    <button class="tab-btn" onclick="goTab('vtx',this)"><span class="tab-icon">⚙️</span><span class="tab-label">VTX</span></button>
+  </div>
+</div>
+
+<script>
+// ═══ LAYOUT DETECTION ═══
+function applyLayout() {
+  const isDesktop = window.innerWidth >= 768;
+  const isTg = !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.platform !== 'unknown');
+  const body = document.body;
+  if (isDesktop && !isTg) {
+    body.className = 'layout-desktop';
+  } else {
+    body.className = 'layout-mobile';
+  }
+}
+applyLayout();
+window.addEventListener('resize', applyLayout);
+
+// ═══ NAVIGATION ═══
+function goTab(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn, .snav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  // also sync sidebar btn
+  const snav = document.getElementById('snav-' + id);
+  if (snav) snav.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══ RANGE CALCULATOR ═══
+// Formula: P(dBm) = 10*log10(P_mW)   [NOT +30, that's for Watts]
+// Friis: PL(dB) = 20*log10(4π*d*f/c)
+// → d = c/(4π*f) * 10^(PL/20)
+function calcRange() {
+  const pw = +document.getElementById('r-pwr').value;
+  const vg = +document.getElementById('r-vtxg').value;
+  const rg = +document.getElementById('r-vrxg').value;
+  const rs = +document.getElementById('r-sens').value;
+  const xl = +document.getElementById('r-loss').value;
+  const fq = +document.getElementById('r-freq').value;
+  const txDbm = 10 * Math.log10(pw);           // mW → dBm (correct)
+  const pl = txDbm + vg + rg - rs - xl;
+  const distM = (3e8 / (4 * Math.PI * fq * 1e6)) * Math.pow(10, pl / 20);
+  const distKm = distM / 1000;
+  const realistic = distKm * 0.318;
+  function rv(v, u) { return v + '<span class="ru">' + u + '</span>'; }
+  document.getElementById('r-tx').innerHTML  = rv(txDbm.toFixed(1), 'дБм');
+  document.getElementById('r-pl').innerHTML  = rv(pl.toFixed(1), 'дБ');
+  document.getElementById('r-th').innerHTML  = rv(distKm.toFixed(1), 'км');
+  document.getElementById('r-re').innerHTML  = rv(realistic.toFixed(1), 'км');
+  document.getElementById('r-out').style.display = 'flex';
+}
+
+// ═══ FRESNEL ═══
+// r1 = sqrt(λ * d1 * d2 / (d1+d2)), at midpoint → sqrt(λ*d/4)
+function setFF(f) { document.getElementById('f-freq').value = f; }
+function calcFresnel() {
+  const fq = +document.getElementById('f-freq').value;
+  const d  = +document.getElementById('f-dist').value * 1000; // km→m
+  const lam = 300 / fq;  // wavelength in m (c=3e8 m/s, f in MHz → λ=300/f m)
+  const r1 = Math.sqrt(lam * d / 4);
+  function rv(v, u) { return v + '<span class="ru">' + u + '</span>'; }
+  document.getElementById('f-z1').innerHTML = rv(r1.toFixed(1), 'м');
+  document.getElementById('f-z8').innerHTML = rv((r1 * 0.8).toFixed(1), 'м');
+  document.getElementById('f-z6').innerHTML = rv((r1 * 0.6).toFixed(1), 'м');
+  document.getElementById('f-out').style.display = 'flex';
+}
+
+// ═══ DIPOLE ═══
+// Exact formula: L(cm) = (c / f / 2) * k
+// c = 299792458 m/s = 29979245800 cm/s
+// L(cm) = 29979245800 / (f_MHz * 1e6) / 2 * 0.95
+//       = 29979.2458 / f_MHz / 2 * 0.95
+//       = 14240.1417 / f_MHz   ← use this constant
+const DIPOLE_C = 14240.1417; // (c_exact_cm_per_s / 1e6) / 2 * k
+function setDF(f) { document.getElementById('d-f').value = f; dCalc('f'); }
+function dCalc(src) {
+  let f, t, l;
+  if (src === 'f') {
+    f = +document.getElementById('d-f').value; if (!f) return;
+    t = DIPOLE_C / f; l = t / 2;
+    document.getElementById('d-t').value = t.toFixed(2);
+    document.getElementById('d-l').value = l.toFixed(2);
+  } else if (src === 't') {
+    t = +document.getElementById('d-t').value; if (!t) return;
+    f = DIPOLE_C / t; l = t / 2;
+    document.getElementById('d-f').value = f.toFixed(2);
+    document.getElementById('d-l').value = l.toFixed(2);
+  } else {
+    l = +document.getElementById('d-l').value; if (!l) return;
+    t = l * 2; f = DIPOLE_C / t;
+    document.getElementById('d-f').value = f.toFixed(2);
+    document.getElementById('d-t').value = t.toFixed(2);
+  }
+  if (!f) { f = DIPOLE_C / (+document.getElementById('d-t').value || 1); }
+  if (!t) t = DIPOLE_C / f;
+  if (!l) l = t / 2;
+  // update visual
+  document.getElementById('dv-f').innerHTML = f.toFixed(1) + ' <span class="d-unit">МГц</span>';
+  document.getElementById('dv-t').innerHTML = t.toFixed(2) + ' <span class="d-unit">см</span>';
+  document.getElementById('dv-l').innerHTML = l.toFixed(2) + ' <span class="d-unit">см</span>';
+  document.getElementById('svg-leg1').textContent = l.toFixed(1) + ' см';
+  document.getElementById('svg-leg2').textContent = l.toFixed(1) + ' см';
+}
+// init dipole visuals on load
+dCalc('f');
+
+// ═══ HARMONICS ═══
+const FCHS = [
+  {b:'A',c:1,f:5865},{b:'A',c:2,f:5845},{b:'A',c:3,f:5825},{b:'A',c:4,f:5805},
+  {b:'A',c:5,f:5785},{b:'A',c:6,f:5765},{b:'A',c:7,f:5745},{b:'A',c:8,f:5725},
+  {b:'B',c:1,f:5733},{b:'B',c:2,f:5752},{b:'B',c:3,f:5771},{b:'B',c:4,f:5790},
+  {b:'B',c:5,f:5809},{b:'B',c:6,f:5828},{b:'B',c:7,f:5847},{b:'B',c:8,f:5866},
+  {b:'E',c:1,f:5705},{b:'E',c:2,f:5685},{b:'E',c:3,f:5665},{b:'E',c:4,f:5645},
+  {b:'E',c:5,f:5885},{b:'E',c:6,f:5905},{b:'E',c:7,f:5925},{b:'E',c:8,f:5945},
+  {b:'F',c:1,f:5740},{b:'F',c:2,f:5760},{b:'F',c:3,f:5780},{b:'F',c:4,f:5800},
+  {b:'F',c:5,f:5820},{b:'F',c:6,f:5840},{b:'F',c:7,f:5860},{b:'F',c:8,f:5880},
+  {b:'R',c:1,f:5658},{b:'R',c:2,f:5695},{b:'R',c:3,f:5732},{b:'R',c:4,f:5769},
+  {b:'R',c:5,f:5806},{b:'R',c:6,f:5843},{b:'R',c:7,f:5880},{b:'R',c:8,f:5917},
+  {b:'L',c:1,f:5362},{b:'L',c:2,f:5399},{b:'L',c:3,f:5436},{b:'L',c:4,f:5473},
+  {b:'L',c:5,f:5510},{b:'L',c:6,f:5547},{b:'L',c:7,f:5584},{b:'L',c:8,f:5621},
+];
+let HD = {};
+function setHF(f) { document.getElementById('h-cf').value = f; }
+function calcHarm() {
+  const cf = +document.getElementById('h-cf').value;
+  const bw = +document.getElementById('h-bw').value / 2;
+  const s0 = cf - bw, e0 = cf + bw;
+  HD = { aff: {}, unaff: [], all: [] };
+  for (let n = 2; n <= 10; n++) {
+    const hs = s0 * n, he = e0 * n;
+    HD.all.push({ n, s: Math.round(hs), e: Math.round(he) });
+    const aff = FCHS.filter(c => c.f >= hs && c.f <= he);
+    if (aff.length) HD.aff[n] = { s: Math.round(hs), e: Math.round(he), ch: aff };
+  }
+  HD.unaff = FCHS.filter(c => {
+    for (let n = 2; n <= 10; n++) if (c.f >= s0*n && c.f <= e0*n) return false;
+    return true;
+  });
+  document.getElementById('h-out').style.display = 'block';
+  hRender('a');
+}
+function hTab(t, btn) {
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  ['a','u','l'].forEach(x => { document.getElementById('h-' + x).style.display = 'none'; });
+  hRender(t);
+}
+function hRender(t) {
+  const el = document.getElementById('h-' + t);
+  el.style.display = 'block';
+  if (t === 'a') {
+    const ks = Object.keys(HD.aff);
+    if (!ks.length) { el.innerHTML = '<div class="ibox">✅ Пострадавших каналов не найдено — ваш TX чист!</div>'; return; }
+    el.innerHTML = ks.map(n => {
+      const d = HD.aff[n];
+      return `<div class="hg"><div class="hg-title">Гармоника #${n} — ${d.s}–${d.e} МГц</div>
+        <div class="tags">${d.ch.map(c => `<span class="tag bad">${c.b}-${c.c} (${c.f} МГц)</span>`).join('')}</div></div>`;
+    }).join('');
+  } else if (t === 'u') {
+    const bands = {};
+    HD.unaff.forEach(c => { if (!bands[c.b]) bands[c.b] = []; bands[c.b].push(c); });
+    el.innerHTML = Object.keys(bands).map(b =>
+      `<div class="hg"><div class="hg-title">Диапазон ${b}</div>
+       <div class="tags">${bands[b].map(c => `<span class="tag good">${b}-${c.c} (${c.f} МГц)</span>`).join('')}</div></div>`
+    ).join('') || '<div class="ibox">Нет данных</div>';
+  } else {
+    el.innerHTML = HD.all.map(h =>
+      `<div class="rcard" style="margin-bottom:8px">
+        <span class="rl">Гармоника #${h.n}</span>
+        <span class="rv" style="font-size:15px">${h.s}–${h.e} <span class="ru">МГц</span></span>
+       </div>`
+    ).join('');
+  }
+}
+
+// ═══ CHANNEL DISTRIBUTION ═══
+const BANDS = {
+  A:[5865,5845,5825,5805,5785,5765,5745,5725], B:[5733,5752,5771,5790,5809,5828,5847,5866],
+  E:[5705,5685,5665,5645,5885,5905,5925,5945], F:[5740,5760,5780,5800,5820,5840,5860,5880],
+  R:[5658,5695,5732,5769,5806,5843,5880,5917], L:[5362,5399,5436,5473,5510,5547,5584,5621],
+  X:[4990,5020,5050,5080,5110,5140,5170,5200], S:[6002,6028,6054,6080,6106,6132,6158,6184],
+};
+function calcChans() {
+  const n = +document.getElementById('ch-p').value;
+  const incX = document.getElementById('ch-x').checked;
+  const incL = document.getElementById('ch-l').checked;
+  let all = [];
+  ['A','B','E','F','R'].forEach(b => BANDS[b].forEach((f,i) => all.push({b,c:i+1,f})));
+  if (incX) BANDS.X.forEach((f,i) => all.push({b:'X',c:i+1,f}));
+  if (incL) BANDS.L.forEach((f,i) => all.push({b:'L',c:i+1,f}));
+  let sel = [all[0]];
+  while (sel.length < n) {
+    let best = null, bm = -1;
+    for (const x of all) {
+      if (sel.find(s => s.b === x.b && s.c === x.c)) continue;
+      const md = Math.min(...sel.map(s => Math.abs(s.f - x.f)));
+      if (md > bm) { bm = md; best = x; }
+    }
+    if (!best) break;
+    sel.push(best);
+  }
+  const cols = ['#ff4d6d','#22d3a8','#fbbf24','#7b5ea7','#fb923c','#38bdf8'];
+  let html = sel.map((c, i) => {
+    const col = cols[i % cols.length];
+    return `<div class="pilot-card" style="border-left:3px solid ${col}">
+      <div><div style="font-weight:800;font-size:16px">Пилот ${i+1}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px">Диапазон ${c.b} · Канал ${c.c}</div></div>
+      <div style="text-align:right">
+        <div style="font-size:22px;font-weight:800;color:${col}">${c.f}</div>
+        <div style="font-size:11px;color:var(--muted)">МГц</div>
+      </div>
+    </div>`;
+  }).join('');
+  if (sel.length > 1) {
+    const fs = sel.map(c => c.f).sort((a,b) => a-b);
+    let mn = Infinity;
+    for (let i = 1; i < fs.length; i++) mn = Math.min(mn, fs[i] - fs[i-1]);
+    html += `<div class="rcard ok" style="margin-top:4px">
+      <span class="rl">Минимальное расстояние между каналами</span>
+      <span class="rv">${mn}<span class="ru">МГц</span></span></div>`;
+  }
+  document.getElementById('ch-list').innerHTML = html;
+  document.getElementById('ch-out').style.display = 'block';
+}
+
+// ═══ FREQ FINDER ═══
+function calcFQ() {
+  const s = +document.getElementById('fq-s').value;
+  const e = +document.getElementById('fq-e').value;
+  const n = +document.getElementById('fq-n').value;
+  const incD = document.getElementById('fq-d').checked;
+  let all = [...FCHS];
+  if (incD) {
+    BANDS.X.forEach((f,i) => all.push({b:'X',c:i+1,f}));
+    BANDS.S.forEach((f,i) => all.push({b:'S',c:i+1,f}));
+  }
+  const mid = (s + e) / 2;
+  const res = all.filter(c => c.f >= s && c.f <= e)
+    .sort((a,b) => Math.abs(a.f - mid) - Math.abs(b.f - mid))
+    .slice(0, n);
+  document.getElementById('fq-list').innerHTML = res.length
+    ? res.map((c, i) => {
+        const d = Math.abs(c.f - mid);
+        return `<div class="rcard" style="margin-bottom:8px">
+          <div>
+            <div style="font-weight:800;font-size:16px">${c.b}-${c.c}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:3px">${c.f} МГц · откл. от центра ${d.toFixed(0)} МГц</div>
+          </div>
+          <span class="tag ${d<20?'good':d<50?'':'bad'}">#${i+1}</span>
+        </div>`;
+      }).join('')
+    : '<div class="ibox">Нет каналов в указанном диапазоне</div>';
+  document.getElementById('fq-out').style.display = 'block';
+}
+
+// ═══ VTX CONFIG GENERATOR ═══
+const VTX_TABLES = {
+  d1: {
+    bands:8, channels:8,
+    rows:[
+      'band 1 BAND_A   A CUSTOM 5865 5845 5825 5805 5785 5765 5745 5725',
+      'band 2 BAND_B   B CUSTOM 5733 5752 5771 5790 5809 5828 5847 5866',
+      'band 3 BAND_E   E CUSTOM 5705 5685 5665 5645 5885 5905 5925 5945',
+      'band 4 BAND_F   F CUSTOM 5740 5760 5780 5800 5820 5840 5860 5880',
+      'band 5 BAND_R   R CUSTOM 5658 5695 5732 5769 5806 5843 5880 5917',
+      'band 6 BAND_L   L CUSTOM 5362 5399 5436 5473 5510 5547 5584 5621',
+      'band 7 BAND_X   X CUSTOM 4990 5020 5050 5080 5110 5140 5170 5200',
+      'band 8 BAND_S   S CUSTOM 6002 6028 6054 6080 6106 6132 6158 6184',
+    ],
+    powerlevels:5, powervalues:'1 14 27 30 34', powerlabels:'OFF 25 500 1 2.5',
+  },
+  ru5w: {
+    bands:6, channels:8,
+    rows:[
+      'band 1 BAND_A   A CUSTOM 5865 5845 5825 5805 5785 5765 5745 5725',
+      'band 2 BAND_B   B CUSTOM 5733 5752 5771 5790 5809 5828 5847 5866',
+      'band 3 BAND_E   E CUSTOM 5705 5685 5665 5645 5885 5905 5925 5945',
+      'band 4 BAND_F   F CUSTOM 5740 5760 5780 5800 5820 5840 5860 5880',
+      'band 5 BAND_R   R CUSTOM 5658 5695 5732 5769 5806 5843 5880 5917',
+      'band 6 BAND_L   L CUSTOM 5362 5399 5436 5473 5510 5547 5584 5621',
+    ],
+    powerlevels:4, powervalues:'1 14 27 37', powerlabels:'OFF 25 200 5W',
+  },
+  atlatl: {
+    bands:5, channels:8,
+    rows:[
+      'band 1 BAND_A   A CUSTOM 5865 5845 5825 5805 5785 5765 5745 5725',
+      'band 2 BAND_B   B CUSTOM 5733 5752 5771 5790 5809 5828 5847 5866',
+      'band 3 BAND_E   E CUSTOM 5705 5685 5665 5645 5885 5905 5925 5945',
+      'band 4 BAND_F   F CUSTOM 5740 5760 5780 5800 5820 5840 5860 5880',
+      'band 5 BAND_R   R CUSTOM 5658 5695 5732 5769 5806 5843 5880 5917',
+    ],
+    powerlevels:4, powervalues:'0 1 2 3', powerlabels:'25 200 600 1W',
+  },
+  custom: {
+    bands:5, channels:8,
+    rows:[
+      'band 1 BAND_A   A CUSTOM 5865 5845 5825 5805 5785 5765 5745 5725',
+      'band 2 BAND_B   B CUSTOM 5733 5752 5771 5790 5809 5828 5847 5866',
+      'band 3 BAND_E   E CUSTOM 5705 5685 5665 5645 5885 5905 5925 5945',
+      'band 4 BAND_F   F CUSTOM 5740 5760 5780 5800 5820 5840 5860 5880',
+      'band 5 BAND_R   R CUSTOM 5658 5695 5732 5769 5806 5843 5880 5917',
+    ],
+    powerlevels:3, powervalues:'1 14 27', powerlabels:'OFF 25 200',
+  },
+};
+function genVTX() {
+  const aux   = document.getElementById('v-aux').value;
+  const proto = document.getElementById('v-proto').value;
+  const uart  = document.getElementById('v-uart').value;
+  const tpl   = document.getElementById('v-tpl').value;
+  const band  = document.getElementById('v-band').value;
+  const ch    = document.getElementById('v-ch').value;
+  const p1    = document.getElementById('v-p1').value || 2;
+  const p2    = document.getElementById('v-p2').value || 3;
+  const p3    = document.getElementById('v-p3').value || 5;
+  const bchg  = document.getElementById('v-bchg').checked;
+  const tblOn = document.getElementById('v-tbl').checked;
+  const t     = VTX_TABLES[tpl] || VTX_TABLES.d1;
+  const auxIdx = {AUX1:1,AUX2:2,AUX3:3,AUX4:4,AUX5:5,AUX6:6}[aux] || 3;
+  const tplName = document.getElementById('v-tpl').options[document.getElementById('v-tpl').selectedIndex].text;
+  let lines = [];
+  lines.push('# serial');
+  lines.push(`serial ${parseInt(uart)-1} 8192 115200 57600 0 115200`);
+  lines.push('');
+  if (tblOn) {
+    lines.push(`# vtxtable (${tplName})`);
+    lines.push(`vtxtable bands ${t.bands}`);
+    lines.push(`vtxtable channels ${t.channels}`);
+    t.rows.forEach(r => lines.push('vtxtable ' + r));
+    lines.push(`vtxtable powerlevels ${t.powerlevels}`);
+    lines.push(`vtxtable powervalues ${t.powervalues}`);
+    lines.push(`vtxtable powerlabels ${t.powerlabels}`);
+    lines.push('');
+  }
+  lines.push('# vtx');
+  if (proto === 'IRC Tramp' || proto === 'SmartAudio') {
+    lines.push(`vtx 0 ${auxIdx-1} 0 0 ${p1} 900 1100`);
+    lines.push(`vtx 1 ${auxIdx-1} 0 0 ${p2} 1400 1600`);
+    lines.push(`vtx 2 ${auxIdx-1} 0 0 ${p3} 1900 2100`);
+    for (let i = 3; i <= 9; i++) lines.push(`vtx ${i} 0 0 0 0 900 900`);
+  } else {
+    for (let i = 0; i <= 9; i++) lines.push(`vtx ${i} 0 0 0 0 900 900`);
+  }
+  lines.push('');
+  if (bchg) { lines.push('# band/channel switching'); lines.push('set vtx_band_switching_enabled = ON'); lines.push(''); }
+  lines.push('# master');
+  lines.push(`set vtx_band = ${band}`);
+  lines.push(`set vtx_channel = ${ch}`);
+  lines.push('set vtx_power = 1');
+  if (proto !== 'MSP') lines.push('set vtx_low_power_disarm = ON');
+  lines.push('');
+  lines.push('save');
+  document.getElementById('v-code').textContent = lines.join('\n');
+  document.getElementById('v-out').style.display = 'block';
+  const btn = document.getElementById('v-copy');
+  btn.textContent = '📋 Скопировать конфиг';
+  btn.classList.remove('copied');
+  setTimeout(() => document.getElementById('v-out').scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
+}
+function copyVTX() {
+  const code = document.getElementById('v-code').textContent;
+  const btn = document.getElementById('v-copy');
+  const done = () => { btn.textContent = '✅ Скопировано!'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = '📋 Скопировать конфиг'; btn.classList.remove('copied'); }, 2500); };
+  if (navigator.clipboard) { navigator.clipboard.writeText(code).then(done); }
+  else { const ta = document.createElement('textarea'); ta.value = code; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); }
+}
+
+// ═══ TELEGRAM INIT ═══
+if (window.Telegram && window.Telegram.WebApp) {
+  const tg = window.Telegram.WebApp;
+  tg.ready(); tg.expand();
+  if (tg.colorScheme === 'light') {
+    const r = document.documentElement.style;
+    r.setProperty('--bg','#f2f2f7'); r.setProperty('--surface','#ffffff');
+    r.setProperty('--card','#e8e8f0'); r.setProperty('--text','#111118');
+    r.setProperty('--muted','#6e6e8a'); r.setProperty('--border','rgba(0,0,0,0.09)');
+    r.setProperty('--border2','rgba(0,0,0,0.16)');
+  }
+}
+</script>
+</body>
+</html>
