@@ -449,6 +449,9 @@ button,input,select{font:inherit}
   <symbol id="i-bolt" viewBox="0 0 24 24">
     <path d="M13 2L3 14h7l-1 8 12-14h-7l-1-6Z"/>
   </symbol>
+  <symbol id="i-back" viewBox="0 0 24 24">
+    <path d="M14 18l-6-6 6-6"/>
+  </symbol>
   <symbol id="i-copy" viewBox="0 0 24 24">
     <path d="M9 9h10v12H9z"/>
     <path d="M5 15H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1"/>
@@ -511,6 +514,9 @@ button,input,select{font:inherit}
       <div class="header-title">FPV <span>TOOLS</span></div>
       <div class="header-sub">Калькуляторы для дронов</div>
     </div>
+    <button class="header-back" id="backBtn" onclick="goTab('home')" title="Вернуться в меню">
+      <svg class="ico" style="width:20px;height:20px"><use href="#i-back"/></svg>
+    </button>
   </div>
 
   <div class="screens-wrap">
@@ -772,11 +778,13 @@ button,input,select{font:inherit}
           <select id="v-aux">
             <option>AUX1</option><option>AUX2</option><option selected>AUX3</option>
             <option>AUX4</option><option>AUX5</option><option>AUX6</option>
+            <option>AUX7</option><option>AUX8</option><option>AUX9</option>
+            <option>AUX10</option><option>AUX11</option><option>AUX12</option>
           </select>
         </div>
         <div class="field"><label>Протокол</label>
           <select id="v-proto">
-            <option selected>IRC Tramp</option><option>SmartAudio</option><option>MSP</option>
+            <option selected>IRC Tramp</option><option>TBS SmartAudio</option><option>MSP</option>
           </select>
         </div>
       </div>
@@ -794,6 +802,7 @@ button,input,select{font:inherit}
             <option value="ru5w">RushFPV 5W</option>
             <option value="atlatl">Atlatl HV V2</option>
             <option value="custom">Custom (5 bands)</option>
+            <option value="tbs">TBS Unify Pro</option>
           </select>
         </div>
       </div>
@@ -803,14 +812,15 @@ button,input,select{font:inherit}
             <option value="1">Band A</option><option value="2">Band B</option>
             <option value="3">Band E</option><option value="4">Band F</option>
             <option value="5" selected>Band R</option><option value="6">Band L</option>
+            <option value="7">Band X</option><option value="8">Band S</option>
           </select>
         </div>
         <div class="field"><label>Канал по умолчанию</label>
           <select id="v-ch">
-            <option value="1" selected>Канал 1</option><option value="2">Канал 2</option>
+            <option value="1">Канал 1</option><option value="2">Канал 2</option>
             <option value="3">Канал 3</option><option value="4">Канал 4</option>
             <option value="5">Канал 5</option><option value="6">Канал 6</option>
-            <option value="7">Канал 7</option><option value="8">Канал 8</option>
+            <option value="7">Канал 7</option><option value="8" selected>Канал 8</option>
           </select>
         </div>
       </div>
@@ -821,6 +831,28 @@ button,input,select{font:inherit}
         <div class="power-field"><label>Уровень 3</label><input type="number" id="v-p3" value="5" inputmode="numeric"></div>
       </div>
       <div class="chk-row"><input type="checkbox" id="v-bchg"><label for="v-bchg">Смена Band/Channel через AUX</label></div>
+      <div id="bandControl" style="display:none">
+        <div class="field-row cols3">
+          <div class="field"><label>AUX для Band</label>
+            <select id="v-aux-band"><option>AUX1</option><option>AUX2</option><option>AUX3</option>
+              <option>AUX4</option><option>AUX5</option><option>AUX6</option><option>AUX7</option><option>AUX8</option>
+            </select>
+          </div>
+          <div class="field"><label>AUX для Channel</label>
+            <select id="v-aux-ch"><option>AUX1</option><option>AUX2</option><option>AUX3</option>
+              <option>AUX4</option><option>AUX5</option><option>AUX6</option><option>AUX7</option><option>AUX8</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row cols3">
+          <div class="field"><label>Band 1</label><select id="v-band1"><option>A</option><option selected>B</option><option>E</option><option>F</option><option>R</option><option>L</option></select></div>
+          <div class="field"><label>Band 2</label><select id="v-band2"><option>A</option><option>B</option><option selected>E</option><option>F</option><option>R</option><option>L</option></select></div>
+          <div class="field"><label>Band 3</label><select id="v-band3"><option>A</option><option>B</option><option>E</option><option selected>F</option><option>R</option><option>L</option></select></div>
+          <div class="field"><label>Band 4</label><select id="v-band4"><option>A</option><option>B</option><option>E</option><option>F</option><option selected>R</option><option>L</option></select></div>
+          <div class="field"><label>Band 5</label><select id="v-band5"><option>A</option><option>B</option><option>E</option><option>F</option><option selected>R</option><option>L</option></select></div>
+          <div class="field"><label>Band 6</label><select id="v-band6"><option>A</option><option>B</option><option>E</option><option>F</option><option>R</option><option selected>L</option></select></div>
+        </div>
+      </div>
       <div class="chk-row" style="margin-top:6px"><input type="checkbox" id="v-tbl" checked><label for="v-tbl">Включить VTX-таблицу в конфиг</label></div>
       <button class="btn-main" onclick="genVTX()"><svg class="ico" style="width:18px;height:18px"><use href="#i-vtx"/></svg> Сгенерировать конфиг</button>
       <div id="v-out" style="display:none">
@@ -829,6 +861,7 @@ button,input,select{font:inherit}
           <div class="code-block" id="v-code"></div>
         </div>
         <button class="copy-btn" id="v-copy" onclick="copyVTX()"><svg class="ico" style="width:18px;height:18px"><use href="#i-copy"/></svg> Скопировать конфиг</button>
+        <button class="copy-btn" id="v-copy-tbl" onclick="copyVTXTBL()" style="display:none">Скопировать таблицу</button>
       </div>
     </div>
 
@@ -1165,7 +1198,18 @@ const VTX_TABLES = {
     ],
     powerlevels:3, powervalues:'1 14 27', powerlabels:'OFF 25 200',
   },
+  tbs: {
+    bands:4, channels:8,
+    rows:[
+      'band 1 BAND_A   A RACING 5865 5845 5825 5805 5785 5765 5745 5725',
+      'band 2 BAND_B   B RACING 5733 5752 5771 5790 5809 5828 5847 5866',
+      'band 3 BAND_E   E RACING 5705 5685 5665 5645 5885 5905 5925 5945',
+      'band 4 BAND_F   F RACING 5740 5760 5780 5800 5820 5840 5860 5880',
+    ],
+    powerlevels:4, powervalues:'0 1 2 3', powerlabels:'25 200 600 1W',
+  },
 };
+const CHANNEL_FREQS = {A:[5865,5845,5825,5805,5785,5765,5745,5725], B:[5733,5752,5771,5790,5809,5828,5847,5866], E:[5705,5685,5665,5645,5885,5905,5925,5945], F:[5740,5760,5780,5800,5820,5840,5860,5880], R:[5658,5695,5732,5769,5806,5843,5880,5917], L:[5362,5399,5436,5473,5510,5547,5584,5621], X:[4990,5020,5050,5080,5110,5140,5170,5200], S:[6002,6028,6054,6080,6106,6132,6158,6184]};
 function genVTX() {
   const aux   = document.getElementById('v-aux').value;
   const proto = document.getElementById('v-proto').value;
@@ -1179,13 +1223,13 @@ function genVTX() {
   const bchg  = document.getElementById('v-bchg').checked;
   const tblOn = document.getElementById('v-tbl').checked;
   const t     = VTX_TABLES[tpl] || VTX_TABLES.d1;
-  const auxIdx = {AUX1:1,AUX2:2,AUX3:3,AUX4:4,AUX5:5,AUX6:6}[aux] || 3;
+  const auxIdx = {AUX1:1,AUX2:2,AUX3:3,AUX4:4,AUX5:5,AUX6:6,AUX7:7,AUX8:8,AUX9:9,AUX10:10,AUX11:11,AUX12:12}[aux] || 3;
   const tplName = document.getElementById('v-tpl').options[document.getElementById('v-tpl').selectedIndex].text;
   let lines = [];
   lines.push('# serial');
   lines.push(`serial ${parseInt(uart)-1} 8192 115200 57600 0 115200`);
   lines.push('');
-  if (tblOn) {
+  if (tblOn && tpl !== 'custom') {
     lines.push(`# vtxtable (${tplName})`);
     lines.push(`vtxtable bands ${t.bands}`);
     lines.push(`vtxtable channels ${t.channels}`);
@@ -1196,7 +1240,7 @@ function genVTX() {
     lines.push('');
   }
   lines.push('# vtx');
-  if (proto === 'IRC Tramp' || proto === 'SmartAudio') {
+  if (proto === 'IRC Tramp' || proto === 'TBS SmartAudio') {
     lines.push(`vtx 0 ${auxIdx-1} 0 0 ${p1} 900 1100`);
     lines.push(`vtx 1 ${auxIdx-1} 0 0 ${p2} 1400 1600`);
     lines.push(`vtx 2 ${auxIdx-1} 0 0 ${p3} 1900 2100`);
@@ -1211,13 +1255,13 @@ function genVTX() {
   lines.push(`set vtx_channel = ${ch}`);
   lines.push('set vtx_power = 1');
   if (proto !== 'MSP') lines.push('set vtx_low_power_disarm = ON');
-  lines.push('# 💩');
   lines.push('');
   lines.push('save');
   document.getElementById('v-code').textContent = lines.join('\n');
   document.getElementById('v-out').style.display = 'block';
+  document.getElementById('v-copy-tbl').style.display = 'none';
   const btn = document.getElementById('v-copy');
-  btn.innerHTML = '<svg class="ico" style="width:18px;height:18px"><use href=\"#i-copy\"/></svg> Скопировать конфиг';
+  btn.innerHTML = '<svg class="ico" style="width:18px;height:18px"><use href="#i-copy"/></svg> Скопировать конфиг';
   btn.classList.remove('copied');
   setTimeout(() => document.getElementById('v-out').scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
 }
@@ -1235,6 +1279,22 @@ function copyVTX() {
   if (navigator.clipboard) { navigator.clipboard.writeText(code).then(done); }
   else { const ta = document.createElement('textarea'); ta.value = code; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); }
 }
+function copyVTXTBL() {
+  const tbl = document.getElementById('v-code').textContent;
+  const lines = tbl.split('\n');
+  const tblLines = lines.filter(l => l.startsWith('vtxtable band') || l.startsWith('vtxtable channels') || l.startsWith('vtxtable power'));
+  const tblCode = tblLines.join('\n');
+  navigator.clipboard.writeText(tblCode).then(() => {
+    const btn = document.getElementById('v-copy-tbl');
+    btn.textContent = 'Скопировано!';
+    setTimeout(() => btn.textContent = 'Скопировать таблицу', 2000);
+  });
+}
+
+// ═══ BAND CONTROL VISIBILITY ═══
+document.getElementById('v-bchg').addEventListener('change', function() {
+  document.getElementById('bandControl').style.display = this.checked ? 'block' : 'none';
+});
 
 // ═══ TELEGRAM INIT ═══
 if (window.Telegram && window.Telegram.WebApp) {
