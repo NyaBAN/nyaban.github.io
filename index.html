@@ -144,8 +144,8 @@ a{color:var(--tg-blue);text-decoration:none}
 /* Круглая аватарка (иконка внутри) */
 .bot-avatar {
   flex-shrink: 0;
-  width: 26px;
-  height: 26px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: rgba(94, 172, 248, 0.15);
   display: flex;
@@ -154,13 +154,11 @@ a{color:var(--tg-blue);text-decoration:none}
   overflow: hidden;
 }
 
-/* Уменьшаем иконку внутри */
 .bot-avatar img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
-
 /* Если используете SVG или текст — можно оставить font-size */
 .bot-avatar svg {
   width: 18px;
