@@ -42,11 +42,9 @@ a{color:var(--tg-blue);text-decoration:none}
 :focus-visible{outline:2px solid rgba(94,172,248,.5);outline-offset:1px;border-radius:8px}
 
 /* ═══ LAYOUT ═══ */
-/* Mobile — без нижнего таббара */
 .mobile .sidebar{display:none}
 .mobile .top-bar{display:flex}
 .mobile .screens-wrap{padding-bottom:24px}
-/* Desktop */
 .desktop .sidebar{display:flex}
 .desktop .main-wrap{margin-left:var(--sidebar-w)}
 .desktop .top-bar{display:none}
@@ -95,9 +93,9 @@ a{color:var(--tg-blue);text-decoration:none}
 .snav-btn.active{background:rgba(94,172,248,.12);color:var(--tg-blue)}
 .snav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
 
-/* ═══ TOP BAR (mobile) — только заголовок, кнопка назад системная ═══ */
+/* ═══ TOP BAR (mobile) — только заголовок ═══ */
 .top-bar{
-  height:calc(env(safe-area-inset-top,0px) + 102px);
+  height:calc(env(safe-area-inset-top,0px) + 105px);
   padding-top:env(safe-area-inset-top,0px);
   background:var(--tg-surface);
   border-bottom:1px solid var(--tg-sep);
@@ -106,7 +104,9 @@ a{color:var(--tg-blue);text-decoration:none}
   justify-content:center;
   padding-left:16px;
   padding-right:16px;
-  position:sticky;top:0;z-index:100;
+  position:sticky;
+  top:0;
+  z-index:100;
 }
 .topbar-title{
   font-size:16px;
@@ -183,20 +183,48 @@ a{color:var(--tg-blue);text-decoration:none}
   text-transform:uppercase;letter-spacing:.6px;
 }
 .field-cell input,.field-cell select{
-  background:none;border:none;outline:none;
-  font-size:16px;color:var(--tg-text);width:100%;
-  padding:4px 0 2px;
-  -webkit-appearance:none;
+  background:var(--tg-bg2);
+  border:1px solid var(--tg-divider);
+  border-radius:8px;
+  padding:8px 12px;
+  font-size:15px;
+  color:var(--tg-text);
+  width:100%;
+  outline:none;
+}
+.field-cell input:focus,.field-cell select:focus{
+  border-color:var(--tg-blue);
+  box-shadow:0 0 0 2px rgba(94,172,248,.2);
 }
 .field-cell select{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23708499' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 0 center;
-  padding-right:20px;cursor:pointer;
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  -webkit-appearance:none;
+  appearance:none;
 }
-.fields-row{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.fields-row .field-cell{border-right:1px solid var(--tg-sep)}
-.fields-row .field-cell:last-child{border-right:none}
-.fields-row3{grid-template-columns:1fr 1fr 1fr}
+.fields-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+}
+.fields-row .field-cell{
+  border-right:1px solid var(--tg-sep);
+}
+.fields-row .field-cell:last-child{
+  border-right:none;
+}
+.fields-row3{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:0;
+}
+.fields-row3 .field-cell{
+  border-right:1px solid var(--tg-sep);
+}
+.fields-row3 .field-cell:last-child{
+  border-right:none;
+}
 
 /* ═══ PRESETS ═══ */
 .presets-section{
@@ -222,7 +250,6 @@ a{color:var(--tg-blue);text-decoration:none}
   color:#fff;font-size:15px;font-weight:700;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:8px;
   transition:opacity .15s,transform .08s;
-  letter-spacing:.1px;
 }
 .btn-tg:active{opacity:.82;transform:scale(.98)}
 .btn-tg.green{background:var(--tg-green)}
@@ -312,17 +339,25 @@ a{color:var(--tg-blue);text-decoration:none}
 /* ═══ CODE ═══ */
 .code-box{
   margin:0 12px;
-  background:#0a0f14;border:1px solid var(--tg-divider);border-radius:10px;
+  background:#0a0f14;
+  border:1px solid var(--tg-divider);
+  border-radius:10px;
   padding:12px 14px;
   font-family:'SF Mono','Menlo','Consolas',monospace;
-  font-size:11px;color:#92d98c;line-height:1.65;
-  overflow-x:auto;white-space:pre;max-height:260px;overflow-y:auto;
+  font-size:11px;
+  color:#92d98c;
+  line-height:1.65;
+  overflow-x:auto;
+  white-space:pre;
+  max-height:280px;
+  overflow-y:auto;
 }
 
 /* ═══ CHECKBOX ═══ */
 .chk-cell{
   display:flex;align-items:center;gap:12px;
-  padding:13px 16px;border-bottom:1px solid var(--tg-sep);
+  padding:13px 16px;
+  border-bottom:1px solid var(--tg-sep);
   cursor:pointer;
 }
 .chk-cell:last-child{border-bottom:none}
@@ -331,45 +366,6 @@ a{color:var(--tg-blue);text-decoration:none}
   width:20px;height:20px;accent-color:var(--tg-blue);cursor:pointer;flex-shrink:0;
 }
 
-/* ═══ POWER FIELDS ═══ */
-.power-row-grid{
-  display:grid;grid-template-columns:1fr 1fr 1fr;
-  gap:0;
-}
-.power-row-grid .field-cell{border-right:1px solid var(--tg-sep)}
-.power-row-grid .field-cell:last-child{border-right:none}
-
-/* ═══ SELECT DARK THEME ═══ */
-select {
-  background-color: var(--tg-bg2);
-  color: var(--tg-text);
-  border: 1px solid var(--tg-divider);
-  border-radius: 8px;
-  padding: 6px 8px;
-  cursor: pointer;
-}
-select option {
-  background-color: var(--tg-bg2);
-  color: var(--tg-text);
-}
-.field-cell select {
-  background-color: var(--tg-bg2);
-  border: 1px solid var(--tg-divider);
-  border-radius: 6px;
-  padding: 8px 24px 8px 10px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23708499' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  -webkit-appearance: none;
-  appearance: none;
-}
-select:focus {
-  outline: none;
-  border-color: var(--tg-blue);
-  box-shadow: 0 0 0 2px rgba(94, 172, 248, 0.2);
-}
-
-/* ═══ RESPONSIVE ═══ */
 @media(min-width:768px){
   .section{border-radius:14px;margin:14px 0 0}
   .section-header{margin:0;padding:14px 0 6px}
@@ -388,7 +384,7 @@ select:focus {
 </head>
 <body class="mobile">
 
-<!-- ═══ SIDEBAR (desktop only) ═══ -->
+<!-- SIDEBAR (desktop) -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-title">
@@ -413,17 +409,14 @@ select:focus {
   </div>
 </div>
 
-<!-- ═══ MAIN ═══ -->
+<!-- MAIN -->
 <div class="main-wrap" id="mainWrap">
-
-  <!-- TOP BAR (mobile) — только заголовок, системная кнопка назад -->
   <div class="top-bar" id="topBar">
     <div class="topbar-title" id="topTitle">FPV Tools</div>
   </div>
 
   <div class="screens-wrap">
-
-    <!-- ══ HOME ══ -->
+    <!-- HOME -->
     <div id="s-home" class="screen active">
       <div class="page-pad">
         <div class="section-header">Калькуляторы</div>
@@ -467,10 +460,19 @@ select:focus {
             <div class="cell-chevron">›</div>
           </div>
         </div>
+        <div class="section-header">Каталог</div>
+        <div class="section">
+          <div class="cell" onclick="location.href='catalog.html'">
+            <div class="cell-icon" style="background:rgba(245,192,72,.1)">⚙️</div>
+            <div><div class="cell-title">Каталог VTX</div><div class="cell-sub">Каталог VTX</div></div>
+            <div class="cell-chevron">›</div>
+          </div>
+        </div>
+        </div>
       </div>
     </div>
 
-    <!-- ══ RANGE ══ -->
+    <!-- RANGE -->
     <div id="s-range" class="screen">
       <div class="page-pad">
         <div class="page-title-block">
@@ -504,7 +506,7 @@ select:focus {
       </div>
     </div>
 
-    <!-- ══ FRESNEL ══ -->
+    <!-- FRESNEL -->
     <div id="s-fresnel" class="screen">
       <div class="page-pad">
         <div class="page-title-block">
@@ -537,7 +539,7 @@ select:focus {
       </div>
     </div>
 
-    <!-- ══ DIPOLE ══ -->
+    <!-- DIPOLE -->
     <div id="s-dipole" class="screen">
       <div class="page-pad">
         <div class="page-title-block">
@@ -579,7 +581,7 @@ select:focus {
       </div>
     </div>
 
-    <!-- ══ HARMONICS ══ -->
+    <!-- HARMONICS -->
     <div id="s-harm" class="screen">
       <div class="page-pad">
         <div class="page-title-block">
@@ -615,7 +617,7 @@ select:focus {
       </div>
     </div>
 
-    <!-- ══ CHANNELS ══ -->
+    <!-- CHANNELS -->
     <div id="s-chan" class="screen">
       <div class="page-pad">
         <div class="page-title-block">
@@ -639,7 +641,7 @@ select:focus {
       </div>
     </div>
 
-    <!-- ══ FREQ FINDER ══ -->
+    <!-- FREQ FINDER (исправленный) -->
     <div id="s-fq" class="screen">
       <div class="page-pad">
         <div class="page-title-block">
@@ -679,37 +681,28 @@ const TITLES = {
 };
 
 let currentScreen = 'home';
-let historyStack = ['home']; // стек посещённых экранов
+let historyStack = ['home'];
 
-// Получаем объект Telegram WebApp
 const tg = window.Telegram?.WebApp;
 if (tg) {
   tg.ready();
   tg.expand();
 }
 
-// Обновление кнопки назад (Telegram native)
 function updateBackButton() {
   if (!tg) return;
-  if (currentScreen === 'home') {
-    tg.BackButton.hide();
-  } else {
-    tg.BackButton.show();
-  }
+  if (currentScreen === 'home') tg.BackButton.hide();
+  else tg.BackButton.show();
 }
 
-// Переключение экрана (без добавления в стек, используется внутри)
 function switchScreen(newId) {
-  // скрыть все экраны
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('s-' + newId).classList.add('active');
-  // обновить активные пункты меню (sidebar)
   document.querySelectorAll('.snav-btn').forEach(btn => {
     const tab = btn.getAttribute('data-tab');
     if (tab === newId) btn.classList.add('active');
     else btn.classList.remove('active');
   });
-  // обновить заголовок
   const titleEl = document.getElementById('topTitle');
   if (titleEl) titleEl.textContent = TITLES[newId] || 'FPV Tools';
   currentScreen = newId;
@@ -717,24 +710,19 @@ function switchScreen(newId) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Переход на новый экран с добавлением в историю
 function goTab(newId) {
   if (newId === currentScreen) return;
-  // добавляем текущий экран в историю, если переходим не назад
   historyStack.push(currentScreen);
   switchScreen(newId);
 }
 
-// Возврат на предыдущий экран (вызывается по кнопке "Назад")
 function goBack() {
   if (historyStack.length === 0) {
-    // если стек пуст, уходим на home (защита)
     if (currentScreen !== 'home') switchScreen('home');
     return;
   }
   const prev = historyStack.pop();
   if (prev === currentScreen && historyStack.length) {
-    // на случай дубля – берём ещё один
     const realPrev = historyStack.pop();
     if (realPrev) switchScreen(realPrev);
     else switchScreen('home');
@@ -743,14 +731,10 @@ function goBack() {
   }
 }
 
-// Подписка на системную кнопку "Назад" (Telegram)
 if (tg) {
-  tg.onEvent('backButtonClicked', () => {
-    goBack();
-  });
+  tg.onEvent('backButtonClicked', () => goBack());
 }
 
-// Обработка кликов по пунктам меню (sidebar и домашние ячейки)
 document.querySelectorAll('.snav-btn[data-tab]').forEach(btn => {
   btn.addEventListener('click', (e) => {
     const tabId = btn.getAttribute('data-tab');
@@ -764,7 +748,7 @@ document.querySelectorAll('.cell[data-nav]').forEach(cell => {
   });
 });
 
-// ----------------------------- ВСЕ КАЛЬКУЛЯТОРЫ (без изменений) -----------------------------
+// ----------------------------- КАЛЬКУЛЯТОРЫ (без изменений, кроме calcFQ) -----------------------------
 // RANGE
 function calcRange(){
   const pw=+document.getElementById('r-pwr').value,vg=+document.getElementById('r-vtxg').value,
@@ -847,18 +831,114 @@ function calcChans(){
   if(sel.length>1){const fs=sel.map(c=>c.f).sort((a,b)=>a-b);let mn=Infinity;for(let i=1;i<fs.length;i++)mn=Math.min(mn,fs[i]-fs[i-1]);html+=`<div class="res-cell"><span class="res-label">Мин. расстояние между каналами</span><span class="res-val green">${mn}<span class="res-unit">МГц</span></span></div>`;}
   document.getElementById('ch-list').innerHTML=html;document.getElementById('ch-out').style.display='block';
 }
-// FREQ FINDER
-function calcFQ(){
-  const s=+document.getElementById('fq-s').value,e=+document.getElementById('fq-e').value,n=+document.getElementById('fq-n').value,incD=document.getElementById('fq-d').checked;
-  let all=[...FCHS];
-  if(incD){BANDS.X.forEach((f,i)=>all.push({b:'X',c:i+1,f}));BANDS.S.forEach((f,i)=>all.push({b:'S',c:i+1,f}));}
-  const mid=(s+e)/2;
-  const res=all.filter(c=>c.f>=s&&c.f<=e).sort((a,b)=>Math.abs(a.f-mid)-Math.abs(b.f-mid)).slice(0,n);
-  document.getElementById('fq-list').innerHTML=res.length?res.map((c,i)=>{const d=Math.abs(c.f-mid);return`<div class="res-cell"><div><div style="font-weight:700;font-size:15px">${c.b}-${c.c}</div><div style="font-size:12px;color:var(--tg-muted);margin-top:1px">${c.f} МГц · откл. ${d.toFixed(0)} МГц</div></div><span class="tag ${d<20?'good':d<50?'':'bad'}">#${i+1}</span></div>`}).join(''):'<div style="padding:14px 0;color:var(--tg-muted);font-size:14px;text-align:center">Нет каналов в диапазоне</div>';
-  document.getElementById('fq-out').style.display='block';
+
+// ========== ИСПРАВЛЕННЫЙ КАЛЬКУЛЯТОР БЛИЖАЙШИХ КАНАЛОВ (РАВНОМЕРНОЕ ПОКРЫТИЕ) ==========
+function calcFQ() {
+  const start = +document.getElementById('fq-s').value;
+  const end   = +document.getElementById('fq-e').value;
+  const n     = +document.getElementById('fq-n').value;
+  const incDigital = document.getElementById('fq-d').checked;
+
+  // Собираем все каналы
+  let allChannels = [...FCHS];
+  if (incDigital) {
+    BANDS.X.forEach((f, i) => allChannels.push({ b: 'X', c: i+1, f }));
+    BANDS.S.forEach((f, i) => allChannels.push({ b: 'S', c: i+1, f }));
+  }
+  // Фильтруем по диапазону
+  let inRange = allChannels.filter(ch => ch.f >= start && ch.f <= end);
+  if (inRange.length === 0) {
+    document.getElementById('fq-list').innerHTML = '<div style="padding:14px 0;color:var(--tg-muted);text-align:center">Нет каналов в указанном диапазоне</div>';
+    document.getElementById('fq-out').style.display = 'block';
+    return;
+  }
+  // Сортируем по частоте
+  inRange.sort((a,b) => a.f - b.f);
+  
+  // Если нужно больше каналов, чем есть, берём все
+  if (n >= inRange.length) {
+    const html = inRange.map((c, idx) => {
+      return `<div class="res-cell">
+                <div><div style="font-weight:700;font-size:15px">${c.b}-${c.c}</div>
+                <div style="font-size:12px;color:var(--tg-muted);margin-top:1px">${c.f} МГц</div></div>
+                <span class="tag good">#${idx+1}</span>
+              </div>`;
+    }).join('');
+    document.getElementById('fq-list').innerHTML = html;
+    document.getElementById('fq-out').style.display = 'block';
+    return;
+  }
+
+  // Равномерное покрытие диапазона: выбираем n целевых частот (включая границы)
+  const targets = [];
+  for (let i = 0; i < n; i++) {
+    const t = start + (i / (n - 1)) * (end - start);
+    targets.push(t);
+  }
+  
+  // Для каждой целевой частоты ищем ближайший ещё не выбранный канал
+  const selected = [];
+  const used = new Set();
+  for (let t of targets) {
+    let best = null;
+    let bestDist = Infinity;
+    for (let ch of inRange) {
+      const key = `${ch.b}-${ch.c}`;
+      if (used.has(key)) continue;
+      const dist = Math.abs(ch.f - t);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = ch;
+      }
+    }
+    if (best) {
+      selected.push(best);
+      used.add(`${best.b}-${best.c}`);
+    }
+  }
+  
+  // Если не удалось выбрать n каналов (дубликаты), добираем из оставшихся по порядку
+  if (selected.length < n) {
+    for (let ch of inRange) {
+      const key = `${ch.b}-${ch.c}`;
+      if (!used.has(key)) {
+        selected.push(ch);
+        used.add(key);
+        if (selected.length === n) break;
+      }
+    }
+  }
+  
+  // Сортируем выбранные каналы по частоте
+  selected.sort((a,b) => a.f - b.f);
+  
+  // Формируем HTML с отклонением от ближайшей целевой
+  const html = selected.map((c, idx) => {
+    // Найдём целевую частоту, к которой этот канал был ближе всего (для отображения отклонения)
+    let bestTarget = null;
+    let bestDist = Infinity;
+    for (let t of targets) {
+      const d = Math.abs(c.f - t);
+      if (d < bestDist) {
+        bestDist = d;
+        bestTarget = t;
+      }
+    }
+    return `<div class="res-cell">
+              <div><div style="font-weight:700;font-size:15px">${c.b}-${c.c}</div>
+              <div style="font-size:12px;color:var(--tg-muted);margin-top:1px">${c.f} МГц · откл. ${Math.round(bestDist)} МГц</div></div>
+              <span class="tag ${bestDist < 20 ? 'good' : (bestDist < 50 ? '' : 'bad')}">#${idx+1}</span>
+            </div>`;
+  }).join('');
+  
+  document.getElementById('fq-list').innerHTML = html;
+  document.getElementById('fq-out').style.display = 'block';
 }
+// ========== КОНЕЦ ИСПРАВЛЕНИЯ ==========
+
 // TG THEME
 if(tg){
+  function hexRgba(hex,a){const h=(hex||'').replace('#','');if(h.length!==6)return null;const n=parseInt(h,16);return`rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
   function applyTgTheme(){
     const p=tg.themeParams||{};
     const r=document.documentElement.style;
@@ -877,13 +957,13 @@ if(tg){
   applyTgTheme();
   tg.onEvent('themeChanged',applyTgTheme);
 }
-// LAYOUT (desktop/mobile)
+// LAYOUT
 function applyLayout(){
   const w=window.innerWidth;
   const tgDesktop=tg&&(tg.platform==='tdesktop'||tg.platform==='macos'||tg.platform==='web');
   document.body.className=(w>=768&&(!tg||tgDesktop||w>=900))?'desktop':'mobile';
 }
-applyLayout();window.addEventListener('resize',applyLayout);
+applyLayout(); window.addEventListener('resize',applyLayout);
 </script>
 </body>
 </html>
