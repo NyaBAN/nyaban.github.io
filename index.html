@@ -8,10 +8,7 @@
 <title>FPV Tools</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-/* ═══ TELEGRAM-NATIVE PALETTE ═══
-   Inspired by BotFather / Telegram Settings UI
-   Clean list-based navigation, no floating cards
-*/
+/* ═══ TELEGRAM-NATIVE PALETTE ═══ */
 :root {
   --tg-bg:        #17212b;
   --tg-bg2:       #0e1621;
@@ -31,7 +28,6 @@
   --content-max:  720px;
 }
 
-/* ── Reset ── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 body{
@@ -46,17 +42,14 @@ a{color:var(--tg-blue);text-decoration:none}
 :focus-visible{outline:2px solid rgba(94,172,248,.5);outline-offset:1px;border-radius:8px}
 
 /* ═══ LAYOUT ═══ */
-/* Mobile */
+/* Mobile — без нижнего таббара */
 .mobile .sidebar{display:none}
 .mobile .top-bar{display:flex}
-.mobile .screens-wrap{padding-bottom:calc(56px + env(safe-area-inset-bottom,0px))}
-.mobile .tabbar{display:flex}
+.mobile .screens-wrap{padding-bottom:24px}
 /* Desktop */
 .desktop .sidebar{display:flex}
 .desktop .main-wrap{margin-left:var(--sidebar-w)}
 .desktop .top-bar{display:none}
-.desktop .tabbar{display:none}
-.desktop .screens-wrap{padding-bottom:24px}
 
 /* ═══ SIDEBAR ═══ */
 .sidebar{
@@ -102,52 +95,26 @@ a{color:var(--tg-blue);text-decoration:none}
 .snav-btn.active{background:rgba(94,172,248,.12);color:var(--tg-blue)}
 .snav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
 
-/* ═══ TOP BAR (mobile) ═══ */
+/* ═══ TOP BAR (mobile) — только заголовок, кнопка назад системная ═══ */
 .top-bar{
   height:calc(env(safe-area-inset-top,0px) + 52px);
   padding-top:env(safe-area-inset-top,0px);
   background:var(--tg-surface);
   border-bottom:1px solid var(--tg-sep);
+  display:flex;
   align-items:center;
-  padding-left:16px;padding-right:16px;
-  gap:12px;
+  justify-content:center;
+  padding-left:16px;
+  padding-right:16px;
   position:sticky;top:0;z-index:100;
 }
-.topbar-icon{
-  width:34px;height:34px;border-radius:10px;
-  background:var(--tg-blue);
-  display:flex;align-items:center;justify-content:center;font-size:17px;
-  cursor:pointer;flex-shrink:0;
+.topbar-title{
+  font-size:16px;
+  font-weight:700;
+  color:var(--tg-text);
+  letter-spacing:-.1px;
+  text-align:center;
 }
-.topbar-title{font-size:16px;font-weight:700;flex:1;color:var(--tg-text);letter-spacing:-.1px}
-.topbar-back{
-  width:34px;height:34px;border-radius:8px;
-  background:rgba(255,255,255,.07);border:none;
-  color:var(--tg-muted);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;
-}
-
-/* ═══ TABBAR (mobile) ═══ */
-.tabbar{
-  position:fixed;bottom:0;left:0;right:0;
-  height:calc(56px + env(safe-area-inset-bottom,0px));
-  padding-bottom:env(safe-area-inset-bottom,0px);
-  background:var(--tg-surface);
-  border-top:1px solid var(--tg-sep);
-  z-index:100;overflow-x:auto;scrollbar-width:none;
-  align-items:stretch;
-}
-.tabbar::-webkit-scrollbar{display:none}
-.tab-btn{
-  flex:0 0 auto;min-width:58px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:2px;padding:0 8px;border:none;background:none;cursor:pointer;
-  color:var(--tg-muted);transition:color .15s;
-}
-.tab-btn.active{color:var(--tg-blue)}
-.tab-icon{font-size:20px;line-height:1}
-.tab-label{font-size:8.5px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
 
 /* ═══ SCREENS ═══ */
 .main-wrap{min-height:100vh}
@@ -156,9 +123,7 @@ a{color:var(--tg-blue);text-decoration:none}
 .screen.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
-/* ═══ SECTION ═══
-   BotFather-style: white background groups with dividers
-*/
+/* ═══ SECTION (BotFather-style) ═══ */
 .section{
   background:var(--tg-surface);
   border-radius:12px;
@@ -172,7 +137,6 @@ a{color:var(--tg-blue);text-decoration:none}
   padding:14px 16px 6px;
   margin:0 12px;
 }
-/* Cells */
 .cell{
   display:flex;align-items:center;
   min-height:var(--cell-h);padding:0 16px;gap:12px;
@@ -207,7 +171,7 @@ a{color:var(--tg-blue);text-decoration:none}
 .page-title{font-size:20px;font-weight:800;letter-spacing:-.4px;color:var(--tg-text)}
 .page-desc{font-size:13px;color:var(--tg-muted);margin-top:3px;line-height:1.5}
 
-/* ═══ FIELDS (inside sections) ═══ */
+/* ═══ FIELDS ═══ */
 .field-cell{
   padding:10px 16px;
   border-bottom:1px solid var(--tg-sep);
@@ -234,7 +198,7 @@ a{color:var(--tg-blue);text-decoration:none}
 .fields-row .field-cell:last-child{border-right:none}
 .fields-row3{grid-template-columns:1fr 1fr 1fr}
 
-/* ═══ PRESETS BAR ═══ */
+/* ═══ PRESETS ═══ */
 .presets-section{
   background:var(--tg-surface);border-radius:12px;
   margin:0 12px;padding:10px 12px;
@@ -249,7 +213,7 @@ a{color:var(--tg-blue);text-decoration:none}
 }
 .preset:active,.preset.on{background:var(--tg-blue);border-color:var(--tg-blue);color:#fff}
 
-/* ═══ BUTTON ═══ */
+/* ═══ BUTTONS ═══ */
 .btn-section{margin:8px 12px 0}
 .btn-tg{
   width:100%;height:48px;
@@ -375,6 +339,36 @@ a{color:var(--tg-blue);text-decoration:none}
 .power-row-grid .field-cell{border-right:1px solid var(--tg-sep)}
 .power-row-grid .field-cell:last-child{border-right:none}
 
+/* ═══ SELECT DARK THEME ═══ */
+select {
+  background-color: var(--tg-bg2);
+  color: var(--tg-text);
+  border: 1px solid var(--tg-divider);
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+select option {
+  background-color: var(--tg-bg2);
+  color: var(--tg-text);
+}
+.field-cell select {
+  background-color: var(--tg-bg2);
+  border: 1px solid var(--tg-divider);
+  border-radius: 6px;
+  padding: 8px 24px 8px 10px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23708499' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  -webkit-appearance: none;
+  appearance: none;
+}
+select:focus {
+  outline: none;
+  border-color: var(--tg-blue);
+  box-shadow: 0 0 0 2px rgba(94, 172, 248, 0.2);
+}
+
 /* ═══ RESPONSIVE ═══ */
 @media(min-width:768px){
   .section{border-radius:14px;margin:14px 0 0}
@@ -390,47 +384,11 @@ a{color:var(--tg-blue);text-decoration:none}
 @media(max-width:360px){
   .fields-row3{grid-template-columns:1fr 1fr}
 }
-/* Темное оформление для выпадающих списков */
-select {
-  background-color: var(--tg-bg2);     /* тёмный фон, как у основного фона */
-  color: var(--tg-text);               /* светлый текст */
-  border: 1px solid var(--tg-divider); /* лёгкая граница для видимости */
-  border-radius: 8px;
-  padding: 6px 8px;
-  cursor: pointer;
-}
-
-select option {
-  background-color: var(--tg-bg2);     /* фон каждой опции */
-  color: var(--tg-text);               /* цвет текста опции */
-}
-
-/* Для полей ввода внутри .field-cell переопределим background, 
-   чтобы не было конфликта с уже существующим background:none */
-.field-cell select {
-  background-color: var(--tg-bg2);
-  border: 1px solid var(--tg-divider);
-  border-radius: 6px;
-  padding: 8px 24px 8px 10px; /* место для стрелки */
-  /* кастомная стрелка уже задана в background-image, оставляем её */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23708499' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-/* Убираем стандартную синюю подсветку при фокусе, заменяем на кастомную */
-select:focus {
-  outline: none;
-  border-color: var(--tg-blue);
-  box-shadow: 0 0 0 2px rgba(94, 172, 248, 0.2);
-}
 </style>
 </head>
 <body class="mobile">
 
-<!-- ═══ SIDEBAR ═══ -->
+<!-- ═══ SIDEBAR (desktop only) ═══ -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-title">
@@ -441,13 +399,13 @@ select:focus {
   </div>
   <div class="sidebar-section">Калькуляторы</div>
   <div class="snav">
-    <button class="snav-btn active" data-tab="home" onclick="goTab('home')"><span class="snav-icon">🏠</span>Главное меню</button>
-    <button class="snav-btn" data-tab="range" onclick="goTab('range')"><span class="snav-icon">📡</span>Дальность</button>
-    <button class="snav-btn" data-tab="fresnel" onclick="goTab('fresnel')"><span class="snav-icon">🌊</span>Зоны Френеля</button>
-    <button class="snav-btn" data-tab="dipole" onclick="goTab('dipole')"><span class="snav-icon">📶</span>Диполь</button>
-    <button class="snav-btn" data-tab="harm" onclick="goTab('harm')"><span class="snav-icon">⚡</span>Гармоники</button>
-    <button class="snav-btn" data-tab="chan" onclick="goTab('chan')"><span class="snav-icon">📻</span>Каналы</button>
-    <button class="snav-btn" data-tab="fq" onclick="goTab('fq')"><span class="snav-icon">🔍</span>Ближайший канал</button>
+    <button class="snav-btn" data-tab="home"><span class="snav-icon">🏠</span>Главное меню</button>
+    <button class="snav-btn" data-tab="range"><span class="snav-icon">📡</span>Дальность</button>
+    <button class="snav-btn" data-tab="fresnel"><span class="snav-icon">🌊</span>Зоны Френеля</button>
+    <button class="snav-btn" data-tab="dipole"><span class="snav-icon">📶</span>Диполь</button>
+    <button class="snav-btn" data-tab="harm"><span class="snav-icon">⚡</span>Гармоники</button>
+    <button class="snav-btn" data-tab="chan"><span class="snav-icon">📻</span>Каналы</button>
+    <button class="snav-btn" data-tab="fq"><span class="snav-icon">🔍</span>Ближайший канал</button>
   </div>
   <div class="sidebar-section">Конфигурация</div>
   <div class="snav">
@@ -458,11 +416,9 @@ select:focus {
 <!-- ═══ MAIN ═══ -->
 <div class="main-wrap" id="mainWrap">
 
-  <!-- TOP BAR (mobile) -->
+  <!-- TOP BAR (mobile) — только заголовок, системная кнопка назад -->
   <div class="top-bar" id="topBar">
-    <div class="topbar-icon" onclick="goTab('home')">🚁</div>
     <div class="topbar-title" id="topTitle">FPV Tools</div>
-    <button class="topbar-back" id="backBtn" onclick="goTab('home')" style="display:none">←</button>
   </div>
 
   <div class="screens-wrap">
@@ -472,32 +428,32 @@ select:focus {
       <div class="page-pad">
         <div class="section-header">Калькуляторы</div>
         <div class="section">
-          <div class="cell" onclick="goTab('range')">
+          <div class="cell" data-nav="range">
             <div class="cell-icon">📡</div>
             <div><div class="cell-title">Дальность</div><div class="cell-sub">Теория Фрии + реалистичная оценка</div></div>
             <div class="cell-chevron">›</div>
           </div>
-          <div class="cell" onclick="goTab('fresnel')">
+          <div class="cell" data-nav="fresnel">
             <div class="cell-icon" style="background:rgba(96,165,250,.12)">🌊</div>
             <div><div class="cell-title">Зоны Френеля</div><div class="cell-sub">Высота над препятствиями</div></div>
             <div class="cell-chevron">›</div>
           </div>
-          <div class="cell" onclick="goTab('dipole')">
+          <div class="cell" data-nav="dipole">
             <div class="cell-icon orange">📶</div>
             <div><div class="cell-title">Диполь</div><div class="cell-sub">Длина по частоте и обратно</div></div>
             <div class="cell-chevron">›</div>
           </div>
-          <div class="cell" onclick="goTab('harm')">
+          <div class="cell" data-nav="harm">
             <div class="cell-icon red">⚡</div>
             <div><div class="cell-title">Гармоники</div><div class="cell-sub">Какие видеоканалы заденет TX</div></div>
             <div class="cell-chevron">›</div>
           </div>
-          <div class="cell" onclick="goTab('chan')">
+          <div class="cell" data-nav="chan">
             <div class="cell-icon green">📻</div>
             <div><div class="cell-title">Каналы</div><div class="cell-sub">Оптимально для совместного полёта</div></div>
             <div class="cell-chevron">›</div>
           </div>
-          <div class="cell" onclick="goTab('fq')">
+          <div class="cell" data-nav="fq">
             <div class="cell-icon purple">🔍</div>
             <div><div class="cell-title">Ближайший канал</div><div class="cell-sub">Подбор по диапазону антенны</div></div>
             <div class="cell-chevron">›</div>
@@ -710,43 +666,106 @@ select:focus {
   </div><!-- /screens-wrap -->
 </div><!-- /main-wrap -->
 
-<!-- ═══ TABBAR ═══ -->
-<div class="tabbar" id="tabbar">
-  <button class="tab-btn active" data-tab="home" onclick="goTab('home')"><span class="tab-icon">🏠</span><span class="tab-label">Меню</span></button>
-  <button class="tab-btn" data-tab="range" onclick="goTab('range')"><span class="tab-icon">📡</span><span class="tab-label">Дальность</span></button>
-  <button class="tab-btn" data-tab="fresnel" onclick="goTab('fresnel')"><span class="tab-icon">🌊</span><span class="tab-label">Френель</span></button>
-  <button class="tab-btn" data-tab="dipole" onclick="goTab('dipole')"><span class="tab-icon">📶</span><span class="tab-label">Диполь</span></button>
-  <button class="tab-btn" data-tab="harm" onclick="goTab('harm')"><span class="tab-icon">⚡</span><span class="tab-label">Гармоники</span></button>
-  <button class="tab-btn" data-tab="chan" onclick="goTab('chan')"><span class="tab-icon">📻</span><span class="tab-label">Каналы</span></button>
-  <button class="tab-btn" data-tab="fq" onclick="goTab('fq')"><span class="tab-icon">🔍</span><span class="tab-label">Частота</span></button>
-  <button class="tab-btn" onclick="location.href='vtx-config.html'"><span class="tab-icon">⚙️</span><span class="tab-label">VTX</span></button>
-</div>
-
 <script>
-// ── LAYOUT ──
-const TITLES = {home:'FPV Tools',range:'Дальность',fresnel:'Зоны Френеля',dipole:'Диполь',harm:'Гармоники',chan:'Каналы',fq:'Ближ. канал'};
-function applyLayout(){
-  const w=window.innerWidth;
-  const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
-  const tgDesktop=tg&&(tg.platform==='tdesktop'||tg.platform==='macos'||tg.platform==='web');
-  document.body.className=(w>=768&&(!tg||tgDesktop||w>=900))?'desktop':'mobile';
-}
-applyLayout();window.addEventListener('resize',applyLayout);
+// ----------------------------- НАВИГАЦИЯ С ИСТОРИЕЙ И NATIVE BACKBUTTON -----------------------------
+const TITLES = {
+  home: 'FPV Tools',
+  range: 'Дальность',
+  fresnel: 'Зоны Френеля',
+  dipole: 'Диполь',
+  harm: 'Гармоники',
+  chan: 'Каналы',
+  fq: 'Ближ. канал'
+};
 
-// ── NAV ──
-function goTab(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.remove('active'));
-  document.getElementById('s-'+id).classList.add('active');
-  document.querySelectorAll(`[data-tab="${id}"]`).forEach(b=>b.classList.add('active'));
-  const tb=document.getElementById('topTitle');
-  if(tb)tb.textContent=TITLES[id]||'FPV Tools';
-  const bb=document.getElementById('backBtn');
-  if(bb)bb.style.display=id==='home'?'none':'flex';
-  window.scrollTo({top:0,behavior:'smooth'});
+let currentScreen = 'home';
+let historyStack = ['home']; // стек посещённых экранов
+
+// Получаем объект Telegram WebApp
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
 }
 
-// ── RANGE ── P(dBm)=10*log10(P_mW)
+// Обновление кнопки назад (Telegram native)
+function updateBackButton() {
+  if (!tg) return;
+  if (currentScreen === 'home') {
+    tg.BackButton.hide();
+  } else {
+    tg.BackButton.show();
+  }
+}
+
+// Переключение экрана (без добавления в стек, используется внутри)
+function switchScreen(newId) {
+  // скрыть все экраны
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + newId).classList.add('active');
+  // обновить активные пункты меню (sidebar)
+  document.querySelectorAll('.snav-btn').forEach(btn => {
+    const tab = btn.getAttribute('data-tab');
+    if (tab === newId) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+  // обновить заголовок
+  const titleEl = document.getElementById('topTitle');
+  if (titleEl) titleEl.textContent = TITLES[newId] || 'FPV Tools';
+  currentScreen = newId;
+  updateBackButton();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Переход на новый экран с добавлением в историю
+function goTab(newId) {
+  if (newId === currentScreen) return;
+  // добавляем текущий экран в историю, если переходим не назад
+  historyStack.push(currentScreen);
+  switchScreen(newId);
+}
+
+// Возврат на предыдущий экран (вызывается по кнопке "Назад")
+function goBack() {
+  if (historyStack.length === 0) {
+    // если стек пуст, уходим на home (защита)
+    if (currentScreen !== 'home') switchScreen('home');
+    return;
+  }
+  const prev = historyStack.pop();
+  if (prev === currentScreen && historyStack.length) {
+    // на случай дубля – берём ещё один
+    const realPrev = historyStack.pop();
+    if (realPrev) switchScreen(realPrev);
+    else switchScreen('home');
+  } else {
+    switchScreen(prev);
+  }
+}
+
+// Подписка на системную кнопку "Назад" (Telegram)
+if (tg) {
+  tg.onEvent('backButtonClicked', () => {
+    goBack();
+  });
+}
+
+// Обработка кликов по пунктам меню (sidebar и домашние ячейки)
+document.querySelectorAll('.snav-btn[data-tab]').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const tabId = btn.getAttribute('data-tab');
+    if (tabId) goTab(tabId);
+  });
+});
+document.querySelectorAll('.cell[data-nav]').forEach(cell => {
+  cell.addEventListener('click', () => {
+    const navTo = cell.getAttribute('data-nav');
+    if (navTo) goTab(navTo);
+  });
+});
+
+// ----------------------------- ВСЕ КАЛЬКУЛЯТОРЫ (без изменений) -----------------------------
+// RANGE
 function calcRange(){
   const pw=+document.getElementById('r-pwr').value,vg=+document.getElementById('r-vtxg').value,
         rg=+document.getElementById('r-vrxg').value,rs=+document.getElementById('r-sens').value,
@@ -760,8 +779,7 @@ function calcRange(){
   document.getElementById('r-re').innerHTML=u((distKm*0.318).toFixed(1),'км');
   document.getElementById('r-out').style.display='block';
 }
-
-// ── FRESNEL ──
+// FRESNEL
 function setFF(f){document.getElementById('f-freq').value=f}
 function calcFresnel(){
   const fq=+document.getElementById('f-freq').value,d=+document.getElementById('f-dist').value*1000;
@@ -772,8 +790,7 @@ function calcFresnel(){
   document.getElementById('f-z6').innerHTML=u((r1*.6).toFixed(1),'м');
   document.getElementById('f-out').style.display='block';
 }
-
-// ── DIPOLE ── exact c=299792458 m/s, k=0.95
+// DIPOLE
 const DC=14240.1417;
 function setDF(f){document.getElementById('d-f').value=f;dCalc('f')}
 function dCalc(src){
@@ -790,8 +807,7 @@ function dCalc(src){
   document.getElementById('svg-leg2').textContent=l.toFixed(1)+' см';
 }
 dCalc('f');
-
-// ── HARMONICS ──
+// HARMONICS
 const FCHS=[
   {b:'A',c:1,f:5865},{b:'A',c:2,f:5845},{b:'A',c:3,f:5825},{b:'A',c:4,f:5805},{b:'A',c:5,f:5785},{b:'A',c:6,f:5765},{b:'A',c:7,f:5745},{b:'A',c:8,f:5725},
   {b:'B',c:1,f:5733},{b:'B',c:2,f:5752},{b:'B',c:3,f:5771},{b:'B',c:4,f:5790},{b:'B',c:5,f:5809},{b:'B',c:6,f:5828},{b:'B',c:7,f:5847},{b:'B',c:8,f:5866},
@@ -818,8 +834,7 @@ function hRender(t){
   else if(t==='u'){const bands={};HD.unaff.forEach(c=>{if(!bands[c.b])bands[c.b]=[];bands[c.b].push(c)});el.innerHTML=Object.keys(bands).map(b=>`<div class="hg"><div class="hg-title">Диапазон ${b}</div><div class="tags">${bands[b].map(c=>`<span class="tag good">${b}-${c.c} (${c.f})</span>`).join('')}</div></div>`).join('')||'Нет данных';}
   else{el.innerHTML=HD.all.map(h=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--tg-sep);font-size:13px"><span style="color:var(--tg-muted)">Гармоника #${h.n}</span><span style="font-weight:700">${h.s}–${h.e} МГц</span></div>`).join('');}
 }
-
-// ── CHANNELS ──
+// CHANNELS
 function calcChans(){
   const n=+document.getElementById('ch-p').value,incX=document.getElementById('ch-x').checked,incL=document.getElementById('ch-l').checked;
   let all=[];['A','B','E','F','R'].forEach(b=>BANDS[b].forEach((f,i)=>all.push({b,c:i+1,f})));
@@ -832,8 +847,7 @@ function calcChans(){
   if(sel.length>1){const fs=sel.map(c=>c.f).sort((a,b)=>a-b);let mn=Infinity;for(let i=1;i<fs.length;i++)mn=Math.min(mn,fs[i]-fs[i-1]);html+=`<div class="res-cell"><span class="res-label">Мин. расстояние между каналами</span><span class="res-val green">${mn}<span class="res-unit">МГц</span></span></div>`;}
   document.getElementById('ch-list').innerHTML=html;document.getElementById('ch-out').style.display='block';
 }
-
-// ── FREQ FINDER ──
+// FREQ FINDER
 function calcFQ(){
   const s=+document.getElementById('fq-s').value,e=+document.getElementById('fq-e').value,n=+document.getElementById('fq-n').value,incD=document.getElementById('fq-d').checked;
   let all=[...FCHS];
@@ -843,11 +857,8 @@ function calcFQ(){
   document.getElementById('fq-list').innerHTML=res.length?res.map((c,i)=>{const d=Math.abs(c.f-mid);return`<div class="res-cell"><div><div style="font-weight:700;font-size:15px">${c.b}-${c.c}</div><div style="font-size:12px;color:var(--tg-muted);margin-top:1px">${c.f} МГц · откл. ${d.toFixed(0)} МГц</div></div><span class="tag ${d<20?'good':d<50?'':'bad'}">#${i+1}</span></div>`}).join(''):'<div style="padding:14px 0;color:var(--tg-muted);font-size:14px;text-align:center">Нет каналов в диапазоне</div>';
   document.getElementById('fq-out').style.display='block';
 }
-
-// ── TG INIT ──
-if(window.Telegram&&window.Telegram.WebApp){
-  const tg=window.Telegram.WebApp;tg.ready();tg.expand();
-  function hexRgba(hex,a){const h=(hex||'').replace('#','');if(h.length!==6)return null;const n=parseInt(h,16);return`rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
+// TG THEME
+if(tg){
   function applyTgTheme(){
     const p=tg.themeParams||{};
     const r=document.documentElement.style;
@@ -855,9 +866,8 @@ if(window.Telegram&&window.Telegram.WebApp){
     if(p.secondary_bg_color)r.setProperty('--tg-surface',p.secondary_bg_color);
     if(p.text_color)r.setProperty('--tg-text',p.text_color);
     if(p.hint_color)r.setProperty('--tg-muted',p.hint_color);
-    if(p.link_color){r.setProperty('--tg-blue',p.link_color);r.setProperty('--tg-accent',p.link_color);}
+    if(p.link_color)r.setProperty('--tg-blue',p.link_color);
     if(p.button_color)r.setProperty('--tg-blue',p.button_color);
-    if(p.bg_color){r.setProperty('--tg-sep',hexRgba(p.bg_color,.5)||'var(--tg-sep)');r.setProperty('--tg-divider',hexRgba(p.bg_color,.6)||'var(--tg-divider)');}
     const meta=document.querySelector('meta[name="theme-color"]');
     const bg=p.bg_color||'#17212b';
     if(meta)meta.setAttribute('content',bg);
@@ -865,8 +875,15 @@ if(window.Telegram&&window.Telegram.WebApp){
     try{tg.setBackgroundColor&&tg.setBackgroundColor(bg)}catch(e){}
   }
   applyTgTheme();
-  try{tg.onEvent('themeChanged',applyTgTheme)}catch(e){}
+  tg.onEvent('themeChanged',applyTgTheme);
 }
+// LAYOUT (desktop/mobile)
+function applyLayout(){
+  const w=window.innerWidth;
+  const tgDesktop=tg&&(tg.platform==='tdesktop'||tg.platform==='macos'||tg.platform==='web');
+  document.body.className=(w>=768&&(!tg||tgDesktop||w>=900))?'desktop':'mobile';
+}
+applyLayout();window.addEventListener('resize',applyLayout);
 </script>
 </body>
 </html>
