@@ -125,72 +125,76 @@ a{color:var(--tg-blue);text-decoration:none}
     }
 
     /* ---------- Блок в стиле BotFather ---------- */
-    .bot-card {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 12px 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      transition: background 0.2s;
-      cursor: pointer;
-    }
-    /* Круглая аватарка */
-    .bot-avatar {
-      flex-shrink: 0;
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: #8e44ad; /* цвет заливки, если картинка не загрузилась */
-      overflow: hidden;
-    }
-    .bot-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    /* Текстовая часть */
-    .bot-info {
-      flex: 1;
-    }
-    .bot-name {
-      font-size: 17px;
-      font-weight: 600;
-      color: #000000;
-      margin-bottom: 4px;
-    }
-    .bot-description {
-      font-size: 14px;
-      color: #5e5e5e;
-      line-height: 1.4;
-      margin-bottom: 6px;
-    }
-    .learn-more {
-      font-size: 14px;
-      color: #2678b6;
-      text-decoration: none;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .learn-more:hover {
-      text-decoration: underline;
-    }
-    /* Небольшой адаптив */
-    @media (max-width: 480px) {
-      .bot-avatar {
-        width: 44px;
-        height: 44px;
-      }
-      .bot-name {
-        font-size: 16px;
-      }
-      .bot-description {
-        font-size: 13px;
-      }
-    }
+    /* ---------- Карточка в стиле BotFather (тёмная тема) ---------- */
+.bot-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--tg-surface);
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin: 20px 12px 12px 12px;  /* отступ сверху, снизу и по бокам */
+  transition: background 0.2s;
+  cursor: pointer;
+  border: 1px solid var(--tg-divider);
+}
+.bot-card:active {
+  background: rgba(255,255,255,0.04);
+}
+/* Круглая аватарка (иконка внутри) */
+.bot-avatar {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(94, 172, 248, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+/* Текстовая часть */
+.bot-info {
+  flex: 1;
+}
+.bot-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--tg-text);
+  margin-bottom: 4px;
+}
+.bot-description {
+  font-size: 14px;
+  color: var(--tg-muted);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+.learn-more {
+  font-size: 14px;
+  color: var(--tg-blue);
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.learn-more:hover {
+  text-decoration: underline;
+}
+/* Адаптив для маленьких экранов */
+@media (max-width: 480px) {
+  .bot-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+  }
+  .bot-name {
+    font-size: 16px;
+  }
+  .bot-description {
+    font-size: 13px;
+  }
+}
 .topbar-title{
   font-size:16px;
   font-weight:700;
@@ -494,15 +498,12 @@ a{color:var(--tg-blue);text-decoration:none}
 
 <!-- MAIN -->
 <div id="mainWrap">
-   <div class="top-bar" id="topBar">
+   <!-- <div class="top-bar" id="topBar">
     <div class="topbar-title" id="topTitle">FPV Tools</div>
   </div>
 
-  <!-- Основной контент -->
   <div class="content">
-    <!-- Карточка BotFather (круглая картинка + описание) -->
     <div class="bot-card">
-      <!-- Круглая аватарка (замените src на свою картинку) -->
       <div class="bot-avatar">
         <img src="https://placekitten.com/100/100" alt="Bot avatar">
       </div>
@@ -514,11 +515,22 @@ a{color:var(--tg-blue);text-decoration:none}
         <a href="#" class="learn-more">Learn more &gt;</a>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <div class="screens-wrap">
     <!-- HOME -->
     <div id="s-home" class="screen active">
+        <!-- Карточка FPV Tools (в стиле BotFather) -->
+    <div class="bot-card" onclick="goTab('range')">
+    <div class="bot-avatar">🚁</div>
+    <div class="bot-info">
+        <div class="bot-name">FPV Tools</div>
+        <div class="bot-description">
+        Калькуляторы для пилотов дронов: дальность, зоны Френеля, диполь, гармоники, подбор каналов и генератор VTX.
+        </div>
+        <a href="#" class="learn-more" onclick="event.stopPropagation(); goTab('range')">Начать расчёт &gt;</a>
+    </div>
+    </div>
       <div class="page-pad">
         <div class="section-header">Калькуляторы</div>
         <div class="section">
