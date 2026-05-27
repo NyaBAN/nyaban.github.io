@@ -101,9 +101,12 @@ button,input,select{font:inherit}
   background:var(--tg-surface);border-radius:14px;overflow:hidden;
   transition:transform .1s;border:1px solid var(--tg-divider);
 }
-.card-img{
-  width:100%;height:150px;object-fit:cover;background:var(--tg-bg2);
-  display:block;border-bottom:1px solid var(--tg-sep);
+.card-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  background: var(--tg-bg2);
+  border-bottom: 1px solid var(--tg-sep);
 }
 .card-header{
   padding:12px 16px;font-weight:700;font-size:15px;
@@ -126,10 +129,16 @@ button,input,select{font:inherit}
 .no-results{
   text-align:center;padding:40px;color:var(--tg-muted);font-size:15px;
 }
-.placeholder-img{
-  width:100%;height:150px;background:linear-gradient(135deg,var(--tg-bg2),var(--tg-surface));
-  display:flex;align-items:center;justify-content:center;color:var(--tg-muted);font-size:12px;
-  border-bottom:1px solid var(--tg-sep);
+.placeholder-img {
+  width: 100%;
+  height: 150px;
+  background: linear-gradient(135deg, var(--tg-bg2), var(--tg-surface));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tg-muted);
+  font-size: 12px;
+  border-bottom: 1px solid var(--tg-sep);
 }
 
 @media(max-width:640px){
@@ -570,8 +579,10 @@ function renderCard(v) {
   const imgPath = IMAGE_PATH + imgFile;
   return `
     <div class="card">
-      <img class="card-img" src="${imgPath}" loading="lazy" onerror="this.onerror=null; this.parentElement.querySelector('.placeholder-img')?.style.display='flex'; this.style.display='none';">
-      <div class="placeholder-img" style="display:none">📷 ${escapeHtml(v.manufacturer)} ${escapeHtml(v.name)}</div>
+      <div style="position: relative;">
+        <img class="card-img" src="${imgPath}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="placeholder-img" style="display:none">📷 ${escapeHtml(v.manufacturer)} ${escapeHtml(v.name)}</div>
+      </div>
       <div class="card-header">
         <div class="name"><strong>${escapeHtml(v.manufacturer)}</strong> ${escapeHtml(v.name)}</div>
         <div class="power">${escapeHtml(v.power)}</div>
