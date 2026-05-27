@@ -390,6 +390,42 @@ a{color:var(--tg-blue);text-decoration:none}
 @media(max-width:360px){
   .fields-row3{grid-template-columns:1fr 1fr}
 }
+/* Темное оформление для выпадающих списков */
+select {
+  background-color: var(--tg-bg2);     /* тёмный фон, как у основного фона */
+  color: var(--tg-text);               /* светлый текст */
+  border: 1px solid var(--tg-divider); /* лёгкая граница для видимости */
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+select option {
+  background-color: var(--tg-bg2);     /* фон каждой опции */
+  color: var(--tg-text);               /* цвет текста опции */
+}
+
+/* Для полей ввода внутри .field-cell переопределим background, 
+   чтобы не было конфликта с уже существующим background:none */
+.field-cell select {
+  background-color: var(--tg-bg2);
+  border: 1px solid var(--tg-divider);
+  border-radius: 6px;
+  padding: 8px 24px 8px 10px; /* место для стрелки */
+  /* кастомная стрелка уже задана в background-image, оставляем её */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23708499' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Убираем стандартную синюю подсветку при фокусе, заменяем на кастомную */
+select:focus {
+  outline: none;
+  border-color: var(--tg-blue);
+  box-shadow: 0 0 0 2px rgba(94, 172, 248, 0.2);
+}
 </style>
 </head>
 <body class="mobile">
