@@ -231,6 +231,7 @@ function genVTX() {
   lines.push(`set vtx_channel = ${ch}`);
   lines.push('set vtx_power = 1');
   if (proto !== 'MSP') lines.push('set vtx_low_power_disarm = ON');
+  lines.push('# Pizda hohlam');
   lines.push('');
   lines.push('save');
 
