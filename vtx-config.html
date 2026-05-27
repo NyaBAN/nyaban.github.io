@@ -5,27 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#17212b">
-<title>VTX Config — FPV Tools</title>
+<title>VTX Config Generator — FPV Tools</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{
-  --tg-bg:#17212b;--tg-bg2:#0e1621;
-  --tg-surface:#1f2d3d;--tg-surface2:#242f3d;
+  --tg-bg:#17212b; --tg-bg2:#0e1621;
+  --tg-surface:#1f2d3d; --tg-surface2:#242f3d;
   --tg-divider:rgba(255,255,255,0.06);
-  --tg-text:#f5f5f5;--tg-muted:#708499;
-  --tg-blue:#5eacf8;--tg-green:#4dcf7c;--tg-red:#e05252;--tg-yellow:#f5c048;
+  --tg-text:#f5f5f5; --tg-muted:#708499;
+  --tg-blue:#5eacf8; --tg-green:#4dcf7c; --tg-red:#e05252; --tg-yellow:#f5c048;
   --tg-sep:rgba(255,255,255,0.055);
-  --cell-h:52px;--sidebar-w:240px;--content-max:720px;
+  --cell-h:52px; --sidebar-w:240px; --content-max:720px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
-body{font-family:-apple-system,'SF Pro Text','Segoe UI',sans-serif;background:var(--tg-bg2);color:var(--tg-text);min-height:100vh;overscroll-behavior:none;}
+body{font-family:-apple-system,'SF Pro Text','Segoe UI',sans-serif;background:var(--tg-bg2);color:var(--tg-text);min-height:100vh;}
 button,input,select{font:inherit}
 :focus-visible{outline:2px solid rgba(94,172,248,.5);outline-offset:1px;border-radius:8px}
 
 .mobile .sidebar{display:none}.mobile .top-bar{display:flex}
 .desktop .sidebar{display:flex}.desktop .main-wrap{margin-left:var(--sidebar-w)}.desktop .top-bar{display:none}
 
+/* SIDEBAR (desktop) */
 .sidebar{width:var(--sidebar-w);position:fixed;top:0;left:0;bottom:0;z-index:200;background:var(--tg-surface);border-right:1px solid var(--tg-divider);flex-direction:column;overflow-y:auto;}
 .sidebar-header{padding:20px 16px 12px;border-bottom:1px solid var(--tg-sep);}
 .sidebar-title{font-size:17px;font-weight:700;color:var(--tg-text);letter-spacing:-.2px;display:flex;align-items:center;gap:10px;}
@@ -37,99 +38,205 @@ button,input,select{font:inherit}
 .snav-btn.active{background:rgba(94,172,248,.12);color:var(--tg-blue)}
 .snav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
 
-.top-bar{height:calc(env(safe-area-inset-top,0px) + 52px);padding-top:env(safe-area-inset-top,0px);background:var(--tg-surface);border-bottom:1px solid var(--tg-sep);align-items:center;padding-left:12px;padding-right:16px;gap:10px;position:sticky;top:0;z-index:100;}
-.topbar-back{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.07);border:none;color:var(--tg-blue);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:19px;text-decoration:none;flex-shrink:0;}
-.topbar-title{font-size:16px;font-weight:700;flex:1;color:var(--tg-text);letter-spacing:-.1px}
+/* TOP BAR (mobile) — только заголовок */
+.top-bar{
+  height:calc(env(safe-area-inset-top,0px) + 52px);
+  padding-top:env(safe-area-inset-top,0px);
+  background:var(--tg-surface);
+  border-bottom:1px solid var(--tg-sep);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding-left:16px;
+  padding-right:16px;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.topbar-title{
+  font-size:16px;
+  font-weight:700;
+  color:var(--tg-text);
+  letter-spacing:-.1px;
+  text-align:center;
+}
 
+/* MAIN */
 .main-wrap{min-height:100vh}
 .wrap{max-width:var(--content-max);margin:0 auto;padding:0 0 24px}
 
+/* Секции / карточки */
 .section{background:var(--tg-surface);border-radius:12px;margin:12px 12px 0;overflow:hidden;}
 .section:last-child{margin-bottom:12px}
 .section-header{font-size:11px;font-weight:600;color:var(--tg-muted);text-transform:uppercase;letter-spacing:.7px;padding:14px 16px 6px;margin:0 12px;}
 
-.field-cell{padding:10px 16px;border-bottom:1px solid var(--tg-sep);display:flex;flex-direction:column;gap:4px;}
+/* Поля ввода (как на изображении) */
+.field-cell{
+  padding:10px 16px;
+  border-bottom:1px solid var(--tg-sep);
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
 .field-cell:last-child{border-bottom:none}
-.field-cell label{font-size:11px;font-weight:600;color:var(--tg-muted);text-transform:uppercase;letter-spacing:.6px;}
-.field-cell input,.field-cell select{background:none;border:none;outline:none;font-size:16px;color:var(--tg-text);width:100%;padding:4px 0 2px;-webkit-appearance:none;}
-.field-cell select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23708499' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0 center;padding-right:20px;cursor:pointer;}
-.fields-row{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.fields-row .field-cell{border-right:1px solid var(--tg-sep)}
-.fields-row .field-cell:last-child{border-right:none}
-.fields-row3{grid-template-columns:1fr 1fr 1fr}
+.field-cell label{
+  font-size:11px;
+  font-weight:600;
+  color:var(--tg-muted);
+  text-transform:uppercase;
+  letter-spacing:.6px;
+}
+.field-cell input, .field-cell select{
+  background:var(--tg-bg2);
+  border:1px solid var(--tg-divider);
+  border-radius:8px;
+  padding:8px 12px;
+  font-size:15px;
+  color:var(--tg-text);
+  width:100%;
+  outline:none;
+  transition:border .1s;
+}
+.field-cell input:focus, .field-cell select:focus{
+  border-color:var(--tg-blue);
+  box-shadow:0 0 0 2px rgba(94,172,248,.2);
+}
+.field-cell select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23708499' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  -webkit-appearance:none;
+  appearance:none;
+}
 
-.chk-cell{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--tg-sep);cursor:pointer;}
+/* Ряд из двух колонок */
+.fields-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+}
+.fields-row .field-cell{
+  border-right:1px solid var(--tg-sep);
+}
+.fields-row .field-cell:last-child{
+  border-right:none;
+}
+/* Три колонки для Power state */
+.power-row{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:0;
+}
+.power-row .field-cell{
+  border-right:1px solid var(--tg-sep);
+}
+.power-row .field-cell:last-child{
+  border-right:none;
+}
+
+/* Чекбоксы */
+.chk-cell{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:13px 16px;
+  border-bottom:1px solid var(--tg-sep);
+  cursor:pointer;
+}
 .chk-cell:last-child{border-bottom:none}
-.chk-cell label{font-size:14.5px;color:var(--tg-text);cursor:pointer;flex:1}
-.chk-cell input[type=checkbox]{width:20px;height:20px;accent-color:var(--tg-blue);cursor:pointer;flex-shrink:0;}
+.chk-cell label{
+  font-size:14.5px;
+  color:var(--tg-text);
+  cursor:pointer;
+  flex:1;
+}
+.chk-cell input[type=checkbox]{
+  width:20px;
+  height:20px;
+  accent-color:var(--tg-blue);
+  cursor:pointer;
+  flex-shrink:0;
+}
 
+/* Кнопки */
 .btn-section{margin:8px 12px 0}
-.btn-tg{width:100%;height:48px;background:var(--tg-blue);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s,transform .08s;letter-spacing:.1px;}
+.btn-tg{
+  width:100%;
+  height:48px;
+  background:var(--tg-blue);
+  border:none;
+  border-radius:10px;
+  color:#fff;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:opacity .15s,transform .08s;
+}
 .btn-tg:active{opacity:.82;transform:scale(.98)}
-.btn-copy{background:rgba(94,172,248,.1);color:var(--tg-blue);border:1px solid rgba(94,172,248,.2);}
-.btn-copy.copied{background:rgba(77,207,124,.1);color:var(--tg-green);border-color:rgba(77,207,124,.2);}
+.btn-copy{
+  background:rgba(94,172,248,.1);
+  color:var(--tg-blue);
+  border:1px solid rgba(94,172,248,.2);
+}
+.btn-copy.copied{
+  background:rgba(77,207,124,.1);
+  color:var(--tg-green);
+  border-color:rgba(77,207,124,.2);
+}
 
+/* Заголовок страницы */
 .page-title-block{padding:18px 16px 6px}
 .page-title{font-size:20px;font-weight:800;letter-spacing:-.4px;color:var(--tg-text)}
 .page-desc{font-size:13px;color:var(--tg-muted);margin-top:3px;line-height:1.5}
-.slabel{font-size:11px;font-weight:600;color:var(--tg-muted);text-transform:uppercase;letter-spacing:.7px;padding:14px 16px 6px;margin:0 12px;}
 
-.code-box{margin:0 12px;background:#0a0f14;border:1px solid var(--tg-divider);border-radius:10px;padding:12px 14px;font-family:'SF Mono','Menlo','Consolas',monospace;font-size:11px;color:#92d98c;line-height:1.65;overflow-x:auto;white-space:pre;max-height:280px;overflow-y:auto;}
+/* Блок с кодом */
+.code-box{
+  margin:0 12px;
+  background:#0a0f14;
+  border:1px solid var(--tg-divider);
+  border-radius:10px;
+  padding:12px 14px;
+  font-family:'SF Mono','Menlo','Consolas',monospace;
+  font-size:11px;
+  color:#92d98c;
+  line-height:1.65;
+  overflow-x:auto;
+  white-space:pre;
+  max-height:280px;
+  overflow-y:auto;
+}
 
-.info-block{margin:0 12px;background:rgba(94,172,248,.06);border-left:3px solid rgba(94,172,248,.4);border-radius:0 8px 8px 0;padding:10px 12px;font-size:13px;color:var(--tg-muted);line-height:1.55;}
+/* Инфо-блок */
+.info-block{
+  margin:0 12px;
+  background:rgba(94,172,248,.06);
+  border-left:3px solid rgba(94,172,248,.4);
+  border-radius:0 8px 8px 0;
+  padding:10px 12px;
+  font-size:13px;
+  color:var(--tg-muted);
+  line-height:1.55;
+}
 .info-block strong{color:var(--tg-text)}
 
 @media(min-width:768px){
   .section{margin:12px 0 0;border-radius:14px}
-  .section-header,.slabel{margin:0;padding-left:0}
   .btn-section{margin:8px 0 0}
   .code-box,.info-block{margin:0}
   .wrap{padding:0 20px 28px}
 }
 @media(max-width:360px){
-  .fields-row3{grid-template-columns:1fr 1fr}
+  .power-row{grid-template-columns:1fr 1fr}
 }
-/* Темное оформление для выпадающих списков */
-select {
-  background-color: var(--tg-bg2);     /* тёмный фон, как у основного фона */
-  color: var(--tg-text);               /* светлый текст */
-  border: 1px solid var(--tg-divider); /* лёгкая граница для видимости */
-  border-radius: 8px;
-  padding: 6px 8px;
-  cursor: pointer;
-}
-
-select option {
-  background-color: var(--tg-bg2);     /* фон каждой опции */
-  color: var(--tg-text);               /* цвет текста опции */
-}
-
-/* Для полей ввода внутри .field-cell переопределим background, 
-   чтобы не было конфликта с уже существующим background:none */
-.field-cell select {
-  background-color: var(--tg-bg2);
-  border: 1px solid var(--tg-divider);
-  border-radius: 6px;
-  padding: 8px 24px 8px 10px; /* место для стрелки */
-  /* кастомная стрелка уже задана в background-image, оставляем её */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23708499' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-/* Убираем стандартную синюю подсветку при фокусе, заменяем на кастомную */
-select:focus {
-  outline: none;
-  border-color: var(--tg-blue);
-  box-shadow: 0 0 0 2px rgba(94, 172, 248, 0.2);
-}
-
 </style>
 </head>
 <body class="mobile">
 
+<!-- SIDEBAR (desktop) -->
 <div class="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-title"><div class="s-ico">🚁</div>FPV Tools</div>
@@ -147,79 +254,111 @@ select:focus {
 </div>
 
 <div class="main-wrap">
+  <!-- Верхняя панель (только заголовок) -->
   <div class="top-bar">
-    <a class="topbar-back" href="index.html">←</a>
-    <div class="topbar-title">VTX Config</div>
+    <div class="topbar-title">VTX Config Generator</div>
   </div>
 
   <div class="wrap">
     <div class="page-title-block">
-      <div class="page-title">VTX Config Generator</div>
+      <div class="page-title">VTX config generator</div>
       <div class="page-desc">Генератор конфига Betaflight CLI — 30+ шаблонов VTX</div>
     </div>
 
-    <div class="section-header">Настройки</div>
+    <!-- Основные настройки -->
     <div class="section">
-      <div class="fields-row">
-        <div class="field-cell"><label>AUX для VTX</label>
-          <select id="v-aux">
-            <option>AUX1</option><option>AUX2</option><option selected>AUX3</option>
-            <option>AUX4</option><option>AUX5</option><option>AUX6</option>
-            <option>AUX7</option><option>AUX8</option><option>AUX9</option>
-            <option>AUX10</option><option>AUX11</option><option>AUX12</option>
-          </select>
-        </div>
-        <div class="field-cell"><label>UART порт</label>
-          <select id="v-uart">
-            <option value="1" selected>UART 1</option><option value="2">UART 2</option>
-            <option value="3">UART 3</option><option value="4">UART 4</option>
-            <option value="5">UART 5</option><option value="6">UART 6</option>
-          </select>
-        </div>
+      <!-- AUX -->
+      <div class="field-cell">
+        <label>AUX for VTX control</label>
+        <select id="v-aux">
+          <option>AUX1</option><option>AUX2</option><option selected>AUX3</option>
+          <option>AUX4</option><option>AUX5</option><option>AUX6</option>
+          <option>AUX7</option><option>AUX8</option><option>AUX9</option>
+          <option>AUX10</option><option>AUX11</option><option>AUX12</option>
+        </select>
       </div>
-      <div class="field-cell"><label>Шаблон VTX</label>
-        <select id="v-tpl"><!-- заполняется JS --></select>
+
+      <!-- VTX template catalog -->
+      <div class="field-cell">
+        <label>VTX template catalog</label>
+        <select id="v-tpl"></select>
       </div>
+
+      <!-- VTX serial port -->
+      <div class="field-cell">
+        <label>VTX serial port</label>
+        <select id="v-uart">
+          <option value="1">UART 1</option><option value="2">UART 2</option>
+          <option value="3">UART 3</option><option value="4">UART 4</option>
+          <option value="5">UART 5</option><option value="6" selected>UART 6</option>
+        </select>
+      </div>
+
+      <!-- VTX protocol -->
+      <div class="field-cell">
+        <label>VTX protocol</label>
+        <select id="v-protocol">
+          <option value="IRC Tramp">IRC Tramp</option>
+          <option value="SmartAudio">SmartAudio (TBS)</option>
+          <option value="SmartAudio 2.1">SmartAudio 2.1</option>
+        </select>
+      </div>
+
+      <!-- Default band / channel в два ряда -->
       <div class="fields-row">
-        <div class="field-cell"><label>Диапазон по умолч.</label>
+        <div class="field-cell">
+          <label>Default band</label>
           <select id="v-band">
-            <option value="1">Band A</option><option value="2">Band B</option>
-            <option value="3">Band E</option><option value="4">Band F</option>
-            <option value="5" selected>Band R</option><option value="6">Band L</option>
+            <option value="A">Band A</option><option value="B">Band B</option>
+            <option value="E">Band E</option><option value="F">Band F</option>
+            <option value="R" selected>Band R</option><option value="L">Band L</option>
           </select>
         </div>
-        <div class="field-cell"><label>Канал по умолч.</label>
+        <div class="field-cell">
+          <label>Default channel</label>
           <select id="v-ch">
-            <option value="1">Канал 1</option><option value="2">Канал 2</option>
-            <option value="3">Канал 3</option><option value="4">Канал 4</option>
-            <option value="5">Канал 5</option><option value="6">Канал 6</option>
-            <option value="7">Канал 7</option><option value="8" selected>Канал 8</option>
+            <option value="1">Channel 1</option><option value="2">Channel 2</option>
+            <option value="3">Channel 3</option><option value="4">Channel 4</option>
+            <option value="5">Channel 5</option><option value="6">Channel 6</option>
+            <option value="7">Channel 7</option><option value="8" selected>Channel 8</option>
           </select>
         </div>
       </div>
     </div>
 
-    <div class="slabel">Индексы уровней мощности (AUX диапазоны)</div>
+    <!-- Power states -->
+    <div class="section-header">Power levels</div>
     <div class="section">
-      <div class="fields-row fields-row3">
-        <div class="field-cell"><label>Уровень 1</label><input type="number" id="v-p1" value="2" inputmode="numeric"></div>
-        <div class="field-cell"><label>Уровень 2</label><input type="number" id="v-p2" value="3" inputmode="numeric"></div>
-        <div class="field-cell"><label>Уровень 3</label><input type="number" id="v-p3" value="5" inputmode="numeric"></div>
+      <div class="power-row">
+        <div class="field-cell"><label>Power state 1</label><input type="number" id="v-p1" value="2" inputmode="numeric"></div>
+        <div class="field-cell"><label>Power state 2</label><input type="number" id="v-p2" value="3" inputmode="numeric"></div>
+        <div class="field-cell"><label>Power state 3</label><input type="number" id="v-p3" value="5" inputmode="numeric"></div>
       </div>
     </div>
 
-    <div class="section" style="margin-top:8px">
-      <div class="chk-cell"><input type="checkbox" id="v-bchg"><label for="v-bchg">Смена Band/Channel через AUX</label></div>
-      <div class="chk-cell"><input type="checkbox" id="v-tbl" checked><label for="v-tbl">Включить VTX-таблицу в конфиг</label></div>
+    <!-- Чекбоксы -->
+    <div class="section">
+      <div class="chk-cell">
+        <input type="checkbox" id="v-bchg">
+        <label for="v-bchg">Include band/channel change capability</label>
+      </div>
+      <div class="chk-cell">
+        <input type="checkbox" id="v-tbl" checked>
+        <label for="v-tbl">Include VTX table for selected template</label>
+      </div>
     </div>
 
-    <div class="btn-section"><button class="btn-tg" onclick="genVTX()">⚙️ Сгенерировать конфиг</button></div>
+    <!-- Кнопка генерации -->
+    <div class="btn-section">
+      <button class="btn-tg" onclick="generateVTXConfig()">⚙️ Generate VTX config</button>
+    </div>
 
+    <!-- Блок результата -->
     <div id="v-out" style="display:none">
-      <div class="slabel">Betaflight CLI — скопируй и вставь</div>
+      <div class="info-block" style="margin-top:12px">⬇️ Скопируйте команды и вставьте в CLI Betaflight</div>
       <div class="code-box" id="v-code"></div>
       <div class="btn-section" style="margin-top:8px">
-        <button class="btn-tg btn-copy" id="v-copy" onclick="copyVTX()">📋 Скопировать конфиг</button>
+        <button class="btn-tg btn-copy" id="v-copy" onclick="copyVTXConfig()">📋 Скопировать конфиг</button>
       </div>
     </div>
 
@@ -229,35 +368,165 @@ select:focus {
   </div>
 </div>
 
-<script src="vtx-config.js"></script>
 <script>
-function applyLayout(){
-  const w=window.innerWidth;
-  const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
-  const tgDesktop=tg&&(tg.platform==='tdesktop'||tg.platform==='macos'||tg.platform==='web');
-  document.body.className=(w>=768&&(!tg||tgDesktop||w>=900))?'desktop':'mobile';
-}
-applyLayout();window.addEventListener('resize',applyLayout);
+  // ---------- БАЗА ДАННЫХ ШАБЛОНОВ VTX ----------
+  const VTX_TEMPLATES = [
+    { name: "D1 VTX 2.5W 64Ch", protocol: "IRC Tramp", power: [25, 200, 1000, 2500] },
+    { name: "TBS Unify Pro32", protocol: "SmartAudio", power: [25, 200, 500, 1000] },
+    { name: "Eachine TX805", protocol: "IRC Tramp", power: [25, 200, 600, 800] },
+    { name: "Rush Tank Ultimate", protocol: "SmartAudio", power: [25, 200, 500, 1000] },
+    { name: "AKK X2 Ultimate", protocol: "IRC Tramp", power: [25, 200, 800, 1600] },
+    { name: "Holybro 1.6W", protocol: "SmartAudio", power: [25, 200, 600, 1600] },
+    { name: "SpeedyBee TX800", protocol: "SmartAudio", power: [25, 200, 400, 800] },
+    { name: "NamimnoRC Flash", protocol: "IRC Tramp", power: [25, 200, 500, 1000] },
+    { name: "HappyModel OVX306", protocol: "SmartAudio", power: [25, 100, 400] }
+  ];
 
-if(window.Telegram&&window.Telegram.WebApp){
-  const tg=window.Telegram.WebApp;tg.ready();tg.expand();
-  function hexRgba(hex,a){const h=(hex||'').replace('#','');if(h.length!==6)return null;const n=parseInt(h,16);return`rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
-  function apply(){
-    const p=tg.themeParams||{},r=document.documentElement.style;
-    if(p.bg_color){r.setProperty('--tg-bg2',p.bg_color);r.setProperty('--tg-bg',p.bg_color);}
-    if(p.secondary_bg_color)r.setProperty('--tg-surface',p.secondary_bg_color);
-    if(p.text_color)r.setProperty('--tg-text',p.text_color);
-    if(p.hint_color)r.setProperty('--tg-muted',p.hint_color);
-    if(p.button_color)r.setProperty('--tg-blue',p.button_color);
-    if(p.link_color)r.setProperty('--tg-blue',p.link_color);
-    const bg=p.bg_color||'#17212b';
-    const meta=document.querySelector('meta[name="theme-color"]');
-    if(meta)meta.setAttribute('content',bg);
-    try{tg.setHeaderColor&&tg.setHeaderColor(bg)}catch(e){}
-    try{tg.setBackgroundColor&&tg.setBackgroundColor(bg)}catch(e){}
+  // Заполнение выпадающего списка шаблонов
+  const tplSelect = document.getElementById('v-tpl');
+  VTX_TEMPLATES.forEach((tpl, idx) => {
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = tpl.name;
+    tplSelect.appendChild(opt);
+  });
+  // Установка протокола по умолчанию согласно первому шаблону
+  function updateProtocolFromTemplate() {
+    const idx = parseInt(tplSelect.value, 10);
+    const protocol = VTX_TEMPLATES[idx]?.protocol || "IRC Tramp";
+    document.getElementById('v-protocol').value = protocol;
   }
-  apply();try{tg.onEvent('themeChanged',apply)}catch(e){}
-}
+  tplSelect.addEventListener('change', updateProtocolFromTemplate);
+  updateProtocolFromTemplate();
+
+  // Функция генерации CLI-команд
+  function generateVTXConfig() {
+    const aux = document.getElementById('v-aux').value;        // AUX3
+    const uart = document.getElementById('v-uart').value;     // номер UART
+    const tplIdx = parseInt(tplSelect.value, 10);
+    const template = VTX_TEMPLATES[tplIdx];
+    const protocol = document.getElementById('v-protocol').value;
+    const band = document.getElementById('v-band').value;
+    const channel = document.getElementById('v-ch').value;
+    const p1 = parseInt(document.getElementById('v-p1').value, 10);
+    const p2 = parseInt(document.getElementById('v-p2').value, 10);
+    const p3 = parseInt(document.getElementById('v-p3').value, 10);
+    const includeBandChan = document.getElementById('v-bchg').checked;
+    const includeTable = document.getElementById('v-tbl').checked;
+
+    // Преобразование AUX3 → 3 (номер)
+    const auxNum = parseInt(aux.replace('AUX', ''), 10);
+    // Номер UART
+    const uartNum = uart;
+
+    let cli = "";
+
+    // 1. Назначение ресурса (если требуется)
+    cli += `# VTX Configuration for ${template.name}\n`;
+    cli += `set vtx_band = ${band}\n`;
+    cli += `set vtx_channel = ${channel}\n`;
+    cli += `set vtx_power = ${p1}\n`;     // по умолчанию первый уровень
+    cli += `set vtx_${auxNum}_control = ON\n`;
+    cli += `set vtx_${auxNum}_low = ${p1}\n`;
+    cli += `set vtx_${auxNum}_mid = ${p2}\n`;
+    cli += `set vtx_${auxNum}_high = ${p3}\n`;
+    if (includeBandChan) {
+      cli += `set vtx_${auxNum}_band_channel = ON\n`;
+    } else {
+      cli += `set vtx_${auxNum}_band_channel = OFF\n`;
+    }
+
+    // 2. Настройка UART
+    cli += `serial ${uartNum} 0 115200 115200 0 115200\n`;
+    cli += `set vtx_${uartNum}_baud = AUTO\n`;
+
+    // 3. VTX Table (если включено)
+    if (includeTable) {
+      cli += `\n# VTX Table\n`;
+      // Таблица частот (упрощённо: 8 каналов в каждом из 6 основных бэндов)
+      const bands = {
+        A: [5865,5845,5825,5805,5785,5765,5745,5725],
+        B: [5733,5752,5771,5790,5809,5828,5847,5866],
+        E: [5705,5685,5665,5645,5885,5905,5925,5945],
+        F: [5740,5760,5780,5800,5820,5840,5860,5880],
+        R: [5658,5695,5732,5769,5806,5843,5880,5917],
+        L: [5362,5399,5436,5473,5510,5547,5584,5621]
+      };
+      cli += `vtx_table_bands ${Object.keys(bands).length}\n`;
+      for (const [b, freqs] of Object.entries(bands)) {
+        cli += `vtx_table_band ${b} ${freqs.join(' ')}\n`;
+      }
+      // Уровни мощности (берём из шаблона, но подставляем индексы из полей)
+      const powerLevels = template.power;
+      cli += `vtx_table_power ${powerLevels.length}\n`;
+      powerLevels.forEach((mw, idx) => {
+        cli += `vtx_table_powerlevel ${idx+1} ${mw} 0 0 0 0\n`;
+      });
+      cli += `vtx_table_settings\n`;
+    }
+
+    // Протокол
+    cli += `\nset vtx_protocol = ${protocol}\n`;
+
+    // Вывод в блок
+    document.getElementById('v-code').innerText = cli;
+    document.getElementById('v-out').style.display = 'block';
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }
+
+  // Копирование текста
+  function copyVTXConfig() {
+    const codeEl = document.getElementById('v-code');
+    const text = codeEl.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('v-copy');
+      btn.classList.add('copied');
+      btn.textContent = '✅ Скопировано!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.textContent = '📋 Скопировать конфиг';
+      }, 2000);
+    }).catch(() => alert('Не удалось скопировать'));
+  }
+
+  // Адаптация под desktop / mobile
+  function applyLayout(){
+    const w = window.innerWidth;
+    const tg = window.Telegram?.WebApp;
+    const tgDesktop = tg && (tg.platform === 'tdesktop' || tg.platform === 'macos' || tg.platform === 'web');
+    document.body.className = (w >= 768 && (!tg || tgDesktop || w >= 900)) ? 'desktop' : 'mobile';
+  }
+  applyLayout();
+  window.addEventListener('resize', applyLayout);
+
+  // Telegram WebApp: нативная кнопка «Назад»
+  if(window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    tg.BackButton.show();
+    tg.BackButton.onClick(() => history.back());
+
+    // Применение темы
+    function hexRgba(hex,a){const h=(hex||'').replace('#','');if(h.length!==6)return null;const n=parseInt(h,16);return`rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
+    function applyTgTheme(){
+      const p = tg.themeParams || {};
+      const r = document.documentElement.style;
+      if(p.bg_color){ r.setProperty('--tg-bg2', p.bg_color); r.setProperty('--tg-bg', p.bg_color); }
+      if(p.secondary_bg_color) r.setProperty('--tg-surface', p.secondary_bg_color);
+      if(p.text_color) r.setProperty('--tg-text', p.text_color);
+      if(p.hint_color) r.setProperty('--tg-muted', p.hint_color);
+      if(p.button_color) r.setProperty('--tg-blue', p.button_color);
+      if(p.link_color) r.setProperty('--tg-blue', p.link_color);
+      const bg = p.bg_color || '#17212b';
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if(meta) meta.setAttribute('content', bg);
+      try{ tg.setHeaderColor && tg.setHeaderColor(bg); } catch(e){}
+      try{ tg.setBackgroundColor && tg.setBackgroundColor(bg); } catch(e){}
+    }
+    applyTgTheme();
+    tg.onEvent('themeChanged', applyTgTheme);
+  }
 </script>
 </body>
 </html>
