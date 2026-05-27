@@ -143,14 +143,21 @@ a{color:var(--tg-blue);text-decoration:none}
 }
 /* Круглая аватарка (иконка внутри) */
 .bot-avatar {
-  width: 36px;
-  height: 36px;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(94, 172, 248, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .bot-avatar img {
-  width: 85%;
-  height: 85%;
-  object-fit: contain;
+  width: 160%;
+  height: 160%;
+  object-fit: cover;
 }
 /* Если используете SVG или текст — можно оставить font-size */
 .bot-avatar svg {
