@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#17212b">
-<title>VTX Config Generator — FPV Tools</title>
+<title>VTX Config — FPV Tools</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{
@@ -26,7 +26,7 @@ button,input,select{font:inherit}
 .mobile .sidebar{display:none}.mobile .top-bar{display:flex}
 .desktop .sidebar{display:flex}.desktop .main-wrap{margin-left:var(--sidebar-w)}.desktop .top-bar{display:none}
 
-/* SIDEBAR (desktop) */
+/* SIDEBAR */
 .sidebar{width:var(--sidebar-w);position:fixed;top:0;left:0;bottom:0;z-index:200;background:var(--tg-surface);border-right:1px solid var(--tg-divider);flex-direction:column;overflow-y:auto;}
 .sidebar-header{padding:20px 16px 12px;border-bottom:1px solid var(--tg-sep);}
 .sidebar-title{font-size:17px;font-weight:700;color:var(--tg-text);letter-spacing:-.2px;display:flex;align-items:center;gap:10px;}
@@ -38,7 +38,7 @@ button,input,select{font:inherit}
 .snav-btn.active{background:rgba(94,172,248,.12);color:var(--tg-blue)}
 .snav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
 
-/* TOP BAR (mobile) — только заголовок */
+/* TOP BAR (только заголовок) */
 .top-bar{
   height:calc(env(safe-area-inset-top,0px) + 52px);
   padding-top:env(safe-area-inset-top,0px);
@@ -61,16 +61,14 @@ button,input,select{font:inherit}
   text-align:center;
 }
 
-/* MAIN */
 .main-wrap{min-height:100vh}
 .wrap{max-width:var(--content-max);margin:0 auto;padding:0 0 24px}
 
-/* Секции / карточки */
+/* Секции и поля (как на макете) */
 .section{background:var(--tg-surface);border-radius:12px;margin:12px 12px 0;overflow:hidden;}
 .section:last-child{margin-bottom:12px}
 .section-header{font-size:11px;font-weight:600;color:var(--tg-muted);text-transform:uppercase;letter-spacing:.7px;padding:14px 16px 6px;margin:0 12px;}
 
-/* Поля ввода (как на изображении) */
 .field-cell{
   padding:10px 16px;
   border-bottom:1px solid var(--tg-sep);
@@ -109,7 +107,6 @@ button,input,select{font:inherit}
   appearance:none;
 }
 
-/* Ряд из двух колонок */
 .fields-row{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -121,7 +118,6 @@ button,input,select{font:inherit}
 .fields-row .field-cell:last-child{
   border-right:none;
 }
-/* Три колонки для Power state */
 .power-row{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
@@ -134,7 +130,6 @@ button,input,select{font:inherit}
   border-right:none;
 }
 
-/* Чекбоксы */
 .chk-cell{
   display:flex;
   align-items:center;
@@ -158,7 +153,6 @@ button,input,select{font:inherit}
   flex-shrink:0;
 }
 
-/* Кнопки */
 .btn-section{margin:8px 12px 0}
 .btn-tg{
   width:100%;
@@ -188,12 +182,10 @@ button,input,select{font:inherit}
   border-color:rgba(77,207,124,.2);
 }
 
-/* Заголовок страницы */
 .page-title-block{padding:18px 16px 6px}
 .page-title{font-size:20px;font-weight:800;letter-spacing:-.4px;color:var(--tg-text)}
 .page-desc{font-size:13px;color:var(--tg-muted);margin-top:3px;line-height:1.5}
 
-/* Блок с кодом */
 .code-box{
   margin:0 12px;
   background:#0a0f14;
@@ -210,7 +202,6 @@ button,input,select{font:inherit}
   overflow-y:auto;
 }
 
-/* Инфо-блок */
 .info-block{
   margin:0 12px;
   background:rgba(94,172,248,.06);
@@ -236,7 +227,6 @@ button,input,select{font:inherit}
 </head>
 <body class="mobile">
 
-<!-- SIDEBAR (desktop) -->
 <div class="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-title"><div class="s-ico">🚁</div>FPV Tools</div>
@@ -254,7 +244,6 @@ button,input,select{font:inherit}
 </div>
 
 <div class="main-wrap">
-  <!-- Верхняя панель (только заголовок) -->
   <div class="top-bar">
     <div class="topbar-title">VTX Config Generator</div>
   </div>
@@ -267,7 +256,6 @@ button,input,select{font:inherit}
 
     <!-- Основные настройки -->
     <div class="section">
-      <!-- AUX -->
       <div class="field-cell">
         <label>AUX for VTX control</label>
         <select id="v-aux">
@@ -278,13 +266,11 @@ button,input,select{font:inherit}
         </select>
       </div>
 
-      <!-- VTX template catalog -->
       <div class="field-cell">
         <label>VTX template catalog</label>
         <select id="v-tpl"></select>
       </div>
 
-      <!-- VTX serial port -->
       <div class="field-cell">
         <label>VTX serial port</label>
         <select id="v-uart">
@@ -294,24 +280,23 @@ button,input,select{font:inherit}
         </select>
       </div>
 
-      <!-- VTX protocol -->
       <div class="field-cell">
         <label>VTX protocol</label>
         <select id="v-protocol">
           <option value="IRC Tramp">IRC Tramp</option>
-          <option value="SmartAudio">SmartAudio (TBS)</option>
+          <option value="SmartAudio 2.0">SmartAudio 2.0</option>
           <option value="SmartAudio 2.1">SmartAudio 2.1</option>
+          <option value="SmartAudio 1.0">SmartAudio 1.0</option>
         </select>
       </div>
 
-      <!-- Default band / channel в два ряда -->
       <div class="fields-row">
         <div class="field-cell">
           <label>Default band</label>
           <select id="v-band">
-            <option value="A">Band A</option><option value="B">Band B</option>
-            <option value="E">Band E</option><option value="F">Band F</option>
-            <option value="R" selected>Band R</option><option value="L">Band L</option>
+            <option value="1">Band A</option><option value="2">Band B</option>
+            <option value="3">Band E</option><option value="4">Band F</option>
+            <option value="5" selected>Band R</option><option value="6">Band L</option>
           </select>
         </div>
         <div class="field-cell">
@@ -326,7 +311,7 @@ button,input,select{font:inherit}
       </div>
     </div>
 
-    <!-- Power states -->
+    <!-- Power levels -->
     <div class="section-header">Power levels</div>
     <div class="section">
       <div class="power-row">
@@ -348,17 +333,15 @@ button,input,select{font:inherit}
       </div>
     </div>
 
-    <!-- Кнопка генерации -->
     <div class="btn-section">
-      <button class="btn-tg" onclick="generateVTXConfig()">⚙️ Generate VTX config</button>
+      <button class="btn-tg" onclick="genVTX()">⚙️ Generate VTX config</button>
     </div>
 
-    <!-- Блок результата -->
     <div id="v-out" style="display:none">
       <div class="info-block" style="margin-top:12px">⬇️ Скопируйте команды и вставьте в CLI Betaflight</div>
       <div class="code-box" id="v-code"></div>
       <div class="btn-section" style="margin-top:8px">
-        <button class="btn-tg btn-copy" id="v-copy" onclick="copyVTXConfig()">📋 Скопировать конфиг</button>
+        <button class="btn-tg btn-copy" id="v-copy" onclick="copyVTX()">📋 Скопировать конфиг</button>
       </div>
     </div>
 
@@ -368,129 +351,93 @@ button,input,select{font:inherit}
   </div>
 </div>
 
+<script src="vtx-config.js"></script>
 <script>
-  // ---------- БАЗА ДАННЫХ ШАБЛОНОВ VTX ----------
-  const VTX_TEMPLATES = [
-    { name: "D1 VTX 2.5W 64Ch", protocol: "IRC Tramp", power: [25, 200, 1000, 2500] },
-    { name: "TBS Unify Pro32", protocol: "SmartAudio", power: [25, 200, 500, 1000] },
-    { name: "Eachine TX805", protocol: "IRC Tramp", power: [25, 200, 600, 800] },
-    { name: "Rush Tank Ultimate", protocol: "SmartAudio", power: [25, 200, 500, 1000] },
-    { name: "AKK X2 Ultimate", protocol: "IRC Tramp", power: [25, 200, 800, 1600] },
-    { name: "Holybro 1.6W", protocol: "SmartAudio", power: [25, 200, 600, 1600] },
-    { name: "SpeedyBee TX800", protocol: "SmartAudio", power: [25, 200, 400, 800] },
-    { name: "NamimnoRC Flash", protocol: "IRC Tramp", power: [25, 200, 500, 1000] },
-    { name: "HappyModel OVX306", protocol: "SmartAudio", power: [25, 100, 400] }
-  ];
-
-  // Заполнение выпадающего списка шаблонов
-  const tplSelect = document.getElementById('v-tpl');
-  VTX_TEMPLATES.forEach((tpl, idx) => {
-    const opt = document.createElement('option');
-    opt.value = idx;
-    opt.textContent = tpl.name;
-    tplSelect.appendChild(opt);
-  });
-  // Установка протокола по умолчанию согласно первому шаблону
-  function updateProtocolFromTemplate() {
-    const idx = parseInt(tplSelect.value, 10);
-    const protocol = VTX_TEMPLATES[idx]?.protocol || "IRC Tramp";
-    document.getElementById('v-protocol').value = protocol;
-  }
-  tplSelect.addEventListener('change', updateProtocolFromTemplate);
-  updateProtocolFromTemplate();
-
-  // Функция генерации CLI-команд
-  function generateVTXConfig() {
-    const aux = document.getElementById('v-aux').value;        // AUX3
-    const uart = document.getElementById('v-uart').value;     // номер UART
-    const tplIdx = parseInt(tplSelect.value, 10);
-    const template = VTX_TEMPLATES[tplIdx];
-    const protocol = document.getElementById('v-protocol').value;
-    const band = document.getElementById('v-band').value;
-    const channel = document.getElementById('v-ch').value;
-    const p1 = parseInt(document.getElementById('v-p1').value, 10);
-    const p2 = parseInt(document.getElementById('v-p2').value, 10);
-    const p3 = parseInt(document.getElementById('v-p3').value, 10);
-    const includeBandChan = document.getElementById('v-bchg').checked;
-    const includeTable = document.getElementById('v-tbl').checked;
-
-    // Преобразование AUX3 → 3 (номер)
-    const auxNum = parseInt(aux.replace('AUX', ''), 10);
-    // Номер UART
-    const uartNum = uart;
-
-    let cli = "";
-
-    // 1. Назначение ресурса (если требуется)
-    cli += `# VTX Configuration for ${template.name}\n`;
-    cli += `set vtx_band = ${band}\n`;
-    cli += `set vtx_channel = ${channel}\n`;
-    cli += `set vtx_power = ${p1}\n`;     // по умолчанию первый уровень
-    cli += `set vtx_${auxNum}_control = ON\n`;
-    cli += `set vtx_${auxNum}_low = ${p1}\n`;
-    cli += `set vtx_${auxNum}_mid = ${p2}\n`;
-    cli += `set vtx_${auxNum}_high = ${p3}\n`;
-    if (includeBandChan) {
-      cli += `set vtx_${auxNum}_band_channel = ON\n`;
-    } else {
-      cli += `set vtx_${auxNum}_band_channel = OFF\n`;
-    }
-
-    // 2. Настройка UART
-    cli += `serial ${uartNum} 0 115200 115200 0 115200\n`;
-    cli += `set vtx_${uartNum}_baud = AUTO\n`;
-
-    // 3. VTX Table (если включено)
-    if (includeTable) {
-      cli += `\n# VTX Table\n`;
-      // Таблица частот (упрощённо: 8 каналов в каждом из 6 основных бэндов)
-      const bands = {
-        A: [5865,5845,5825,5805,5785,5765,5745,5725],
-        B: [5733,5752,5771,5790,5809,5828,5847,5866],
-        E: [5705,5685,5665,5645,5885,5905,5925,5945],
-        F: [5740,5760,5780,5800,5820,5840,5860,5880],
-        R: [5658,5695,5732,5769,5806,5843,5880,5917],
-        L: [5362,5399,5436,5473,5510,5547,5584,5621]
-      };
-      cli += `vtx_table_bands ${Object.keys(bands).length}\n`;
-      for (const [b, freqs] of Object.entries(bands)) {
-        cli += `vtx_table_band ${b} ${freqs.join(' ')}\n`;
+  // Дополнительный код для синхронизации выпадающего списка протокола с выбранным шаблоном
+  function syncProtocolFromTemplate() {
+    const tplSelect = document.getElementById('v-tpl');
+    if (!tplSelect) return;
+    const selectedId = tplSelect.value;
+    if (window.VTX_MAP && window.VTX_MAP[selectedId]) {
+      const proto = window.VTX_MAP[selectedId].proto;
+      const protoSelect = document.getElementById('v-protocol');
+      if (protoSelect) {
+        // Находим опцию с таким же текстом (протокол может быть "IRC Tramp", "SmartAudio 2.0" и т.д.)
+        for (let i = 0; i < protoSelect.options.length; i++) {
+          if (protoSelect.options[i].value === proto) {
+            protoSelect.selectedIndex = i;
+            break;
+          }
+        }
       }
-      // Уровни мощности (берём из шаблона, но подставляем индексы из полей)
-      const powerLevels = template.power;
-      cli += `vtx_table_power ${powerLevels.length}\n`;
-      powerLevels.forEach((mw, idx) => {
-        cli += `vtx_table_powerlevel ${idx+1} ${mw} 0 0 0 0\n`;
-      });
-      cli += `vtx_table_settings\n`;
     }
-
-    // Протокол
-    cli += `\nset vtx_protocol = ${protocol}\n`;
-
-    // Вывод в блок
-    document.getElementById('v-code').innerText = cli;
-    document.getElementById('v-out').style.display = 'block';
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   }
 
-  // Копирование текста
-  function copyVTXConfig() {
-    const codeEl = document.getElementById('v-code');
-    const text = codeEl.innerText;
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.getElementById('v-copy');
-      btn.classList.add('copied');
-      btn.textContent = '✅ Скопировано!';
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.textContent = '📋 Скопировать конфиг';
-      }, 2000);
-    }).catch(() => alert('Не удалось скопировать'));
+  // При загрузке страницы и при изменении шаблона обновляем протокол
+  document.addEventListener('DOMContentLoaded', () => {
+    const tplSelect = document.getElementById('v-tpl');
+    if (tplSelect) {
+      tplSelect.addEventListener('change', syncProtocolFromTemplate);
+      // Небольшая задержка, чтобы VTX_MAP уже был загружен из vtx-config.js
+      setTimeout(syncProtocolFromTemplate, 50);
+    }
+  });
+
+  // Переопределяем genVTX, чтобы она учитывала выбранный протокол (если пользователь его переопределил)
+  const originalGenVTX = window.genVTX;
+  if (originalGenVTX) {
+    window.genVTX = function() {
+      // Сохраняем выбранный протокол в атрибут data выбранного шаблона
+      const tplSelect = document.getElementById('v-tpl');
+      const protoSelect = document.getElementById('v-protocol');
+      if (tplSelect && protoSelect && window.VTX_MAP && window.VTX_MAP[tplSelect.value]) {
+        // Временно подменяем proto в объекте шаблона, чтобы genVTX использовал выбранный протокол
+        const originalProto = window.VTX_MAP[tplSelect.value].proto;
+        window.VTX_MAP[tplSelect.value].proto = protoSelect.value;
+        originalGenVTX();
+        window.VTX_MAP[tplSelect.value].proto = originalProto;
+      } else {
+        originalGenVTX();
+      }
+    };
+  }
+
+  // Нативная кнопка «Назад» Telegram
+  if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    tg.BackButton.show();
+    tg.BackButton.onClick(() => history.back());
+
+    // Применение темы Telegram
+    function hexRgba(hex, a) {
+      const h = (hex || '').replace('#', '');
+      if (h.length !== 6) return null;
+      const n = parseInt(h, 16);
+      return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+    }
+    function applyTheme() {
+      const p = tg.themeParams || {};
+      const r = document.documentElement.style;
+      if (p.bg_color) { r.setProperty('--tg-bg2', p.bg_color); r.setProperty('--tg-bg', p.bg_color); }
+      if (p.secondary_bg_color) r.setProperty('--tg-surface', p.secondary_bg_color);
+      if (p.text_color) r.setProperty('--tg-text', p.text_color);
+      if (p.hint_color) r.setProperty('--tg-muted', p.hint_color);
+      if (p.button_color) r.setProperty('--tg-blue', p.button_color);
+      if (p.link_color) r.setProperty('--tg-blue', p.link_color);
+      const bg = p.bg_color || '#17212b';
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', bg);
+      try { tg.setHeaderColor && tg.setHeaderColor(bg); } catch (e) {}
+      try { tg.setBackgroundColor && tg.setBackgroundColor(bg); } catch (e) {}
+    }
+    applyTheme();
+    tg.onEvent('themeChanged', applyTheme);
   }
 
   // Адаптация под desktop / mobile
-  function applyLayout(){
+  function applyLayout() {
     const w = window.innerWidth;
     const tg = window.Telegram?.WebApp;
     const tgDesktop = tg && (tg.platform === 'tdesktop' || tg.platform === 'macos' || tg.platform === 'web');
@@ -498,35 +445,6 @@ button,input,select{font:inherit}
   }
   applyLayout();
   window.addEventListener('resize', applyLayout);
-
-  // Telegram WebApp: нативная кнопка «Назад»
-  if(window.Telegram && window.Telegram.WebApp) {
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-    tg.BackButton.show();
-    tg.BackButton.onClick(() => history.back());
-
-    // Применение темы
-    function hexRgba(hex,a){const h=(hex||'').replace('#','');if(h.length!==6)return null;const n=parseInt(h,16);return`rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
-    function applyTgTheme(){
-      const p = tg.themeParams || {};
-      const r = document.documentElement.style;
-      if(p.bg_color){ r.setProperty('--tg-bg2', p.bg_color); r.setProperty('--tg-bg', p.bg_color); }
-      if(p.secondary_bg_color) r.setProperty('--tg-surface', p.secondary_bg_color);
-      if(p.text_color) r.setProperty('--tg-text', p.text_color);
-      if(p.hint_color) r.setProperty('--tg-muted', p.hint_color);
-      if(p.button_color) r.setProperty('--tg-blue', p.button_color);
-      if(p.link_color) r.setProperty('--tg-blue', p.link_color);
-      const bg = p.bg_color || '#17212b';
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if(meta) meta.setAttribute('content', bg);
-      try{ tg.setHeaderColor && tg.setHeaderColor(bg); } catch(e){}
-      try{ tg.setBackgroundColor && tg.setBackgroundColor(bg); } catch(e){}
-    }
-    applyTgTheme();
-    tg.onEvent('themeChanged', applyTgTheme);
-  }
 </script>
 </body>
 </html>
