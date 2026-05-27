@@ -3,1107 +3,833 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="color-scheme" content="dark light">
-<meta name="theme-color" content="#111118">
-<title>FPV Tools — Калькуляторы для дронов</title>
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#17212b">
+<title>FPV Tools</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
+/* ═══ TELEGRAM-NATIVE PALETTE ═══
+   Inspired by BotFather / Telegram Settings UI
+   Clean list-based navigation, no floating cards
+*/
 :root {
-  --bg:#111118; --surface:#1c1c28; --card:#242433;
-  --bg2:#0c0c14; --surface2:#171724;
-  --chrome: rgba(14,14,26,0.92);
-  --chrome2: rgba(14,14,26,0.86);
-  --accent:#ff4d6d; --accent2:#7b5ea7;
-  --text:#f0f0f8; --muted:#7a7a99;
-  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.14);
-  --green:#22d3a8; --yellow:#fbbf24; --blue:#60a5fa; --orange:#fb923c;
-  --shadow: 0 18px 50px rgba(0,0,0,.38);
-  --shadow2: 0 8px 22px rgba(0,0,0,.35);
-  --radius:16px; --r-sm:11px;
-  --input-h:50px; --tab-h:60px;
-  --sidebar-w:220px;
-  --content-max:780px;
+  --tg-bg:        #17212b;
+  --tg-bg2:       #0e1621;
+  --tg-surface:   #1f2d3d;
+  --tg-surface2:  #242f3d;
+  --tg-divider:   rgba(255,255,255,0.06);
+  --tg-text:      #f5f5f5;
+  --tg-muted:     #708499;
+  --tg-blue:      #5eacf8;
+  --tg-green:     #4dcf7c;
+  --tg-red:       #e05252;
+  --tg-yellow:    #f5c048;
+  --tg-accent:    #5eacf8;
+  --tg-sep:       rgba(255,255,255,0.055);
+  --cell-h:       52px;
+  --sidebar-w:    240px;
+  --content-max:  720px;
 }
+
+/* ── Reset ── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 body{
   font-family:-apple-system,'SF Pro Text','Segoe UI',sans-serif;
-  background:
-    radial-gradient(1100px 700px at 15% -10%, rgba(123,94,167,.28), transparent 60%),
-    radial-gradient(1100px 700px at 85% -20%, rgba(255,77,109,.18), transparent 55%),
-    linear-gradient(180deg, var(--bg), var(--bg2));
-  color:var(--text);
-  min-height:100vh; overscroll-behavior:none;
+  background:var(--tg-bg2);
+  color:var(--tg-text);
+  min-height:100vh;
+  overscroll-behavior:none;
 }
-
-a{color:inherit}
 button,input,select{font:inherit}
-.ico{width:1em;height:1em;display:inline-block;vertical-align:-0.18em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.ico.fill{fill:currentColor;stroke:none}
+a{color:var(--tg-blue);text-decoration:none}
+:focus-visible{outline:2px solid rgba(94,172,248,.5);outline-offset:1px;border-radius:8px}
 
-:focus{outline:none}
-:focus-visible{outline:2px solid rgba(255,77,109,.55);outline-offset:2px;border-radius:10px}
+/* ═══ LAYOUT ═══ */
+/* Mobile */
+.mobile .sidebar{display:none}
+.mobile .top-bar{display:flex}
+.mobile .screens-wrap{padding-bottom:calc(56px + env(safe-area-inset-bottom,0px))}
+.mobile .tabbar{display:flex}
+/* Desktop */
+.desktop .sidebar{display:flex}
+.desktop .main-wrap{margin-left:var(--sidebar-w)}
+.desktop .top-bar{display:none}
+.desktop .tabbar{display:none}
+.desktop .screens-wrap{padding-bottom:24px}
 
-@media (prefers-reduced-motion: reduce){
-  html{scroll-behavior:auto}
-  *{animation:none!important;transition:none!important}
-}
-
-/* ═══ LAYOUT MODES ═══ */
-/* Mobile: bottom tab bar */
-.layout-mobile { display:flex; flex-direction:column; min-height:100vh; }
-.layout-mobile .sidebar { display:none; }
-.layout-mobile .main-wrap { flex:1; padding-bottom:0; }
-.layout-mobile .tabbar { display:none; }
-.layout-mobile .header { display:flex; }
-
-/* Desktop: left sidebar */
-.layout-desktop { display:flex; min-height:100vh; }
-.layout-desktop .sidebar { display:flex; }
-.layout-desktop .main-wrap { flex:1; margin-left:var(--sidebar-w); min-width:0; }
-.layout-desktop .tabbar { display:none; }
-.layout-desktop .header { display:none; }
-
-/* ═══ HEADER (mobile only) ═══ */
-.header{
-  background:linear-gradient(160deg, rgba(123,94,167,.22), var(--chrome) 55%, var(--chrome2));
-  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
-  padding:calc(env(safe-area-inset-top,0px)+13px) 16px 13px;
-  display:flex; align-items:center; gap:12px;
-  border-bottom:1px solid var(--border);
-  position:sticky; top:0; z-index:200;
-}
-.header-icon{
-  width:38px; height:38px; border-radius:11px; flex-shrink:0;
-  background:linear-gradient(135deg,var(--accent2),var(--accent));
-  display:flex; align-items:center; justify-content:center;
-  color:#fff;
-  cursor:pointer;
-}
-.header-title{font-size:17px;font-weight:800;letter-spacing:-.4px;color:#fff}
-.header-title span{color:var(--yellow)}
-.header-sub{font-size:10.5px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
-.header-back{
-  width:38px; height:38px; border-radius:11px; flex-shrink:0;
-  background:rgba(255,255,255,.07);
-  display:flex; align-items:center; justify-content:center;
-  color:var(--text); cursor:pointer; margin-left:auto;
-  border:none;
-}
-
-/* ═══ SIDEBAR (desktop only) ═══ */
+/* ═══ SIDEBAR ═══ */
 .sidebar{
   width:var(--sidebar-w);
-  background:linear-gradient(180deg, var(--chrome), var(--chrome2));
-  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-  border-right:1px solid var(--border);
-  flex-direction:column;
-  position:fixed; top:0; left:0; bottom:0;
-  z-index:300; overflow-y:auto;
+  position:fixed;top:0;left:0;bottom:0;z-index:200;
+  background:var(--tg-surface);
+  border-right:1px solid var(--tg-divider);
+  flex-direction:column;overflow-y:auto;
 }
-.sidebar-logo{
-  padding:22px 18px 16px;
-  border-bottom:1px solid var(--border);
+.sidebar-header{
+  padding:20px 16px 12px;
+  border-bottom:1px solid var(--tg-sep);
 }
-.sidebar-logo-icon{
-  width:44px; height:44px; border-radius:13px;
-  background:linear-gradient(135deg,var(--accent2),var(--accent));
-  display:flex; align-items:center; justify-content:center;
-  color:#fff;
-  margin-bottom:10px;
+.sidebar-title{
+  font-size:17px;font-weight:700;color:var(--tg-text);letter-spacing:-.2px;
+  display:flex;align-items:center;gap:10px;
 }
-.sidebar-logo-title{font-size:19px;font-weight:800;letter-spacing:-.5px;color:#fff}
-.sidebar-logo-title span{color:var(--yellow)}
-.sidebar-logo-sub{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
-.sidebar-nav{padding:10px 8px;flex:1}
-.sidebar-section{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:12px 10px 6px}
-.snav-btn{
-  display:flex; align-items:center; gap:10px;
-  width:100%; padding:10px 12px; border-radius:10px;
-  border:none; background:none; cursor:pointer;
-  color:var(--muted); font-size:13.5px; font-weight:500;
-  transition:background .17s,color .17s,transform .08s; text-align:left; margin-bottom:2px;
-}
-.snav-btn:hover{background:rgba(255,255,255,0.05);color:var(--text)}
-.snav-btn:active{transform:scale(.985)}
-.snav-btn.active{background:linear-gradient(90deg, rgba(255,77,109,0.18), rgba(123,94,167,0.09));color:var(--accent)}
-.snav-icon{font-size:17px;width:22px;text-align:center;flex-shrink:0}
-.snav-icon .ico{width:18px;height:18px}
-
-/* ═══ BOTTOM TABBAR (mobile only) ═══ */
-.tabbar{
-  position:fixed; bottom:0; left:0; right:0;
-  height:calc(var(--tab-h) + env(safe-area-inset-bottom,0px));
-  padding-bottom:env(safe-area-inset-bottom,0px);
-  background:var(--chrome);
-  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-  border-top:1px solid var(--border);
-  z-index:200; overflow:hidden;
-}
-.tabbar-inner{
-  display:flex; align-items:stretch;
-  height:var(--tab-h); overflow-x:auto; scrollbar-width:none;
-}
-.tabbar-inner::-webkit-scrollbar{display:none}
-.tab-btn{
-  flex:0 0 auto; min-width:64px;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:3px; padding:0 10px;
-  border:none; background:none; cursor:pointer;
-  color:var(--muted); transition:color .2s, transform .08s;
-}
-.tab-btn.active{color:var(--accent)}
-.tab-btn:active{transform:scale(.96)}
-.tab-icon{font-size:21px;line-height:1}
-.tab-icon .ico{width:22px;height:22px}
-.tab-label{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
-
-/* ═══ HOME MENU ═══ */
-.home-grid{display:grid;gap:10px}
-.home-grid.cols2{grid-template-columns:1fr 1fr}
-.home-card{
-  width:100%;
-  border:1.5px solid var(--border);
-  background:linear-gradient(180deg, var(--surface), var(--surface2));
-  border-radius:18px;
-  padding:14px 14px;
-  display:flex;align-items:flex-start;gap:12px;
-  cursor:pointer;text-align:left;
-  transition:transform .08s,border-color .18s,background .18s;
-}
-.home-card:active{transform:scale(.985)}
-.home-card:hover{border-color:rgba(255,255,255,.14)}
-.home-ic{
-  width:40px;height:40px;border-radius:14px;flex-shrink:0;
-  background:rgba(255,255,255,.06);
-  border:1.5px solid var(--border);
+.sidebar-title .s-ico{
+  width:34px;height:34px;border-radius:10px;
+  background:var(--tg-blue);
   display:flex;align-items:center;justify-content:center;
-  color:var(--accent);
+  font-size:17px;flex-shrink:0;
 }
-.home-ic .ico{width:20px;height:20px}
-.home-ttl{font-weight:900;font-size:14.5px;letter-spacing:-.2px}
-.home-sub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35}
+.sidebar-subtitle{font-size:12px;color:var(--tg-muted);margin-top:4px;padding-left:44px}
+.sidebar-section{
+  font-size:11px;font-weight:600;color:var(--tg-muted);
+  text-transform:uppercase;letter-spacing:.7px;
+  padding:14px 16px 6px;
+}
+.snav{
+  display:flex;flex-direction:column;
+  padding:0 8px 8px;
+}
+.snav-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:8px;
+  border:none;background:none;cursor:pointer;
+  color:var(--tg-muted);font-size:13.5px;font-weight:500;
+  transition:background .13s,color .13s;text-align:left;
+  width:100%;
+}
+.snav-btn:hover{background:rgba(255,255,255,.05);color:var(--tg-text)}
+.snav-btn.active{background:rgba(94,172,248,.12);color:var(--tg-blue)}
+.snav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
 
-/* ═══ CONTENT ═══ */
-.main-wrap{}
-.screens-wrap{ max-width:var(--content-max); margin:0 auto; }
-.screen{display:none;padding:20px 16px 12px;animation:fadeIn .18s ease}
+/* ═══ TOP BAR (mobile) ═══ */
+.top-bar{
+  height:calc(env(safe-area-inset-top,0px) + 52px);
+  padding-top:env(safe-area-inset-top,0px);
+  background:var(--tg-surface);
+  border-bottom:1px solid var(--tg-sep);
+  align-items:center;
+  padding-left:16px;padding-right:16px;
+  gap:12px;
+  position:sticky;top:0;z-index:100;
+}
+.topbar-icon{
+  width:34px;height:34px;border-radius:10px;
+  background:var(--tg-blue);
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+  cursor:pointer;flex-shrink:0;
+}
+.topbar-title{font-size:16px;font-weight:700;flex:1;color:var(--tg-text);letter-spacing:-.1px}
+.topbar-back{
+  width:34px;height:34px;border-radius:8px;
+  background:rgba(255,255,255,.07);border:none;
+  color:var(--tg-muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+
+/* ═══ TABBAR (mobile) ═══ */
+.tabbar{
+  position:fixed;bottom:0;left:0;right:0;
+  height:calc(56px + env(safe-area-inset-bottom,0px));
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  background:var(--tg-surface);
+  border-top:1px solid var(--tg-sep);
+  z-index:100;overflow-x:auto;scrollbar-width:none;
+  align-items:stretch;
+}
+.tabbar::-webkit-scrollbar{display:none}
+.tab-btn{
+  flex:0 0 auto;min-width:58px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;padding:0 8px;border:none;background:none;cursor:pointer;
+  color:var(--tg-muted);transition:color .15s;
+}
+.tab-btn.active{color:var(--tg-blue)}
+.tab-icon{font-size:20px;line-height:1}
+.tab-label{font-size:8.5px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+
+/* ═══ SCREENS ═══ */
+.main-wrap{min-height:100vh}
+.screens-wrap{max-width:var(--content-max);margin:0 auto}
+.screen{display:none;animation:fadeUp .16s ease}
 .screen.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
-/* ═══ PAGE HEADER ═══ */
-.page-head{margin-bottom:18px;display:flex;align-items:flex-start;gap:14px}
-.page-head-icon{
-  width:46px;height:46px;border-radius:14px;flex-shrink:0;
-  background:linear-gradient(180deg, var(--card), rgba(36,36,51,.7));
-  border:1.5px solid var(--border2);
-  box-shadow:var(--shadow2);
-  display:flex;align-items:center;justify-content:center;font-size:22px;
+/* ═══ SECTION ═══
+   BotFather-style: white background groups with dividers
+*/
+.section{
+  background:var(--tg-surface);
+  border-radius:12px;
+  margin:12px 12px 0;
+  overflow:hidden;
 }
-.page-title{font-size:22px;font-weight:800;letter-spacing:-.5px;color:#fff;margin-top:2px}
-.page-desc{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.5}
+.section:last-child{margin-bottom:12px}
+.section-header{
+  font-size:11px;font-weight:600;color:var(--tg-muted);
+  text-transform:uppercase;letter-spacing:.7px;
+  padding:14px 16px 6px;
+  margin:0 12px;
+}
+/* Cells */
+.cell{
+  display:flex;align-items:center;
+  min-height:var(--cell-h);padding:0 16px;gap:12px;
+  border-bottom:1px solid var(--tg-sep);
+  cursor:pointer;transition:background .1s;
+}
+.cell:last-child{border-bottom:none}
+.cell:active{background:rgba(255,255,255,.04)}
+.cell-icon{
+  width:32px;height:32px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  background:rgba(94,172,248,.15);
+}
+.cell-icon.green{background:rgba(77,207,124,.12)}
+.cell-icon.orange{background:rgba(245,192,72,.1)}
+.cell-icon.red{background:rgba(224,82,82,.12)}
+.cell-icon.purple{background:rgba(167,139,250,.12)}
+.cell-title{flex:1;font-size:15px;font-weight:500;color:var(--tg-text)}
+.cell-sub{font-size:12px;color:var(--tg-muted);margin-top:1px}
+.cell-right{
+  font-size:13px;color:var(--tg-muted);
+  display:flex;align-items:center;gap:4px;
+}
+.cell-chevron{font-size:16px;color:rgba(255,255,255,.25)}
+.cell-value{font-size:13px;font-weight:600;color:var(--tg-blue)}
 
-/* ═══ FIELDS ═══ */
-.field-row{display:grid;gap:10px;margin-bottom:10px}
-.cols2{grid-template-columns:1fr 1fr}
-.cols3{grid-template-columns:1fr 1fr 1fr}
-.field{display:flex;flex-direction:column;gap:5px}
-.field label{
-  font-size:10px;font-weight:700;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.7px;padding-left:2px;
+/* ═══ PAGE ═══ */
+.page-pad{padding:0 0 8px}
+.page-title-block{
+  padding:18px 16px 8px;
 }
-.field input,.field select{
-  background:linear-gradient(180deg, var(--surface), var(--surface2));
-  border:1.5px solid var(--border);
-  border-radius:var(--r-sm); padding:0 13px;
-  height:var(--input-h); font-size:16px; color:var(--text);
-  outline:none; width:100%; -webkit-appearance:none;
-  transition:border-color .2s,background .2s,transform .08s; font-family:inherit;
-}
-.field input:focus,.field select:focus{border-color:rgba(255,77,109,.8);background:var(--card)}
-.field input:active,.field select:active{transform:scale(.997)}
-.field select{
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%237a7a99' d='M7 9.5L2 4h10z'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;cursor:pointer;
-}
+.page-title{font-size:20px;font-weight:800;letter-spacing:-.4px;color:var(--tg-text)}
+.page-desc{font-size:13px;color:var(--tg-muted);margin-top:3px;line-height:1.5}
 
-/* ═══ PRESETS ═══ */
-.presets{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px}
+/* ═══ FIELDS (inside sections) ═══ */
+.field-cell{
+  padding:10px 16px;
+  border-bottom:1px solid var(--tg-sep);
+  display:flex;flex-direction:column;gap:4px;
+}
+.field-cell:last-child{border-bottom:none}
+.field-cell label{
+  font-size:11px;font-weight:600;color:var(--tg-muted);
+  text-transform:uppercase;letter-spacing:.6px;
+}
+.field-cell input,.field-cell select{
+  background:none;border:none;outline:none;
+  font-size:16px;color:var(--tg-text);width:100%;
+  padding:4px 0 2px;
+  -webkit-appearance:none;
+}
+.field-cell select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23708499' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 0 center;
+  padding-right:20px;cursor:pointer;
+}
+.fields-row{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.fields-row .field-cell{border-right:1px solid var(--tg-sep)}
+.fields-row .field-cell:last-child{border-right:none}
+.fields-row3{grid-template-columns:1fr 1fr 1fr}
+
+/* ═══ PRESETS BAR ═══ */
+.presets-section{
+  background:var(--tg-surface);border-radius:12px;
+  margin:0 12px;padding:10px 12px;
+  display:flex;gap:7px;flex-wrap:wrap;
+}
 .preset{
-  padding:7px 13px;border-radius:20px;border:1.5px solid var(--border);
-  background:linear-gradient(180deg, var(--surface), var(--surface2));color:var(--muted);font-size:12px;font-weight:800;
-  cursor:pointer;transition:transform .08s, background .15s, border-color .15s, color .15s;letter-spacing:.2px;
+  padding:6px 12px;border-radius:16px;
+  border:1px solid var(--tg-divider);
+  background:var(--tg-surface2);
+  color:var(--tg-muted);font-size:12px;font-weight:700;
+  cursor:pointer;transition:all .13s;
 }
-.preset:active{transform:scale(.98)}
-.preset.on{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:rgba(255,255,255,.12);color:#fff}
+.preset:active,.preset.on{background:var(--tg-blue);border-color:var(--tg-blue);color:#fff}
 
-/* ═══ DIVIDER ═══ */
-.divider{height:1px;background:var(--border);margin:16px 0}
-
-/* ═══ BUTTONS ═══ */
-.btn-main{
-  width:100%;height:52px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  border:none;border-radius:14px;color:#fff;
-  font-size:15px;font-weight:800;cursor:pointer;
-  margin:14px 0;letter-spacing:.2px;
+/* ═══ BUTTON ═══ */
+.btn-section{margin:8px 12px 0}
+.btn-tg{
+  width:100%;height:48px;
+  background:var(--tg-blue);
+  border:none;border-radius:10px;
+  color:#fff;font-size:15px;font-weight:700;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:8px;
-  box-shadow:0 14px 34px rgba(255,77,109,.12);
-  transition:opacity .2s,transform .1s,filter .2s;
+  transition:opacity .15s,transform .08s;
+  letter-spacing:.1px;
 }
-.btn-main:hover{filter:saturate(1.05)}
-.btn-main:active{opacity:.85;transform:scale(.97)}
+.btn-tg:active{opacity:.82;transform:scale(.98)}
+.btn-tg.green{background:var(--tg-green)}
+.btn-tg.outline{background:transparent;border:1.5px solid var(--tg-blue);color:var(--tg-blue)}
+.btn-tg.copy-btn{background:rgba(94,172,248,.12);color:var(--tg-blue)}
+.btn-tg.copy-btn.copied{background:rgba(77,207,124,.12);color:var(--tg-green)}
 
-/* ═══ RESULTS ═══ */
-.results{display:flex;flex-direction:column;gap:9px;margin-top:4px}
-.rcard{
-  background:linear-gradient(180deg, var(--surface), var(--surface2));
-  border:1.5px solid var(--border);
-  border-radius:var(--radius);padding:14px 16px;
-  display:flex;justify-content:space-between;align-items:center;
-  box-shadow:0 10px 24px rgba(0,0,0,.20);
+/* ═══ RESULT ROWS ═══ */
+.res-cell{
+  display:flex;align-items:center;justify-content:space-between;
+  min-height:46px;padding:10px 16px;
+  border-bottom:1px solid var(--tg-sep);
 }
-.rcard.hl{background:rgba(255,77,109,.1);border-color:rgba(255,77,109,.3)}
-.rcard.ok{background:rgba(34,211,168,.07);border-color:rgba(34,211,168,.28)}
-.rcard.info{background:rgba(96,165,250,.07);border-color:rgba(96,165,250,.25)}
-.rcard.warn{background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.25)}
-.rl{font-size:13px;color:var(--muted);font-weight:500}
-.rv{font-size:20px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap}
-.rcard.hl .rv{color:var(--accent)}
-.rcard.ok .rv{color:var(--green)}
-.rcard.info .rv{color:var(--blue)}
-.rcard.warn .rv{color:var(--yellow)}
-.ru{font-size:12px;font-weight:400;color:var(--muted);margin-left:3px}
+.res-cell:last-child{border-bottom:none}
+.res-label{font-size:13.5px;color:var(--tg-muted)}
+.res-val{font-size:18px;font-weight:800;color:var(--tg-text);font-variant-numeric:tabular-nums;white-space:nowrap}
+.res-val.blue{color:var(--tg-blue)}
+.res-val.green{color:var(--tg-green)}
+.res-val.yellow{color:var(--tg-yellow)}
+.res-val.red{color:var(--tg-red)}
+.res-unit{font-size:12px;font-weight:400;color:var(--tg-muted);margin-left:3px}
 
 /* ═══ TAGS ═══ */
-.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
-.tag{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:700;
-  background:rgba(123,94,167,.22);border:1.5px solid rgba(123,94,167,.38);color:#c8b8f0;}
-.tag.bad{background:rgba(255,77,109,.13);border-color:rgba(255,77,109,.32);color:#ff8fa3}
-.tag.good{background:rgba(34,211,168,.1);border-color:rgba(34,211,168,.3);color:var(--green)}
-
-/* ═══ LABELS ═══ */
-.slabel{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px}
-
-/* ═══ CHECKBOX ═══ */
-.chk-row{display:flex;align-items:center;gap:10px;padding:4px 0;cursor:pointer}
-.chk-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
-.chk-row label{font-size:14px;color:var(--text);cursor:pointer}
+.tags{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0 2px}
+.tag{
+  padding:4px 10px;border-radius:14px;font-size:11.5px;font-weight:700;
+  background:rgba(94,172,248,.1);border:1px solid rgba(94,172,248,.2);color:var(--tg-blue);
+}
+.tag.bad{background:rgba(224,82,82,.1);border-color:rgba(224,82,82,.25);color:var(--tg-red)}
+.tag.good{background:rgba(77,207,124,.08);border-color:rgba(77,207,124,.25);color:var(--tg-green)}
 
 /* ═══ INFO BOX ═══ */
-.ibox{
-  background:rgba(123,94,167,.11);border:1.5px solid rgba(123,94,167,.24);
-  border-radius:11px;padding:12px 14px;font-size:13px;color:var(--muted);
-  line-height:1.55;margin:10px 0;
+.info-block{
+  margin:0 12px;
+  background:rgba(94,172,248,.06);
+  border-left:3px solid rgba(94,172,248,.4);
+  border-radius:0 8px 8px 0;
+  padding:10px 12px;
+  font-size:13px;color:var(--tg-muted);line-height:1.55;
 }
-.ibox strong{color:var(--text)}
+.info-block strong{color:var(--tg-text)}
 
 /* ═══ SUB TABS ═══ */
-.stabs{display:flex;border-radius:11px;overflow:hidden;border:1.5px solid var(--border);margin-bottom:12px}
+.stabs{
+  display:flex;border-bottom:1px solid var(--tg-sep);
+  background:var(--tg-surface);
+  margin:0 12px;border-radius:10px 10px 0 0;overflow:hidden;
+}
 .stab{
-  flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:700;
-  border:none;background:var(--surface);color:var(--muted);cursor:pointer;
-  transition:all .18s;border-right:1px solid var(--border);
+  flex:1;padding:10px;text-align:center;
+  font-size:12px;font-weight:700;border:none;background:none;
+  color:var(--tg-muted);cursor:pointer;transition:all .15s;
+  border-right:1px solid var(--tg-sep);
 }
 .stab:last-child{border-right:none}
-.stab.on{background:var(--accent2);color:#fff}
+.stab.on{color:var(--tg-blue);background:rgba(94,172,248,.08)}
 
 /* ═══ HARM GROUP ═══ */
-.hg{margin-bottom:13px}
-.hg-title{font-size:11px;font-weight:800;color:var(--yellow);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.hg{margin-bottom:12px}
+.hg-title{font-size:11px;font-weight:700;color:var(--tg-yellow);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
 
 /* ═══ PILOT CARD ═══ */
 .pilot-card{
-  background:var(--surface);border-radius:var(--radius);
-  border:1.5px solid var(--border);padding:14px 16px;
-  margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-bottom:1px solid var(--tg-sep);
+}
+.pilot-card:last-child{border-bottom:none}
+.pilot-num{font-size:15px;font-weight:700;color:var(--tg-text)}
+.pilot-sub{font-size:12px;color:var(--tg-muted);margin-top:1px}
+.pilot-freq{font-size:21px;font-weight:800;font-variant-numeric:tabular-nums}
+.pilot-mhz{font-size:11px;color:var(--tg-muted);text-align:right}
+
+/* ═══ DIPOLE SVG ═══ */
+.dipole-box{
+  margin:0 12px;
+  background:var(--tg-surface);border-radius:10px;
+  padding:14px 16px 12px;
+}
+.dipole-vals{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:4px;margin-top:10px;text-align:center;
+}
+.d-lbl{font-size:10px;font-weight:600;color:var(--tg-muted);text-transform:uppercase;letter-spacing:.4px}
+.d-val{font-size:16px;font-weight:800;color:var(--tg-text);margin-top:2px}
+.d-unit{font-size:11px;font-weight:400;color:var(--tg-muted)}
+
+/* ═══ CODE ═══ */
+.code-box{
+  margin:0 12px;
+  background:#0a0f14;border:1px solid var(--tg-divider);border-radius:10px;
+  padding:12px 14px;
+  font-family:'SF Mono','Menlo','Consolas',monospace;
+  font-size:11px;color:#92d98c;line-height:1.65;
+  overflow-x:auto;white-space:pre;max-height:260px;overflow-y:auto;
 }
 
-/* ═══ CODE BLOCK ═══ */
-.code-wrap{position:relative;margin:10px 0}
-.code-block{
-  background:#0a0a14;border:1.5px solid var(--border);border-radius:12px;
-  padding:14px;font-family:'SF Mono','Menlo','Consolas',monospace;
-  font-size:11.5px;color:#a8e0a0;line-height:1.65;
-  overflow-x:auto;white-space:pre;max-height:300px;overflow-y:auto;
+/* ═══ CHECKBOX ═══ */
+.chk-cell{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-bottom:1px solid var(--tg-sep);
+  cursor:pointer;
 }
-.copy-btn{
-  width:100%;height:46px;background:var(--surface);
-  border:1.5px solid var(--border2);border-radius:12px;
-  color:var(--green);font-size:14px;font-weight:700;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:all .15s;margin-top:6px;
+.chk-cell:last-child{border-bottom:none}
+.chk-cell label{font-size:14.5px;color:var(--tg-text);cursor:pointer;flex:1}
+.chk-cell input[type=checkbox]{
+  width:20px;height:20px;accent-color:var(--tg-blue);cursor:pointer;flex-shrink:0;
 }
-.copy-btn:active{background:rgba(34,211,168,.1);border-color:var(--green)}
-.copy-btn.copied{background:rgba(34,211,168,.12);border-color:var(--green);color:#fff}
 
-/* ═══ POWER ROW ═══ */
-.power-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
-.power-field{display:flex;flex-direction:column;gap:5px}
-.power-field label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.power-field input{
-  background:var(--surface);border:1.5px solid var(--border);
-  border-radius:9px;padding:10px 11px;font-size:15px;color:var(--text);
-  outline:none;width:100%;-webkit-appearance:none;
-  transition:border-color .2s;font-family:inherit;
+/* ═══ POWER FIELDS ═══ */
+.power-row-grid{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:0;
 }
-.power-field input:focus{border-color:var(--accent)}
-
-/* ═══ DIPOLE VISUAL ═══ */
-.dipole-visual{
-  background:var(--surface);border:1.5px solid var(--border);
-  border-radius:var(--radius);padding:18px 16px;margin:12px 0;
-}
-.dipole-svg-wrap{display:flex;justify-content:center;margin-bottom:10px}
-.dipole-labels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
-.d-lbl{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
-.d-val{font-size:17px;font-weight:800;color:var(--text);margin-top:2px;font-variant-numeric:tabular-nums}
-.d-unit{font-size:11px;color:var(--muted);font-weight:400}
-
-/* ═══ DESKTOP ADJUSTMENTS ═══ */
-@media(min-width:768px){
-  :root{ --input-h:46px; }
-  .screen{padding:28px 28px 18px}
-  .field-row{gap:12px;margin-bottom:12px}
-  .page-head{margin-bottom:22px}
-  .page-head-icon{width:52px;height:52px;font-size:25px}
-  .page-title{font-size:24px}
-  .cols3-md{grid-template-columns:1fr 1fr 1fr}
-  .field input,.field select{font-size:15px}
-}
+.power-row-grid .field-cell{border-right:1px solid var(--tg-sep)}
+.power-row-grid .field-cell:last-child{border-right:none}
 
 /* ═══ RESPONSIVE ═══ */
-@media(max-width:380px){
-  .cols3{grid-template-columns:1fr 1fr}
-  .power-row{grid-template-columns:1fr 1fr 1fr}
-  .tab-btn{min-width:54px;padding:0 6px}
-  .tab-label{font-size:8px}
+@media(min-width:768px){
+  .section{border-radius:14px;margin:14px 0 0}
+  .section-header{margin:0;padding:14px 0 6px}
+  .presets-section{margin:0;border-radius:10px}
+  .btn-section{margin:8px 0 0}
+  .info-block{margin:0}
+  .dipole-box{margin:0}
+  .code-box{margin:0}
+  .stabs{margin:0}
+  .screens-wrap{padding:0 20px 28px}
 }
-@media(min-width:1100px){
-  :root{--content-max:860px}
-  .screens-wrap{padding:0 20px}
+@media(max-width:360px){
+  .fields-row3{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
-<body>
+<body class="mobile">
 
-<!-- SVG ICONS -->
-<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
-  <symbol id="i-home" viewBox="0 0 24 24">
-    <path d="M3 10.5 12 3l9 7.5"/>
-    <path d="M5.5 9.5V21h13V9.5"/>
-    <path d="M10 21v-7h4v7"/>
-  </symbol>
-  <symbol id="i-drone" viewBox="0 0 24 24">
-    <path d="M7 7l-2-2m14 2l2-2M7 17l-2 2m14-2l2 2"/>
-    <path d="M9 9h6v6H9z"/>
-    <path d="M12 9V6m0 12v-3M9 12H6m12 0h-3"/>
-    <path d="M4 8a2 2 0 1 0 0-4a2 2 0 0 0 0 4Zm16 0a2 2 0 1 0 0-4a2 2 0 0 0 0 4ZM4 20a2 2 0 1 0 0-4a2 2 0 0 0 0 4Zm16 0a2 2 0 1 0 0-4a2 2 0 0 0 0 4Z"/>
-  </symbol>
-  <symbol id="i-range" viewBox="0 0 24 24">
-    <path d="M12 2v3"/>
-    <path d="M6.5 5.5a8 8 0 0 0 0 13"/>
-    <path d="M17.5 5.5a8 8 0 0 1 0 13"/>
-    <path d="M9 9a4.5 4.5 0 0 0 0 6"/>
-    <path d="M15 9a4.5 4.5 0 0 1 0 6"/>
-    <path d="M12 12h.01"/>
-  </symbol>
-  <symbol id="i-fresnel" viewBox="0 0 24 24">
-    <path d="M3 16c2-6 6-9 9-9s7 3 9 9"/>
-    <path d="M5 16c1.5-4.5 4.5-6.8 7-6.8S17.5 11.5 19 16"/>
-    <path d="M7 16c1-3 3-4.5 5-4.5s4 1.5 5 4.5"/>
-  </symbol>
-  <symbol id="i-dipole" viewBox="0 0 24 24">
-    <path d="M3 12h7"/>
-    <path d="M14 12h7"/>
-    <path d="M10 10v4m4-4v4"/>
-    <path d="M12 7v2m0 6v2"/>
-  </symbol>
-  <symbol id="i-harm" viewBox="0 0 24 24">
-    <path d="M13 2L3 14h7l-1 8 12-14h-7l-1-6Z"/>
-  </symbol>
-  <symbol id="i-channels" viewBox="0 0 24 24">
-    <path d="M5 19V5"/>
-    <path d="M19 19V5"/>
-    <path d="M9 17V7"/>
-    <path d="M15 17V7"/>
-  </symbol>
-  <symbol id="i-finder" viewBox="0 0 24 24">
-    <circle cx="11" cy="11" r="6"/>
-    <path d="M20 20l-3.2-3.2"/>
-  </symbol>
-  <symbol id="i-vtx" viewBox="0 0 24 24">
-    <path d="M12 3v2"/>
-    <path d="M12 19v2"/>
-    <path d="M4.6 5.6l1.4 1.4"/>
-    <path d="M18 17l1.4 1.4"/>
-    <path d="M3 12h2"/>
-    <path d="M19 12h2"/>
-    <path d="M5.6 19.4l1.4-1.4"/>
-    <path d="M17 6l1.4-1.4"/>
-    <circle cx="12" cy="12" r="4"/>
-  </symbol>
-  <symbol id="i-more" viewBox="0 0 24 24">
-    <path d="M6 12h.01M12 12h.01M18 12h.01"/>
-  </symbol>
-  <symbol id="i-bolt" viewBox="0 0 24 24">
-    <path d="M13 2L3 14h7l-1 8 12-14h-7l-1-6Z"/>
-  </symbol>
-  <symbol id="i-back" viewBox="0 0 24 24">
-    <path d="M14 18l-6-6 6-6"/>
-  </symbol>
-  <symbol id="i-copy" viewBox="0 0 24 24">
-    <path d="M9 9h10v12H9z"/>
-    <path d="M5 15H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1"/>
-  </symbol>
-</svg>
-
-<!-- ═══ DESKTOP SIDEBAR ═══ -->
+<!-- ═══ SIDEBAR ═══ -->
 <div class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <div class="sidebar-logo-icon"><svg class="ico" style="width:22px;height:22px"><use href="#i-drone"/></svg></div>
-    <div class="sidebar-logo-title">FPV <span>TOOLS</span></div>
-    <div class="sidebar-logo-sub">Калькуляторы для дронов</div>
+  <div class="sidebar-header">
+    <div class="sidebar-title">
+      <div class="s-ico">🚁</div>
+      FPV Tools
+    </div>
+    <div class="sidebar-subtitle">Калькуляторы для дронов</div>
   </div>
-  <div class="sidebar-nav">
-    <div class="sidebar-section">Меню</div>
-    <button class="snav-btn active" id="snav-home" data-tab="home" onclick="goTab('home')" aria-current="page">
-      <span class="snav-icon"><svg class="ico"><use href="#i-home"/></svg></span> Главное меню
-    </button>
-    <div class="sidebar-section">Калькуляторы</div>
-    <button class="snav-btn" id="snav-range" data-tab="range" onclick="goTab('range')">
-      <span class="snav-icon"><svg class="ico"><use href="#i-range"/></svg></span> Дальность
-    </button>
-    <button class="snav-btn" id="snav-fresnel" data-tab="fresnel" onclick="goTab('fresnel')">
-      <span class="snav-icon"><svg class="ico"><use href="#i-fresnel"/></svg></span> Зоны Френеля
-    </button>
-    <button class="snav-btn" id="snav-dipole" data-tab="dipole" onclick="goTab('dipole')">
-      <span class="snav-icon"><svg class="ico"><use href="#i-dipole"/></svg></span> Диполь
-    </button>
-    <button class="snav-btn" id="snav-harm" data-tab="harm" onclick="goTab('harm')">
-      <span class="snav-icon"><svg class="ico"><use href="#i-harm"/></svg></span> Гармоники
-    </button>
-    <button class="snav-btn" id="snav-chan" data-tab="chan" onclick="goTab('chan')">
-      <span class="snav-icon"><svg class="ico"><use href="#i-channels"/></svg></span> Каналы
-    </button>
-<button class="snav-btn" id="snav-fq" data-tab="fq" onclick="goTab('fq')">
-       <span class="snav-icon"><svg class="ico"><use href="#i-finder"/></svg></span> Ближайший канал
-     </button>
-     <button class="snav-btn" onclick="location.href='elrs-info.html'">
-       <span class="snav-icon"><svg class="ico"><use href="#i-finder"/></svg></span> ELRS Info
-     </button>
-<button class="snav-btn" onclick="location.href='osd-editor.html'">
-        <span class="snav-icon"><svg class="ico"><use href="#i-vtx"/></svg></span> OSD Editor
-      </button>
-     <div class="sidebar-section">Конфигурация</div>
-     <button class="snav-btn" onclick="location.href='vtx-config.html'">
-       <span class="snav-icon"><svg class="ico"><use href="#i-vtx"/></svg></span> VTX Config
-     </button>
-   </div>
+  <div class="sidebar-section">Калькуляторы</div>
+  <div class="snav">
+    <button class="snav-btn active" data-tab="home" onclick="goTab('home')"><span class="snav-icon">🏠</span>Главное меню</button>
+    <button class="snav-btn" data-tab="range" onclick="goTab('range')"><span class="snav-icon">📡</span>Дальность</button>
+    <button class="snav-btn" data-tab="fresnel" onclick="goTab('fresnel')"><span class="snav-icon">🌊</span>Зоны Френеля</button>
+    <button class="snav-btn" data-tab="dipole" onclick="goTab('dipole')"><span class="snav-icon">📶</span>Диполь</button>
+    <button class="snav-btn" data-tab="harm" onclick="goTab('harm')"><span class="snav-icon">⚡</span>Гармоники</button>
+    <button class="snav-btn" data-tab="chan" onclick="goTab('chan')"><span class="snav-icon">📻</span>Каналы</button>
+    <button class="snav-btn" data-tab="fq" onclick="goTab('fq')"><span class="snav-icon">🔍</span>Ближайший канал</button>
+  </div>
+  <div class="sidebar-section">Конфигурация</div>
+  <div class="snav">
+    <button class="snav-btn" onclick="location.href='vtx-config.html'"><span class="snav-icon">⚙️</span>VTX Config</button>
+  </div>
 </div>
 
-<!-- ═══ MAIN WRAP ═══ -->
+<!-- ═══ MAIN ═══ -->
 <div class="main-wrap" id="mainWrap">
 
-  <!-- MOBILE HEADER -->
-  <div class="header" id="mobileHeader">
-    <div class="header-icon" role="button" tabindex="0" title="Главное меню" onclick="goTab('home')">
-      <svg class="ico" style="width:20px;height:20px"><use href="#i-drone"/></svg>
-    </div>
-    <div>
-      <div class="header-title">FPV <span>TOOLS</span></div>
-      <div class="header-sub">Калькуляторы для дронов</div>
-    </div>
-    <button class="header-back" id="backBtn" onclick="goTab('home')" title="Вернуться в меню">
-      <svg class="ico" style="width:20px;height:20px"><use href="#i-back"/></svg>
-    </button>
+  <!-- TOP BAR (mobile) -->
+  <div class="top-bar" id="topBar">
+    <div class="topbar-icon" onclick="goTab('home')">🚁</div>
+    <div class="topbar-title" id="topTitle">FPV Tools</div>
+    <button class="topbar-back" id="backBtn" onclick="goTab('home')" style="display:none">←</button>
   </div>
 
   <div class="screens-wrap">
 
-    <!-- ══ 0. HOME ══ -->
+    <!-- ══ HOME ══ -->
     <div id="s-home" class="screen active">
-      <div class="page-head">
-        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-home"/></svg></div>
-        <div><div class="page-title">Главное меню</div>
-          <div class="page-desc">Выбери калькулятор — быстро и удобно</div></div>
-      </div>
-      <div class="home-grid cols2">
-        <button class="home-card" type="button" onclick="goTab('range')">
-          <div class="home-ic"><svg class="ico"><use href="#i-range"/></svg></div>
-          <div><div class="home-ttl">Дальность</div><div class="home-sub">Теория по Фрии + реалистичная оценка</div></div>
-        </button>
-        <button class="home-card" type="button" onclick="goTab('fresnel')">
-          <div class="home-ic" style="color:var(--blue)"><svg class="ico"><use href="#i-fresnel"/></svg></div>
-          <div><div class="home-ttl">Френель</div><div class="home-sub">Зоны видимости и высота над препятствиями</div></div>
-        </button>
-        <button class="home-card" type="button" onclick="goTab('dipole')">
-          <div class="home-ic" style="color:var(--yellow)"><svg class="ico"><use href="#i-dipole"/></svg></div>
-          <div><div class="home-ttl">Диполь</div><div class="home-sub">Длина по частоте и обратно</div></div>
-        </button>
-        <button class="home-card" type="button" onclick="goTab('harm')">
-          <div class="home-ic" style="color:var(--orange)"><svg class="ico"><use href="#i-harm"/></svg></div>
-          <div><div class="home-ttl">Гармоники</div><div class="home-sub">Какие видеоканалы заденет TX</div></div>
-        </button>
-        <button class="home-card" type="button" onclick="goTab('chan')">
-          <div class="home-ic" style="color:var(--green)"><svg class="ico"><use href="#i-channels"/></svg></div>
-          <div><div class="home-ttl">Каналы</div><div class="home-sub">Оптимально для совместных полётов</div></div>
-        </button>
-        <button class="home-card" type="button" onclick="goTab('fq')">
-          <div class="home-ic" style="color:var(--accent2)"><svg class="ico"><use href="#i-finder"/></svg></div>
-          <div><div class="home-ttl">Ближайший канал</div><div class="home-sub">Подбор по диапазону</div></div>
-        </button>
-        <button class="home-card" type="button" onclick="location.href='elrs-info.html'">
-          <div class="home-ic" style="color:var(--blue)"><svg class="ico"><use href="#i-finder"/></svg></div>
-          <div><div class="home-ttl">ELRS Info</div><div class="home-sub">Анализ firmware файлов</div></div>
-        </button>
-        <button class="home-card" type="button" onclick="location.href='osd-editor.html'">
-          <div class="home-ic" style="color:var(--green)"><svg class="ico"><use href="#i-vtx"/></svg></div>
-          <div><div class="home-ttl">OSD Editor</div><div class="home-sub">Шрифт MAX7456</div></div>
-        </button>
-<button class="home-card" type="button" onclick="location.href='vtx-config.html'">
-           <div class="home-ic" style="color:var(--accent)"><svg class="ico"><use href="#i-vtx"/></svg></div>
-           <div><div class="home-ttl">VTX Config</div><div class="home-sub">Генератор CLI Betaflight</div></div>
-         </button>
-      </div>
-      <!-- <div class="ibox" style="margin-top:14px">
-        <strong>Навигация:</strong> на телефоне открывай разделы из этого меню, на ПК — из боковой панели.
-      </div> -->
-    </div>
-
-    <!-- ══ 1. RANGE ══ -->
-    <div id="s-range" class="screen">
-      <div class="page-head">
-        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-range"/></svg></div>
-        <div><div class="page-title">Дальность</div>
-          <div class="page-desc">Теоретическая максимальная дальность по уравнению Фрии</div></div>
-      </div>
-      <div class="field-row cols2">
-        <div class="field"><label>Мощность VTX (мВт)</label><input type="number" id="r-pwr" value="2500" inputmode="decimal"></div>
-        <div class="field"><label>Усиление VTX (дБи)</label><input type="number" id="r-vtxg" value="2.2" step="0.1" inputmode="decimal"></div>
-      </div>
-      <div class="field-row cols2">
-        <div class="field"><label>Усиление VRX (дБи)</label><input type="number" id="r-vrxg" value="11" step="0.1" inputmode="decimal"></div>
-        <div class="field"><label>Чувств. VRX (дБм)</label><input type="number" id="r-sens" value="-90" inputmode="decimal"></div>
-      </div>
-      <div class="field-row cols2">
-        <div class="field"><label>Доп. потери (дБ)</label><input type="number" id="r-loss" value="2" step="0.5" inputmode="decimal"></div>
-        <div class="field"><label>Частота (МГц)</label><input type="number" id="r-freq" value="5658" inputmode="decimal"></div>
-      </div>
-      <button class="btn-main" onclick="calcRange()"><svg class="ico" style="width:18px;height:18px"><use href="#i-bolt"/></svg> Рассчитать дальность</button>
-      <div class="results" id="r-out" style="display:none">
-        <div class="rcard info"><span class="rl">Мощность TX</span><span class="rv" id="r-tx">—</span></div>
-        <div class="rcard"><span class="rl">Макс. потери пути</span><span class="rv" id="r-pl">—</span></div>
-        <div class="rcard warn"><span class="rl">Теор. макс. дальность</span><span class="rv" id="r-th">—</span></div>
-        <div class="rcard hl"><span class="rl">Реалистичная оценка</span><span class="rv" id="r-re">—</span></div>
-      </div>
-      <div class="ibox" style="margin-top:14px"><strong>Реалистичная оценка</strong> — ~32% от теоретической. Учитывает переотражения, неидеальное ориентирование антенн и реальные условия полёта.</div>
-    </div>
-
-    <!-- ══ 2. FRESNEL ══ -->
-    <div id="s-fresnel" class="screen">
-      <div class="page-head">
-        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-fresnel"/></svg></div>
-        <div><div class="page-title">Зоны Френеля</div>
-          <div class="page-desc">Минимальная высота над препятствиями для прямой видимости</div></div>
-      </div>
-      <div class="presets">
-        <button class="preset" onclick="setFF(433)">433 МГц</button>
-        <button class="preset" onclick="setFF(868)">868</button>
-        <button class="preset" onclick="setFF(915)">915</button>
-        <button class="preset" onclick="setFF(1280)">1280</button>
-        <button class="preset" onclick="setFF(2400)">2.4 ГГц</button>
-        <button class="preset" onclick="setFF(5800)">5.8 ГГц</button>
-      </div>
-      <div class="field-row cols2">
-        <div class="field"><label>Частота (МГц)</label><input type="number" id="f-freq" value="915" inputmode="decimal"></div>
-        <div class="field"><label>Дистанция (км)</label><input type="number" id="f-dist" value="5" step="0.1" inputmode="decimal"></div>
-      </div>
-      <button class="btn-main" onclick="calcFresnel()"><svg class="ico" style="width:18px;height:18px"><use href="#i-bolt"/></svg> Рассчитать зоны</button>
-      <div class="results" id="f-out" style="display:none">
-        <div class="rcard ok"><span class="rl">1-я зона Френеля (100%)</span><span class="rv" id="f-z1">—</span></div>
-        <div class="rcard warn"><span class="rl">Зона 80% — рекомендуемая</span><span class="rv" id="f-z8">—</span></div>
-        <div class="rcard hl"><span class="rl">Зона 60% — минимальная</span><span class="rv" id="f-z6">—</span></div>
-      </div>
-      <div class="ibox" style="margin-top:14px">
-        <strong>Как использовать:</strong> найдите минимальную высоту прямой видимости между антеннами и добавьте вычисленное значение — это и будет безопасная высота полёта.
-      </div>
-    </div>
-
-    <!-- ══ 3. DIPOLE ══ -->
-    <div id="s-dipole" class="screen">
-      <div class="page-head">
-        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-dipole"/></svg></div>
-        <div><div class="page-title">Диполь</div>
-          <div class="page-desc">Длина диполя по частоте или частота по длине — меняй любое поле</div></div>
-      </div>
-      <div class="presets">
-        <button class="preset" onclick="setDF(433)">433</button>
-        <button class="preset" onclick="setDF(868)">868</button>
-        <button class="preset" onclick="setDF(915)">915</button>
-        <button class="preset" onclick="setDF(1280)">1280</button>
-        <button class="preset" onclick="setDF(2450)">2450</button>
-        <button class="preset" onclick="setDF(5800)">5800</button>
-      </div>
-      <div class="field-row cols3" id="dipoleFields">
-        <div class="field"><label>Частота (МГц)</label><input type="number" id="d-f" value="915" oninput="dCalc('f')" inputmode="decimal"></div>
-        <div class="field"><label>Полная длина (см)</label><input type="number" id="d-t" value="15.56" step="0.01" oninput="dCalc('t')" inputmode="decimal"></div>
-        <div class="field"><label>Длина плеча (см)</label><input type="number" id="d-l" value="7.78" step="0.01" oninput="dCalc('l')" inputmode="decimal"></div>
-      </div>
-
-      <!-- Visual dipole diagram -->
-      <div class="dipole-visual">
-        <div class="dipole-svg-wrap">
-          <svg id="dipole-svg" width="280" height="60" viewBox="0 0 280 60">
-            <line x1="140" y1="10" x2="140" y2="50" stroke="#7a7a99" stroke-width="1.5" stroke-dasharray="4,3"/>
-            <rect x="30" y="26" width="110" height="8" rx="4" fill="#7b5ea7" opacity="0.8"/>
-            <rect x="140" y="26" width="110" height="8" rx="4" fill="#ff4d6d" opacity="0.8"/>
-            <circle cx="140" cy="30" r="5" fill="#fbbf24"/>
-            <!-- arrows -->
-            <line x1="32" y1="20" x2="138" y2="20" stroke="#7b5ea7" stroke-width="1.2"/>
-            <polygon points="32,17 32,23 24,20" fill="#7b5ea7"/>
-            <line x1="142" y1="20" x2="248" y2="20" stroke="#ff4d6d" stroke-width="1.2"/>
-            <polygon points="248,17 248,23 256,20" fill="#ff4d6d"/>
-            <!-- labels -->
-            <text x="85" y="15" fill="#c8b8f0" font-size="10" text-anchor="middle" font-family="monospace" id="svg-leg1">—</text>
-            <text x="195" y="15" fill="#ff8fa3" font-size="10" text-anchor="middle" font-family="monospace" id="svg-leg2">—</text>
-            <text x="140" y="55" fill="#fbbf24" font-size="9" text-anchor="middle" font-family="monospace">питание</text>
-          </svg>
+      <div class="page-pad">
+        <div class="section-header">Калькуляторы</div>
+        <div class="section">
+          <div class="cell" onclick="goTab('range')">
+            <div class="cell-icon">📡</div>
+            <div><div class="cell-title">Дальность</div><div class="cell-sub">Теория Фрии + реалистичная оценка</div></div>
+            <div class="cell-chevron">›</div>
+          </div>
+          <div class="cell" onclick="goTab('fresnel')">
+            <div class="cell-icon" style="background:rgba(96,165,250,.12)">🌊</div>
+            <div><div class="cell-title">Зоны Френеля</div><div class="cell-sub">Высота над препятствиями</div></div>
+            <div class="cell-chevron">›</div>
+          </div>
+          <div class="cell" onclick="goTab('dipole')">
+            <div class="cell-icon orange">📶</div>
+            <div><div class="cell-title">Диполь</div><div class="cell-sub">Длина по частоте и обратно</div></div>
+            <div class="cell-chevron">›</div>
+          </div>
+          <div class="cell" onclick="goTab('harm')">
+            <div class="cell-icon red">⚡</div>
+            <div><div class="cell-title">Гармоники</div><div class="cell-sub">Какие видеоканалы заденет TX</div></div>
+            <div class="cell-chevron">›</div>
+          </div>
+          <div class="cell" onclick="goTab('chan')">
+            <div class="cell-icon green">📻</div>
+            <div><div class="cell-title">Каналы</div><div class="cell-sub">Оптимально для совместного полёта</div></div>
+            <div class="cell-chevron">›</div>
+          </div>
+          <div class="cell" onclick="goTab('fq')">
+            <div class="cell-icon purple">🔍</div>
+            <div><div class="cell-title">Ближайший канал</div><div class="cell-sub">Подбор по диапазону антенны</div></div>
+            <div class="cell-chevron">›</div>
+          </div>
         </div>
-        <div class="dipole-labels">
-          <div><div class="d-lbl">Частота</div><div class="d-val" id="dv-f">915 <span class="d-unit">МГц</span></div></div>
-          <div><div class="d-lbl">Полная длина</div><div class="d-val" id="dv-t">15.56 <span class="d-unit">см</span></div></div>
-          <div><div class="d-lbl">Плечо</div><div class="d-val" id="dv-l">7.78 <span class="d-unit">см</span></div></div>
-        </div>
-      </div>
-      <div class="ibox"><strong>Точная формула:</strong> L = (c / f) / 2 × k, где c = 299 792 458 м/с (точное значение), k = 0.95 (коэффициент укорочения для стандартного диполя).</div>
-    </div>
-
-    <!-- ══ 4. HARMONICS ══ -->
-    <div id="s-harm" class="screen">
-      <div class="page-head">
-        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-harm"/></svg></div>
-        <div><div class="page-title">Гармоники</div>
-          <div class="page-desc">Видеоканалы, пострадавшие от гармоник вашего TX-передатчика</div></div>
-      </div>
-      <div class="presets">
-        <button class="preset" onclick="setHF(433)">433</button>
-        <button class="preset" onclick="setHF(750)">750</button>
-        <button class="preset" onclick="setHF(915)">915</button>
-        <button class="preset" onclick="setHF(960)">960</button>
-        <button class="preset" onclick="setHF(1000)">1000</button>
-      </div>
-      <div class="field-row cols2">
-        <div class="field"><label>Центральная частота (МГц)</label><input type="number" id="h-cf" value="915" inputmode="decimal"></div>
-        <div class="field"><label>Ширина канала (МГц)</label><input type="number" id="h-bw" value="20" inputmode="decimal"></div>
-      </div>
-      <button class="btn-main" onclick="calcHarm()"><svg class="ico" style="width:18px;height:18px"><use href="#i-bolt"/></svg> Найти гармоники</button>
-      <div id="h-out" style="display:none">
-        <div class="stabs">
-          <button class="stab on" onclick="hTab('a',this)">Пострадавшие</button>
-          <button class="stab" onclick="hTab('u',this)">Чистые</button>
-          <button class="stab" onclick="hTab('l',this)">Все</button>
-        </div>
-        <div id="h-a"></div>
-        <div id="h-u" style="display:none"></div>
-        <div id="h-l" style="display:none"></div>
-      </div>
-    </div>
-
-    <!-- ══ 5. CHANNELS ══ -->
-    <div id="s-chan" class="screen">
-      <div class="page-head">
-        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-channels"/></svg></div>
-        <div><div class="page-title">Распределение каналов</div>
-          <div class="page-desc">Оптимальные каналы при совместном полёте нескольких пилотов</div></div>
-      </div>
-      <div class="field-row cols2">
-        <div class="field"><label>Количество пилотов</label>
-          <select id="ch-p">
-            <option value="2">2 пилота</option><option value="3" selected>3 пилота</option>
-            <option value="4">4 пилота</option><option value="5">5 пилотов</option><option value="6">6 пилотов</option>
-          </select>
-        </div>
-        <div class="field" style="justify-content:center">
-          <label style="padding-bottom:2px">Доп. диапазоны</label>
-          <div style="display:flex;flex-direction:column;gap:5px;padding-top:4px">
-            <div class="chk-row" style="padding:0"><input type="checkbox" id="ch-x"><label for="ch-x">X-band (4.9–5.0 ГГц)</label></div>
-            <div class="chk-row" style="padding:0"><input type="checkbox" id="ch-l"><label for="ch-l">L-band (1.3 ГГц)</label></div>
+        <div class="section-header">Конфигурация</div>
+        <div class="section">
+          <div class="cell" onclick="location.href='vtx-config.html'">
+            <div class="cell-icon" style="background:rgba(245,192,72,.1)">⚙️</div>
+            <div><div class="cell-title">VTX Config</div><div class="cell-sub">Генератор CLI Betaflight · 30+ шаблонов</div></div>
+            <div class="cell-chevron">›</div>
           </div>
         </div>
       </div>
-      <button class="btn-main" onclick="calcChans()"><svg class="ico" style="width:18px;height:18px"><use href="#i-bolt"/></svg> Распределить каналы</button>
-      <div id="ch-out" style="display:none">
-        <div class="slabel">Рекомендованные каналы</div>
-        <div id="ch-list"></div>
+    </div>
+
+    <!-- ══ RANGE ══ -->
+    <div id="s-range" class="screen">
+      <div class="page-pad">
+        <div class="page-title-block">
+          <div class="page-title">Дальность</div>
+          <div class="page-desc">Теоретическая макс. дальность по уравнению Фрии</div>
+        </div>
+        <div class="section">
+          <div class="fields-row">
+            <div class="field-cell"><label>Мощность VTX (мВт)</label><input type="number" id="r-pwr" value="2500" inputmode="decimal"></div>
+            <div class="field-cell"><label>Усиление VTX (дБи)</label><input type="number" id="r-vtxg" value="2.2" step="0.1" inputmode="decimal"></div>
+          </div>
+          <div class="fields-row">
+            <div class="field-cell"><label>Усиление VRX (дБи)</label><input type="number" id="r-vrxg" value="11" step="0.1" inputmode="decimal"></div>
+            <div class="field-cell"><label>Чувств. VRX (дБм)</label><input type="number" id="r-sens" value="-90" inputmode="decimal"></div>
+          </div>
+          <div class="fields-row">
+            <div class="field-cell"><label>Доп. потери (дБ)</label><input type="number" id="r-loss" value="2" step="0.5" inputmode="decimal"></div>
+            <div class="field-cell"><label>Частота (МГц)</label><input type="number" id="r-freq" value="5658" inputmode="decimal"></div>
+          </div>
+        </div>
+        <div class="btn-section"><button class="btn-tg" onclick="calcRange()">Рассчитать дальность</button></div>
+        <div id="r-out" style="display:none">
+          <div class="section" style="margin-top:8px">
+            <div class="res-cell"><span class="res-label">Мощность TX</span><span class="res-val blue" id="r-tx">—</span></div>
+            <div class="res-cell"><span class="res-label">Макс. потери пути</span><span class="res-val" id="r-pl">—</span></div>
+            <div class="res-cell"><span class="res-label">Теор. макс. дальность</span><span class="res-val yellow" id="r-th">—</span></div>
+            <div class="res-cell"><span class="res-label">🎯 Реалистичная оценка</span><span class="res-val green" id="r-re">—</span></div>
+          </div>
+        </div>
+        <div class="info-block" style="margin-top:8px"><strong>Реалистичная оценка</strong> — ~32% от теоретической. Учитывает переотражения, неидеальное ориентирование антенн и реальные условия.</div>
       </div>
     </div>
 
-    <!-- ══ 6. FREQ FINDER ══ -->
+    <!-- ══ FRESNEL ══ -->
+    <div id="s-fresnel" class="screen">
+      <div class="page-pad">
+        <div class="page-title-block">
+          <div class="page-title">Зоны Френеля</div>
+          <div class="page-desc">Мин. высота над препятствиями для прямой видимости антенн</div>
+        </div>
+        <div class="presets-section" style="margin-top:0">
+          <button class="preset" onclick="setFF(433)">433 МГц</button>
+          <button class="preset" onclick="setFF(868)">868</button>
+          <button class="preset" onclick="setFF(915)">915</button>
+          <button class="preset" onclick="setFF(1280)">1280</button>
+          <button class="preset" onclick="setFF(2400)">2.4 ГГц</button>
+          <button class="preset" onclick="setFF(5800)">5.8 ГГц</button>
+        </div>
+        <div class="section" style="margin-top:8px">
+          <div class="fields-row">
+            <div class="field-cell"><label>Частота (МГц)</label><input type="number" id="f-freq" value="915" inputmode="decimal"></div>
+            <div class="field-cell"><label>Дистанция (км)</label><input type="number" id="f-dist" value="5" step="0.1" inputmode="decimal"></div>
+          </div>
+        </div>
+        <div class="btn-section"><button class="btn-tg" onclick="calcFresnel()">Рассчитать зоны</button></div>
+        <div id="f-out" style="display:none">
+          <div class="section" style="margin-top:8px">
+            <div class="res-cell"><span class="res-label">1-я зона (100%)</span><span class="res-val green" id="f-z1">—</span></div>
+            <div class="res-cell"><span class="res-label">Зона 80% — рекомендуемая</span><span class="res-val yellow" id="f-z8">—</span></div>
+            <div class="res-cell"><span class="res-label">Зона 60% — минимальная</span><span class="res-val red" id="f-z6">—</span></div>
+          </div>
+        </div>
+        <div class="info-block" style="margin-top:8px"><strong>Как использовать:</strong> найди мин. высоту прямой видимости и добавь вычисленное значение — это безопасная высота полёта.</div>
+      </div>
+    </div>
+
+    <!-- ══ DIPOLE ══ -->
+    <div id="s-dipole" class="screen">
+      <div class="page-pad">
+        <div class="page-title-block">
+          <div class="page-title">Диполь</div>
+          <div class="page-desc">Меняй любое поле — остальные пересчитываются мгновенно</div>
+        </div>
+        <div class="presets-section" style="margin-top:0">
+          <button class="preset" onclick="setDF(433)">433</button>
+          <button class="preset" onclick="setDF(868)">868</button>
+          <button class="preset" onclick="setDF(915)">915</button>
+          <button class="preset" onclick="setDF(1280)">1280</button>
+          <button class="preset" onclick="setDF(2450)">2450</button>
+          <button class="preset" onclick="setDF(5800)">5800</button>
+        </div>
+        <div class="section" style="margin-top:8px">
+          <div class="fields-row fields-row3">
+            <div class="field-cell"><label>Частота (МГц)</label><input type="number" id="d-f" value="915" oninput="dCalc('f')" inputmode="decimal"></div>
+            <div class="field-cell"><label>Длина (см)</label><input type="number" id="d-t" value="15.56" step="0.01" oninput="dCalc('t')" inputmode="decimal"></div>
+            <div class="field-cell"><label>Плечо (см)</label><input type="number" id="d-l" value="7.78" step="0.01" oninput="dCalc('l')" inputmode="decimal"></div>
+          </div>
+        </div>
+        <div class="dipole-box" style="margin-top:8px">
+          <svg width="100%" height="52" viewBox="0 0 280 52" preserveAspectRatio="xMidYMid meet">
+            <line x1="140" y1="6" x2="140" y2="46" stroke="#708499" stroke-width="1.2" stroke-dasharray="3,3"/>
+            <rect x="28" y="21" width="112" height="10" rx="5" fill="#5eacf8" opacity="0.75"/>
+            <rect x="140" y="21" width="112" height="10" rx="5" fill="#4dcf7c" opacity="0.75"/>
+            <circle cx="140" cy="26" r="5" fill="#f5c048"/>
+            <text x="84" y="16" fill="#a8cff8" font-size="10" text-anchor="middle" font-family="monospace" id="svg-leg1">7.78 см</text>
+            <text x="196" y="16" fill="#7de8a8" font-size="10" text-anchor="middle" font-family="monospace" id="svg-leg2">7.78 см</text>
+            <text x="140" y="48" fill="#f5c048" font-size="8.5" text-anchor="middle" font-family="monospace">питание</text>
+          </svg>
+          <div class="dipole-vals">
+            <div><div class="d-lbl">Частота</div><div class="d-val" id="dv-f">915 <span class="d-unit">МГц</span></div></div>
+            <div><div class="d-lbl">Длина</div><div class="d-val" id="dv-t">15.56 <span class="d-unit">см</span></div></div>
+            <div><div class="d-lbl">Плечо</div><div class="d-val" id="dv-l">7.78 <span class="d-unit">см</span></div></div>
+          </div>
+        </div>
+        <div class="info-block" style="margin-top:8px"><strong>Точная формула:</strong> L = (c / f) / 2 × 0.95, c = 299 792 458 м/с (точное значение).</div>
+      </div>
+    </div>
+
+    <!-- ══ HARMONICS ══ -->
+    <div id="s-harm" class="screen">
+      <div class="page-pad">
+        <div class="page-title-block">
+          <div class="page-title">Гармоники</div>
+          <div class="page-desc">Видеоканалы, пострадавшие от гармоник TX-передатчика</div>
+        </div>
+        <div class="presets-section" style="margin-top:0">
+          <button class="preset" onclick="setHF(433)">433</button>
+          <button class="preset" onclick="setHF(750)">750</button>
+          <button class="preset" onclick="setHF(915)">915</button>
+          <button class="preset" onclick="setHF(960)">960</button>
+          <button class="preset" onclick="setHF(1000)">1000</button>
+        </div>
+        <div class="section" style="margin-top:8px">
+          <div class="fields-row">
+            <div class="field-cell"><label>Цент. частота (МГц)</label><input type="number" id="h-cf" value="915" inputmode="decimal"></div>
+            <div class="field-cell"><label>Ширина канала (МГц)</label><input type="number" id="h-bw" value="20" inputmode="decimal"></div>
+          </div>
+        </div>
+        <div class="btn-section"><button class="btn-tg" onclick="calcHarm()">Найти гармоники</button></div>
+        <div id="h-out" style="display:none;margin-top:8px">
+          <div class="stabs">
+            <button class="stab on" onclick="hTab('a',this)">⚠️ Пострадавшие</button>
+            <button class="stab" onclick="hTab('u',this)">✅ Чистые</button>
+            <button class="stab" onclick="hTab('l',this)">📋 Все</button>
+          </div>
+          <div class="section" style="border-radius:0 0 12px 12px;margin-top:0;padding:12px 16px">
+            <div id="h-a"></div>
+            <div id="h-u" style="display:none"></div>
+            <div id="h-l" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CHANNELS ══ -->
+    <div id="s-chan" class="screen">
+      <div class="page-pad">
+        <div class="page-title-block">
+          <div class="page-title">Распределение каналов</div>
+          <div class="page-desc">Оптимальные каналы при совместном полёте нескольких пилотов</div>
+        </div>
+        <div class="section">
+          <div class="field-cell"><label>Количество пилотов</label>
+            <select id="ch-p">
+              <option value="2">2 пилота</option><option value="3" selected>3 пилота</option>
+              <option value="4">4 пилота</option><option value="5">5 пилотов</option><option value="6">6 пилотов</option>
+            </select>
+          </div>
+          <div class="chk-cell"><input type="checkbox" id="ch-x"><label for="ch-x">X-band (4.9–5.0 ГГц)</label></div>
+          <div class="chk-cell"><input type="checkbox" id="ch-l"><label for="ch-l">L-band (1.3 ГГц)</label></div>
+        </div>
+        <div class="btn-section"><button class="btn-tg" onclick="calcChans()">Распределить каналы</button></div>
+        <div id="ch-out" style="display:none">
+          <div class="section" style="margin-top:8px" id="ch-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FREQ FINDER ══ -->
     <div id="s-fq" class="screen">
-      <div class="page-head">
-        <div class="page-head-icon"><svg class="ico" style="width:24px;height:24px"><use href="#i-finder"/></svg></div>
-        <div><div class="page-title">Ближайший канал</div>
-          <div class="page-desc">Найти видеоканал с наилучшим КСВ для вашей антенны</div></div>
-      </div>
-      <div class="field-row cols2">
-        <div class="field"><label>Начало диапазона (МГц)</label><input type="number" id="fq-s" value="5658" inputmode="decimal"></div>
-        <div class="field"><label>Конец диапазона (МГц)</label><input type="number" id="fq-e" value="5917" inputmode="decimal"></div>
-      </div>
-      <div class="field-row cols2">
-        <div class="field"><label>Количество каналов</label>
-          <select id="fq-n"><option value="1">1 канал</option><option value="2">2 канала</option><option value="4" selected>4 канала</option><option value="8">8 каналов</option></select>
+      <div class="page-pad">
+        <div class="page-title-block">
+          <div class="page-title">Ближайший канал</div>
+          <div class="page-desc">Найти видеоканал с наилучшим КСВ для вашей антенны</div>
         </div>
-        <div class="field" style="justify-content:center">
-          <label style="padding-bottom:6px">Опции</label>
-          <div class="chk-row" style="padding:0"><input type="checkbox" id="fq-d"><label for="fq-d">Цифровые диапазоны</label></div>
+        <div class="section">
+          <div class="fields-row">
+            <div class="field-cell"><label>Начало (МГц)</label><input type="number" id="fq-s" value="5658" inputmode="decimal"></div>
+            <div class="field-cell"><label>Конец (МГц)</label><input type="number" id="fq-e" value="5917" inputmode="decimal"></div>
+          </div>
+          <div class="field-cell"><label>Каналов в результате</label>
+            <select id="fq-n"><option value="1">1 канал</option><option value="2">2 канала</option><option value="4" selected>4 канала</option><option value="8">8 каналов</option></select>
+          </div>
+          <div class="chk-cell"><input type="checkbox" id="fq-d"><label for="fq-d">Включить цифровые диапазоны (X, S)</label></div>
         </div>
-      </div>
-      <button class="btn-main" onclick="calcFQ()"><svg class="ico" style="width:18px;height:18px"><use href="#i-bolt"/></svg> Найти каналы</button>
-      <div id="fq-out" style="display:none">
-        <div class="slabel">Ближайшие каналы к центру диапазона</div>
-        <div id="fq-list"></div>
+        <div class="btn-section"><button class="btn-tg" onclick="calcFQ()">Найти каналы</button></div>
+        <div id="fq-out" style="display:none">
+          <div class="section" style="margin-top:8px" id="fq-list"></div>
+        </div>
       </div>
     </div>
 
   </div><!-- /screens-wrap -->
 </div><!-- /main-wrap -->
 
+<!-- ═══ TABBAR ═══ -->
+<div class="tabbar" id="tabbar">
+  <button class="tab-btn active" data-tab="home" onclick="goTab('home')"><span class="tab-icon">🏠</span><span class="tab-label">Меню</span></button>
+  <button class="tab-btn" data-tab="range" onclick="goTab('range')"><span class="tab-icon">📡</span><span class="tab-label">Дальность</span></button>
+  <button class="tab-btn" data-tab="fresnel" onclick="goTab('fresnel')"><span class="tab-icon">🌊</span><span class="tab-label">Френель</span></button>
+  <button class="tab-btn" data-tab="dipole" onclick="goTab('dipole')"><span class="tab-icon">📶</span><span class="tab-label">Диполь</span></button>
+  <button class="tab-btn" data-tab="harm" onclick="goTab('harm')"><span class="tab-icon">⚡</span><span class="tab-label">Гармоники</span></button>
+  <button class="tab-btn" data-tab="chan" onclick="goTab('chan')"><span class="tab-icon">📻</span><span class="tab-label">Каналы</span></button>
+  <button class="tab-btn" data-tab="fq" onclick="goTab('fq')"><span class="tab-icon">🔍</span><span class="tab-label">Частота</span></button>
+  <button class="tab-btn" onclick="location.href='vtx-config.html'"><span class="tab-icon">⚙️</span><span class="tab-label">VTX</span></button>
+</div>
+
 <script>
-// ═══ LAYOUT DETECTION ═══
-function applyLayout() {
-  const w = window.innerWidth;
-  const isDesktop = w >= 768;
-  const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-  const isTg = !!(tg && tg.platform !== 'unknown');
-  const tgDesktop = !!(tg && (tg.platform === 'tdesktop' || tg.platform === 'macos' || tg.platform === 'web'));
-  const body = document.body;
-  // On desktop screens show sidebar (including Telegram Desktop/Web).
-  // On smaller screens use the Home menu screen for navigation.
-  if (isDesktop && (!isTg || tgDesktop || w >= 900)) {
-    body.className = 'layout-desktop';
-  } else {
-    body.className = 'layout-mobile';
-  }
+// ── LAYOUT ──
+const TITLES = {home:'FPV Tools',range:'Дальность',fresnel:'Зоны Френеля',dipole:'Диполь',harm:'Гармоники',chan:'Каналы',fq:'Ближ. канал'};
+function applyLayout(){
+  const w=window.innerWidth;
+  const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
+  const tgDesktop=tg&&(tg.platform==='tdesktop'||tg.platform==='macos'||tg.platform==='web');
+  document.body.className=(w>=768&&(!tg||tgDesktop||w>=900))?'desktop':'mobile';
 }
-applyLayout();
-window.addEventListener('resize', applyLayout);
+applyLayout();window.addEventListener('resize',applyLayout);
 
-// keyboard access for header "home" button
-(() => {
-  const btn = document.querySelector('.header-icon[role="button"]');
-  if (btn) {
-    btn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
-    });
-  }
-  const backBtn = document.getElementById('backBtn');
-  if (backBtn) {
-    backBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); backBtn.click(); }
-    });
-  }
-})();
-
-// ═══ NAVIGATION ═══
-function goTab(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn, .snav-btn').forEach(b => {
-    b.classList.remove('active');
-    b.removeAttribute('aria-current');
-  });
-  document.getElementById('s-' + id).classList.add('active');
-  document.querySelectorAll(`[data-tab="${id}"]`).forEach(b => {
-    b.classList.add('active');
-    b.setAttribute('aria-current', 'page');
-  });
-  const backBtn = document.getElementById('backBtn');
-  if (backBtn) backBtn.style.display = id === 'home' ? 'none' : 'flex';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+// ── NAV ──
+function goTab(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  document.querySelectorAll(`[data-tab="${id}"]`).forEach(b=>b.classList.add('active'));
+  const tb=document.getElementById('topTitle');
+  if(tb)tb.textContent=TITLES[id]||'FPV Tools';
+  const bb=document.getElementById('backBtn');
+  if(bb)bb.style.display=id==='home'?'none':'flex';
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ═══ RANGE CALCULATOR ═══
-// Formula: P(dBm) = 10*log10(P_mW)   [NOT +30, that's for Watts]
-// Friis: PL(dB) = 20*log10(4π*d*f/c)
-// → d = c/(4π*f) * 10^(PL/20)
-function calcRange() {
-  const pw = +document.getElementById('r-pwr').value;
-  const vg = +document.getElementById('r-vtxg').value;
-  const rg = +document.getElementById('r-vrxg').value;
-  const rs = +document.getElementById('r-sens').value;
-  const xl = +document.getElementById('r-loss').value;
-  const fq = +document.getElementById('r-freq').value;
-  const txDbm = 10 * Math.log10(pw);           // mW → dBm (correct)
-  const pl = txDbm + vg + rg - rs - xl;
-  const distM = (3e8 / (4 * Math.PI * fq * 1e6)) * Math.pow(10, pl / 20);
-  const distKm = distM / 1000;
-  const realistic = distKm * 0.318;
-  function rv(v, u) { return v + '<span class="ru">' + u + '</span>'; }
-  document.getElementById('r-tx').innerHTML  = rv(txDbm.toFixed(1), 'дБм');
-  document.getElementById('r-pl').innerHTML  = rv(pl.toFixed(1), 'дБ');
-  document.getElementById('r-th').innerHTML  = rv(distKm.toFixed(1), 'км');
-  document.getElementById('r-re').innerHTML  = rv(realistic.toFixed(1), 'км');
-  document.getElementById('r-out').style.display = 'flex';
+// ── RANGE ── P(dBm)=10*log10(P_mW)
+function calcRange(){
+  const pw=+document.getElementById('r-pwr').value,vg=+document.getElementById('r-vtxg').value,
+        rg=+document.getElementById('r-vrxg').value,rs=+document.getElementById('r-sens').value,
+        xl=+document.getElementById('r-loss').value,fq=+document.getElementById('r-freq').value;
+  const txDbm=10*Math.log10(pw),pl=txDbm+vg+rg-rs-xl;
+  const distKm=(3e8/(4*Math.PI*fq*1e6))*Math.pow(10,pl/20)/1000;
+  const u=(v,u)=>`${v}<span class="res-unit">${u}</span>`;
+  document.getElementById('r-tx').innerHTML=u(txDbm.toFixed(1),'дБм');
+  document.getElementById('r-pl').innerHTML=u(pl.toFixed(1),'дБ');
+  document.getElementById('r-th').innerHTML=u(distKm.toFixed(1),'км');
+  document.getElementById('r-re').innerHTML=u((distKm*0.318).toFixed(1),'км');
+  document.getElementById('r-out').style.display='block';
 }
 
-// ═══ FRESNEL ═══
-// r1 = sqrt(λ * d1 * d2 / (d1+d2)), at midpoint → sqrt(λ*d/4)
-function setFF(f) { document.getElementById('f-freq').value = f; }
-function calcFresnel() {
-  const fq = +document.getElementById('f-freq').value;
-  const d  = +document.getElementById('f-dist').value * 1000; // km→m
-  const lam = 300 / fq;  // wavelength in m (c=3e8 m/s, f in MHz → λ=300/f m)
-  const r1 = Math.sqrt(lam * d / 4);
-  function rv(v, u) { return v + '<span class="ru">' + u + '</span>'; }
-  document.getElementById('f-z1').innerHTML = rv(r1.toFixed(1), 'м');
-  document.getElementById('f-z8').innerHTML = rv((r1 * 0.8).toFixed(1), 'м');
-  document.getElementById('f-z6').innerHTML = rv((r1 * 0.6).toFixed(1), 'м');
-  document.getElementById('f-out').style.display = 'flex';
+// ── FRESNEL ──
+function setFF(f){document.getElementById('f-freq').value=f}
+function calcFresnel(){
+  const fq=+document.getElementById('f-freq').value,d=+document.getElementById('f-dist').value*1000;
+  const r1=Math.sqrt((300/fq)*d/4);
+  const u=(v,u)=>`${v}<span class="res-unit">${u}</span>`;
+  document.getElementById('f-z1').innerHTML=u(r1.toFixed(1),'м');
+  document.getElementById('f-z8').innerHTML=u((r1*.8).toFixed(1),'м');
+  document.getElementById('f-z6').innerHTML=u((r1*.6).toFixed(1),'м');
+  document.getElementById('f-out').style.display='block';
 }
 
-// ═══ DIPOLE ═══
-// Exact formula: L(cm) = (c / f / 2) * k
-// c = 299792458 m/s = 29979245800 cm/s
-// L(cm) = 29979245800 / (f_MHz * 1e6) / 2 * 0.95
-//       = 29979.2458 / f_MHz / 2 * 0.95
-//       = 14240.1417 / f_MHz   ← use this constant
-const DIPOLE_C = 14240.1417; // (c_exact_cm_per_s / 1e6) / 2 * k
-function setDF(f) { document.getElementById('d-f').value = f; dCalc('f'); }
-function dCalc(src) {
-  let f, t, l;
-  if (src === 'f') {
-    f = +document.getElementById('d-f').value; if (!f) return;
-    t = DIPOLE_C / f; l = t / 2;
-    document.getElementById('d-t').value = t.toFixed(2);
-    document.getElementById('d-l').value = l.toFixed(2);
-  } else if (src === 't') {
-    t = +document.getElementById('d-t').value; if (!t) return;
-    f = DIPOLE_C / t; l = t / 2;
-    document.getElementById('d-f').value = f.toFixed(2);
-    document.getElementById('d-l').value = l.toFixed(2);
-  } else {
-    l = +document.getElementById('d-l').value; if (!l) return;
-    t = l * 2; f = DIPOLE_C / t;
-    document.getElementById('d-f').value = f.toFixed(2);
-    document.getElementById('d-t').value = t.toFixed(2);
-  }
-  if (!f) { f = DIPOLE_C / (+document.getElementById('d-t').value || 1); }
-  if (!t) t = DIPOLE_C / f;
-  if (!l) l = t / 2;
-  // update visual
-  document.getElementById('dv-f').innerHTML = f.toFixed(1) + ' <span class="d-unit">МГц</span>';
-  document.getElementById('dv-t').innerHTML = t.toFixed(2) + ' <span class="d-unit">см</span>';
-  document.getElementById('dv-l').innerHTML = l.toFixed(2) + ' <span class="d-unit">см</span>';
-  document.getElementById('svg-leg1').textContent = l.toFixed(1) + ' см';
-  document.getElementById('svg-leg2').textContent = l.toFixed(1) + ' см';
+// ── DIPOLE ── exact c=299792458 m/s, k=0.95
+const DC=14240.1417;
+function setDF(f){document.getElementById('d-f').value=f;dCalc('f')}
+function dCalc(src){
+  let f,t,l;
+  if(src==='f'){f=+document.getElementById('d-f').value;if(!f)return;t=DC/f;l=t/2;document.getElementById('d-t').value=t.toFixed(2);document.getElementById('d-l').value=l.toFixed(2);}
+  else if(src==='t'){t=+document.getElementById('d-t').value;if(!t)return;f=DC/t;l=t/2;document.getElementById('d-f').value=f.toFixed(2);document.getElementById('d-l').value=l.toFixed(2);}
+  else{l=+document.getElementById('d-l').value;if(!l)return;t=l*2;f=DC/t;document.getElementById('d-f').value=f.toFixed(2);document.getElementById('d-t').value=t.toFixed(2);}
+  if(!f)f=DC/(+document.getElementById('d-t').value||1);
+  if(!t)t=DC/f;if(!l)l=t/2;
+  document.getElementById('dv-f').innerHTML=f.toFixed(1)+' <span class="d-unit">МГц</span>';
+  document.getElementById('dv-t').innerHTML=t.toFixed(2)+' <span class="d-unit">см</span>';
+  document.getElementById('dv-l').innerHTML=l.toFixed(2)+' <span class="d-unit">см</span>';
+  document.getElementById('svg-leg1').textContent=l.toFixed(1)+' см';
+  document.getElementById('svg-leg2').textContent=l.toFixed(1)+' см';
 }
-// init dipole visuals on load
 dCalc('f');
 
-// ═══ HARMONICS ═══
-const FCHS = [
-  {b:'A',c:1,f:5865},{b:'A',c:2,f:5845},{b:'A',c:3,f:5825},{b:'A',c:4,f:5805},
-  {b:'A',c:5,f:5785},{b:'A',c:6,f:5765},{b:'A',c:7,f:5745},{b:'A',c:8,f:5725},
-  {b:'B',c:1,f:5733},{b:'B',c:2,f:5752},{b:'B',c:3,f:5771},{b:'B',c:4,f:5790},
-  {b:'B',c:5,f:5809},{b:'B',c:6,f:5828},{b:'B',c:7,f:5847},{b:'B',c:8,f:5866},
-  {b:'E',c:1,f:5705},{b:'E',c:2,f:5685},{b:'E',c:3,f:5665},{b:'E',c:4,f:5645},
-  {b:'E',c:5,f:5885},{b:'E',c:6,f:5905},{b:'E',c:7,f:5925},{b:'E',c:8,f:5945},
-  {b:'F',c:1,f:5740},{b:'F',c:2,f:5760},{b:'F',c:3,f:5780},{b:'F',c:4,f:5800},
-  {b:'F',c:5,f:5820},{b:'F',c:6,f:5840},{b:'F',c:7,f:5860},{b:'F',c:8,f:5880},
-  {b:'R',c:1,f:5658},{b:'R',c:2,f:5695},{b:'R',c:3,f:5732},{b:'R',c:4,f:5769},
-  {b:'R',c:5,f:5806},{b:'R',c:6,f:5843},{b:'R',c:7,f:5880},{b:'R',c:8,f:5917},
-  {b:'L',c:1,f:5362},{b:'L',c:2,f:5399},{b:'L',c:3,f:5436},{b:'L',c:4,f:5473},
-  {b:'L',c:5,f:5510},{b:'L',c:6,f:5547},{b:'L',c:7,f:5584},{b:'L',c:8,f:5621},
+// ── HARMONICS ──
+const FCHS=[
+  {b:'A',c:1,f:5865},{b:'A',c:2,f:5845},{b:'A',c:3,f:5825},{b:'A',c:4,f:5805},{b:'A',c:5,f:5785},{b:'A',c:6,f:5765},{b:'A',c:7,f:5745},{b:'A',c:8,f:5725},
+  {b:'B',c:1,f:5733},{b:'B',c:2,f:5752},{b:'B',c:3,f:5771},{b:'B',c:4,f:5790},{b:'B',c:5,f:5809},{b:'B',c:6,f:5828},{b:'B',c:7,f:5847},{b:'B',c:8,f:5866},
+  {b:'E',c:1,f:5705},{b:'E',c:2,f:5685},{b:'E',c:3,f:5665},{b:'E',c:4,f:5645},{b:'E',c:5,f:5885},{b:'E',c:6,f:5905},{b:'E',c:7,f:5925},{b:'E',c:8,f:5945},
+  {b:'F',c:1,f:5740},{b:'F',c:2,f:5760},{b:'F',c:3,f:5780},{b:'F',c:4,f:5800},{b:'F',c:5,f:5820},{b:'F',c:6,f:5840},{b:'F',c:7,f:5860},{b:'F',c:8,f:5880},
+  {b:'R',c:1,f:5658},{b:'R',c:2,f:5695},{b:'R',c:3,f:5732},{b:'R',c:4,f:5769},{b:'R',c:5,f:5806},{b:'R',c:6,f:5843},{b:'R',c:7,f:5880},{b:'R',c:8,f:5917},
+  {b:'L',c:1,f:5362},{b:'L',c:2,f:5399},{b:'L',c:3,f:5436},{b:'L',c:4,f:5473},{b:'L',c:5,f:5510},{b:'L',c:6,f:5547},{b:'L',c:7,f:5584},{b:'L',c:8,f:5621},
 ];
-let HD = {};
-function setHF(f) { document.getElementById('h-cf').value = f; }
-function calcHarm() {
-  const cf = +document.getElementById('h-cf').value;
-  const bw = +document.getElementById('h-bw').value / 2;
-  const s0 = cf - bw, e0 = cf + bw;
-  HD = { aff: {}, unaff: [], all: [] };
-  for (let n = 2; n <= 10; n++) {
-    const hs = s0 * n, he = e0 * n;
-    HD.all.push({ n, s: Math.round(hs), e: Math.round(he) });
-    const aff = FCHS.filter(c => c.f >= hs && c.f <= he);
-    if (aff.length) HD.aff[n] = { s: Math.round(hs), e: Math.round(he), ch: aff };
-  }
-  HD.unaff = FCHS.filter(c => {
-    for (let n = 2; n <= 10; n++) if (c.f >= s0*n && c.f <= e0*n) return false;
-    return true;
-  });
-  document.getElementById('h-out').style.display = 'block';
-  hRender('a');
+const BANDS={A:[5865,5845,5825,5805,5785,5765,5745,5725],B:[5733,5752,5771,5790,5809,5828,5847,5866],E:[5705,5685,5665,5645,5885,5905,5925,5945],F:[5740,5760,5780,5800,5820,5840,5860,5880],R:[5658,5695,5732,5769,5806,5843,5880,5917],L:[5362,5399,5436,5473,5510,5547,5584,5621],X:[4990,5020,5050,5080,5110,5140,5170,5200],S:[6002,6028,6054,6080,6106,6132,6158,6184]};
+let HD={};
+function setHF(f){document.getElementById('h-cf').value=f}
+function calcHarm(){
+  const cf=+document.getElementById('h-cf').value,bw=+document.getElementById('h-bw').value/2;
+  const s0=cf-bw,e0=cf+bw;
+  HD={aff:{},unaff:[],all:[]};
+  for(let n=2;n<=10;n++){const hs=s0*n,he=e0*n;HD.all.push({n,s:Math.round(hs),e:Math.round(he)});const aff=FCHS.filter(c=>c.f>=hs&&c.f<=he);if(aff.length)HD.aff[n]={s:Math.round(hs),e:Math.round(he),ch:aff};}
+  HD.unaff=FCHS.filter(c=>{for(let n=2;n<=10;n++)if(c.f>=s0*n&&c.f<=e0*n)return false;return true;});
+  document.getElementById('h-out').style.display='block';hRender('a');
 }
-function hTab(t, btn) {
-  document.querySelectorAll('.stab').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  ['a','u','l'].forEach(x => { document.getElementById('h-' + x).style.display = 'none'; });
-  hRender(t);
-}
-function hRender(t) {
-  const el = document.getElementById('h-' + t);
-  el.style.display = 'block';
-  if (t === 'a') {
-    const ks = Object.keys(HD.aff);
-    if (!ks.length) { el.innerHTML = '<div class="ibox"><strong>Пострадавших каналов не найдено.</strong> Ваш TX чист.</div>'; return; }
-    el.innerHTML = ks.map(n => {
-      const d = HD.aff[n];
-      return `<div class="hg"><div class="hg-title">Гармоника #${n} — ${d.s}–${d.e} МГц</div>
-        <div class="tags">${d.ch.map(c => `<span class="tag bad">${c.b}-${c.c} (${c.f} МГц)</span>`).join('')}</div></div>`;
-    }).join('');
-  } else if (t === 'u') {
-    const bands = {};
-    HD.unaff.forEach(c => { if (!bands[c.b]) bands[c.b] = []; bands[c.b].push(c); });
-    el.innerHTML = Object.keys(bands).map(b =>
-      `<div class="hg"><div class="hg-title">Диапазон ${b}</div>
-       <div class="tags">${bands[b].map(c => `<span class="tag good">${b}-${c.c} (${c.f} МГц)</span>`).join('')}</div></div>`
-    ).join('') || '<div class="ibox">Нет данных</div>';
-  } else {
-    el.innerHTML = HD.all.map(h =>
-      `<div class="rcard" style="margin-bottom:8px">
-        <span class="rl">Гармоника #${h.n}</span>
-        <span class="rv" style="font-size:15px">${h.s}–${h.e} <span class="ru">МГц</span></span>
-       </div>`
-    ).join('');
-  }
+function hTab(t,btn){document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');['a','u','l'].forEach(x=>{document.getElementById('h-'+x).style.display='none'});hRender(t);}
+function hRender(t){
+  const el=document.getElementById('h-'+t);el.style.display='block';
+  if(t==='a'){const ks=Object.keys(HD.aff);if(!ks.length){el.innerHTML='<div style="color:var(--tg-green);font-size:14px;padding:8px 0">✅ Пострадавших каналов нет — TX чист!</div>';return;}el.innerHTML=ks.map(n=>{const d=HD.aff[n];return`<div class="hg"><div class="hg-title">Гармоника #${n} — ${d.s}–${d.e} МГц</div><div class="tags">${d.ch.map(c=>`<span class="tag bad">${c.b}-${c.c} (${c.f})</span>`).join('')}</div></div>`}).join('');}
+  else if(t==='u'){const bands={};HD.unaff.forEach(c=>{if(!bands[c.b])bands[c.b]=[];bands[c.b].push(c)});el.innerHTML=Object.keys(bands).map(b=>`<div class="hg"><div class="hg-title">Диапазон ${b}</div><div class="tags">${bands[b].map(c=>`<span class="tag good">${b}-${c.c} (${c.f})</span>`).join('')}</div></div>`).join('')||'Нет данных';}
+  else{el.innerHTML=HD.all.map(h=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--tg-sep);font-size:13px"><span style="color:var(--tg-muted)">Гармоника #${h.n}</span><span style="font-weight:700">${h.s}–${h.e} МГц</span></div>`).join('');}
 }
 
-// ═══ CHANNEL DISTRIBUTION ═══
-const BANDS = {
-  A:[5865,5845,5825,5805,5785,5765,5745,5725], B:[5733,5752,5771,5790,5809,5828,5847,5866],
-  E:[5705,5685,5665,5645,5885,5905,5925,5945], F:[5740,5760,5780,5800,5820,5840,5860,5880],
-  R:[5658,5695,5732,5769,5806,5843,5880,5917], L:[5362,5399,5436,5473,5510,5547,5584,5621],
-  X:[4990,5020,5050,5080,5110,5140,5170,5200], S:[6002,6028,6054,6080,6106,6132,6158,6184],
-};
-function calcChans() {
-  const n = +document.getElementById('ch-p').value;
-  const incX = document.getElementById('ch-x').checked;
-  const incL = document.getElementById('ch-l').checked;
-  let all = [];
-  ['A','B','E','F','R'].forEach(b => BANDS[b].forEach((f,i) => all.push({b,c:i+1,f})));
-  if (incX) BANDS.X.forEach((f,i) => all.push({b:'X',c:i+1,f}));
-  if (incL) BANDS.L.forEach((f,i) => all.push({b:'L',c:i+1,f}));
-  let sel = [all[0]];
-  while (sel.length < n) {
-    let best = null, bm = -1;
-    for (const x of all) {
-      if (sel.find(s => s.b === x.b && s.c === x.c)) continue;
-      const md = Math.min(...sel.map(s => Math.abs(s.f - x.f)));
-      if (md > bm) { bm = md; best = x; }
-    }
-    if (!best) break;
-    sel.push(best);
-  }
-  const cols = ['#ff4d6d','#22d3a8','#fbbf24','#7b5ea7','#fb923c','#38bdf8'];
-  let html = sel.map((c, i) => {
-    const col = cols[i % cols.length];
-    return `<div class="pilot-card" style="border-left:3px solid ${col}">
-      <div><div style="font-weight:800;font-size:16px">Пилот ${i+1}</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:3px">Диапазон ${c.b} · Канал ${c.c}</div></div>
-      <div style="text-align:right">
-        <div style="font-size:22px;font-weight:800;color:${col}">${c.f}</div>
-        <div style="font-size:11px;color:var(--muted)">МГц</div>
-      </div>
-    </div>`;
-  }).join('');
-  if (sel.length > 1) {
-    const fs = sel.map(c => c.f).sort((a,b) => a-b);
-    let mn = Infinity;
-    for (let i = 1; i < fs.length; i++) mn = Math.min(mn, fs[i] - fs[i-1]);
-    html += `<div class="rcard ok" style="margin-top:4px">
-      <span class="rl">Минимальное расстояние между каналами</span>
-      <span class="rv">${mn}<span class="ru">МГц</span></span></div>`;
-  }
-  document.getElementById('ch-list').innerHTML = html;
-  document.getElementById('ch-out').style.display = 'block';
+// ── CHANNELS ──
+function calcChans(){
+  const n=+document.getElementById('ch-p').value,incX=document.getElementById('ch-x').checked,incL=document.getElementById('ch-l').checked;
+  let all=[];['A','B','E','F','R'].forEach(b=>BANDS[b].forEach((f,i)=>all.push({b,c:i+1,f})));
+  if(incX)BANDS.X.forEach((f,i)=>all.push({b:'X',c:i+1,f}));
+  if(incL)BANDS.L.forEach((f,i)=>all.push({b:'L',c:i+1,f}));
+  let sel=[all[0]];
+  while(sel.length<n){let best=null,bm=-1;for(const x of all){if(sel.find(s=>s.b===x.b&&s.c===x.c))continue;const md=Math.min(...sel.map(s=>Math.abs(s.f-x.f)));if(md>bm){bm=md;best=x;}}if(!best)break;sel.push(best);}
+  const cols=['#5eacf8','#4dcf7c','#f5c048','#a78bfa','#fb923c','#38bdf8'];
+  let html=sel.map((c,i)=>{const col=cols[i%cols.length];return`<div class="pilot-card"><div><div class="pilot-num">Пилот ${i+1}</div><div class="pilot-sub">Диапазон ${c.b} · Канал ${c.c}</div></div><div><div class="pilot-freq" style="color:${col}">${c.f}</div><div class="pilot-mhz">МГц</div></div></div>`;}).join('');
+  if(sel.length>1){const fs=sel.map(c=>c.f).sort((a,b)=>a-b);let mn=Infinity;for(let i=1;i<fs.length;i++)mn=Math.min(mn,fs[i]-fs[i-1]);html+=`<div class="res-cell"><span class="res-label">Мин. расстояние между каналами</span><span class="res-val green">${mn}<span class="res-unit">МГц</span></span></div>`;}
+  document.getElementById('ch-list').innerHTML=html;document.getElementById('ch-out').style.display='block';
 }
 
-// ═══ FREQ FINDER ═══
-function calcFQ() {
-  const s = +document.getElementById('fq-s').value;
-  const e = +document.getElementById('fq-e').value;
-  const n = +document.getElementById('fq-n').value;
-  const incD = document.getElementById('fq-d').checked;
-  let all = [...FCHS];
-  if (incD) {
-    BANDS.X.forEach((f,i) => all.push({b:'X',c:i+1,f}));
-    BANDS.S.forEach((f,i) => all.push({b:'S',c:i+1,f}));
-  }
-  const mid = (s + e) / 2;
-  const res = all.filter(c => c.f >= s && c.f <= e)
-    .sort((a,b) => Math.abs(a.f - mid) - Math.abs(b.f - mid))
-    .slice(0, n);
-  document.getElementById('fq-list').innerHTML = res.length
-    ? res.map((c, i) => {
-        const d = Math.abs(c.f - mid);
-        return `<div class="rcard" style="margin-bottom:8px">
-          <div>
-            <div style="font-weight:800;font-size:16px">${c.b}-${c.c}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:3px">${c.f} МГц · откл. от центра ${d.toFixed(0)} МГц</div>
-          </div>
-          <span class="tag ${d<20?'good':d<50?'':'bad'}">#${i+1}</span>
-        </div>`;
-      }).join('')
-    : '<div class="ibox">Нет каналов в указанном диапазоне</div>';
-  document.getElementById('fq-out').style.display = 'block';
+// ── FREQ FINDER ──
+function calcFQ(){
+  const s=+document.getElementById('fq-s').value,e=+document.getElementById('fq-e').value,n=+document.getElementById('fq-n').value,incD=document.getElementById('fq-d').checked;
+  let all=[...FCHS];
+  if(incD){BANDS.X.forEach((f,i)=>all.push({b:'X',c:i+1,f}));BANDS.S.forEach((f,i)=>all.push({b:'S',c:i+1,f}));}
+  const mid=(s+e)/2;
+  const res=all.filter(c=>c.f>=s&&c.f<=e).sort((a,b)=>Math.abs(a.f-mid)-Math.abs(b.f-mid)).slice(0,n);
+  document.getElementById('fq-list').innerHTML=res.length?res.map((c,i)=>{const d=Math.abs(c.f-mid);return`<div class="res-cell"><div><div style="font-weight:700;font-size:15px">${c.b}-${c.c}</div><div style="font-size:12px;color:var(--tg-muted);margin-top:1px">${c.f} МГц · откл. ${d.toFixed(0)} МГц</div></div><span class="tag ${d<20?'good':d<50?'':'bad'}">#${i+1}</span></div>`}).join(''):'<div style="padding:14px 0;color:var(--tg-muted);font-size:14px;text-align:center">Нет каналов в диапазоне</div>';
+  document.getElementById('fq-out').style.display='block';
 }
 
-// ═══ TELEGRAM INIT ═══
-if (window.Telegram && window.Telegram.WebApp) {
-  const tg = window.Telegram.WebApp;
-  tg.ready(); tg.expand();
-
-  function hexToRgb(hex) {
-    if (!hex || typeof hex !== 'string') return null;
-    const h = hex.replace('#','').trim();
-    if (h.length !== 6) return null;
-    const n = parseInt(h, 16);
-    if (Number.isNaN(n)) return null;
-    return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 };
+// ── TG INIT ──
+if(window.Telegram&&window.Telegram.WebApp){
+  const tg=window.Telegram.WebApp;tg.ready();tg.expand();
+  function hexRgba(hex,a){const h=(hex||'').replace('#','');if(h.length!==6)return null;const n=parseInt(h,16);return`rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
+  function applyTgTheme(){
+    const p=tg.themeParams||{};
+    const r=document.documentElement.style;
+    if(p.bg_color){r.setProperty('--tg-bg2',p.bg_color);r.setProperty('--tg-bg',p.bg_color);}
+    if(p.secondary_bg_color)r.setProperty('--tg-surface',p.secondary_bg_color);
+    if(p.text_color)r.setProperty('--tg-text',p.text_color);
+    if(p.hint_color)r.setProperty('--tg-muted',p.hint_color);
+    if(p.link_color){r.setProperty('--tg-blue',p.link_color);r.setProperty('--tg-accent',p.link_color);}
+    if(p.button_color)r.setProperty('--tg-blue',p.button_color);
+    if(p.bg_color){r.setProperty('--tg-sep',hexRgba(p.bg_color,.5)||'var(--tg-sep)');r.setProperty('--tg-divider',hexRgba(p.bg_color,.6)||'var(--tg-divider)');}
+    const meta=document.querySelector('meta[name="theme-color"]');
+    const bg=p.bg_color||'#17212b';
+    if(meta)meta.setAttribute('content',bg);
+    try{tg.setHeaderColor&&tg.setHeaderColor(bg)}catch(e){}
+    try{tg.setBackgroundColor&&tg.setBackgroundColor(bg)}catch(e){}
   }
-  function rgba(hex, a) {
-    const c = hexToRgb(hex);
-    if (!c) return null;
-    return `rgba(${c.r},${c.g},${c.b},${a})`;
-  }
-  function setVar(k, v) {
-    if (!v) return;
-    document.documentElement.style.setProperty(k, v);
-  }
-  function applyTgTheme() {
-    const p = tg.themeParams || {};
-    if (p.bg_color) setVar('--bg', p.bg_color);
-    if (p.secondary_bg_color) setVar('--surface', p.secondary_bg_color);
-    if (p.text_color) setVar('--text', p.text_color);
-
-    // Soft derived colors
-    if (p.text_color) setVar('--muted', rgba(p.text_color, 0.62) || 'var(--muted)');
-    if (p.hint_color) setVar('--muted', rgba(p.hint_color, 0.95) || p.hint_color);
-    if (p.bg_color) setVar('--bg2', rgba(p.bg_color, 0.85) || 'var(--bg2)');
-    if (p.secondary_bg_color) setVar('--surface2', rgba(p.secondary_bg_color, 0.92) || 'var(--surface2)');
-    if (p.bg_color) {
-      setVar('--chrome', rgba(p.bg_color, 0.92) || 'var(--chrome)');
-      setVar('--chrome2', rgba(p.bg_color, 0.86) || 'var(--chrome2)');
-    }
-    if (p.button_color) setVar('--accent2', p.button_color);
-    if (p.link_color) setVar('--accent', p.link_color);
-
-    if (p.text_color) {
-      setVar('--border', rgba(p.text_color, 0.10) || 'var(--border)');
-      setVar('--border2', rgba(p.text_color, 0.18) || 'var(--border2)');
-    }
-
-    // Keep browser UI consistent
-    const themeColor = (p.bg_color || '#111118');
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', themeColor);
-    if (tg.setHeaderColor) { try { tg.setHeaderColor(themeColor); } catch(e){} }
-    if (tg.setBackgroundColor) { try { tg.setBackgroundColor(themeColor); } catch(e){} }
-  }
-
   applyTgTheme();
-  try { tg.onEvent('themeChanged', applyTgTheme); } catch(e) {}
+  try{tg.onEvent('themeChanged',applyTgTheme)}catch(e){}
 }
 </script>
 </body>
